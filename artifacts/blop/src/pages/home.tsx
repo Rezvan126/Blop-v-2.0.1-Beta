@@ -153,7 +153,7 @@ export default function HomeScreen() {
                     </p>
                   </div>
                   <button
-                    onClick={() => setLocation("/create-split")}
+                    onClick={() => setLocation("/get-started")}
                     className="flex items-center gap-1.5 bg-primary text-white text-[12px] font-bold px-4 py-2.5 rounded-full shadow-fab hover:brightness-105 transition-all"
                     data-testid="button-create-split-splits-tab"
                   >
@@ -168,7 +168,7 @@ export default function HomeScreen() {
                     </div>
                     <p className="text-muted-foreground text-body">Create your first split to start sharing expenses.</p>
                     <button
-                      onClick={() => setLocation("/create-split")}
+                      onClick={() => setLocation("/get-started")}
                       className="px-6 py-3 bg-primary text-white rounded-2xl text-body font-bold shadow-fab"
                     >
                       Create a split

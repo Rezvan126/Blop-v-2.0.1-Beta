@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import SplashScreen from "@/pages/splash";
 import OnboardingScreen from "@/pages/onboarding";
 import HomeScreen from "@/pages/home";
+import GetStartedScreen from "@/pages/get-started";
 import SettingsScreen from "@/pages/settings";
 import CreateSplitScreen from "@/pages/create-split";
 import GroupDashboardScreen from "@/pages/group-dashboard";
@@ -29,6 +30,7 @@ function AnimatedRoutes() {
         <Route path="/" component={SplashScreen} />
         <Route path="/onboarding" component={OnboardingScreen} />
         <Route path="/home" component={HomeScreen} />
+        <Route path="/get-started" component={GetStartedScreen} />
         <Route path="/settings" component={SettingsScreen} />
         <Route path="/create-split" component={CreateSplitScreen} />
         <Route path="/group/:id">
@@ -51,6 +53,9 @@ function AnimatedRoutes() {
         </Route>
         <Route path="/group/:id/settings">
           {(params) => <GroupSettingsScreen params={params as { id: string }} />}
+        </Route>
+        <Route path="/join">
+          {() => <JoinScreen params={{ code: "" }} />}
         </Route>
         <Route path="/join/:code">
           {(params) => <JoinScreen params={params as { code: string }} />}

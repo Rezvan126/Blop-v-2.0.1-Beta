@@ -105,14 +105,16 @@ export default function OnboardingScreen() {
       const name = userName.trim() || "You";
       updateSettings({ userName: name, hasOnboarded: true, currentUserId: "user-me" });
       seed();
-      setLocation("/home");
+      const groupsCount = Object.keys(useBlopStore.getState().groups).length;
+      setLocation(groupsCount === 0 ? "/get-started" : "/home");
     }
   };
 
   const skip = () => {
     updateSettings({ userName: "You", hasOnboarded: true, currentUserId: "user-me" });
     seed();
-    setLocation("/home");
+    const groupsCount = Object.keys(useBlopStore.getState().groups).length;
+    setLocation(groupsCount === 0 ? "/get-started" : "/home");
   };
 
   const titleLines = slides[slide].title.split("\n");

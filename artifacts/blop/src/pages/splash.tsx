@@ -6,13 +6,20 @@ import { useBlopStore } from "@/lib/store";
 export default function SplashScreen() {
   const [, setLocation] = useLocation();
   const hasOnboarded = useBlopStore((s) => s.settings.hasOnboarded);
+  const groupsCount = useBlopStore((s) => Object.keys(s.groups).length);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setLocation(hasOnboarded ? "/home" : "/onboarding");
+      if (!hasOnboarded) {
+        setLocation("/onboarding");
+      } else if (groupsCount === 0) {
+        setLocation("/get-started");
+      } else {
+        setLocation("/home");
+      }
     }, 1800);
     return () => clearTimeout(timer);
-  }, [setLocation, hasOnboarded]);
+  }, [setLocation, hasOnboarded, groupsCount]);
 
   return (
     <motion.div

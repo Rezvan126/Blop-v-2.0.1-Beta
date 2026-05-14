@@ -11,7 +11,7 @@ interface Props {
   params: { code: string };
 }
 
-type Phase = "loading" | "preview" | "joining" | "success" | "error";
+type Phase = "input" | "loading" | "preview" | "joining" | "success" | "error";
 
 interface GroupPreview {
   groupId: string;
@@ -24,14 +24,17 @@ export default function JoinScreen({ params }: Props) {
   const [, setLocation] = useLocation();
   const { joinGroupByCode, settings } = useBlopStore();
 
-  const [phase, setPhase] = useState<Phase>("loading");
+  const initialCode = params?.code || "";
+  const [phase, setPhase] = useState<Phase>(initialCode ? "loading" : "input");
   const [preview, setPreview] = useState<GroupPreview | null>(null);
   const [error, setError] = useState<string>("");
   const [joinedGroupId, setJoinedGroupId] = useState<string>("");
+  const [inputCode, setInputCode] = useState(initialCode);
 
-  const code = params.code.toUpperCase();
+  const codeToLookup = inputCode.toUpperCase().trim();
 
   useEffect(() => {
+    if (phase !== "loading") return;
     let cancelled = false;
 
     async function fetchPreview() {
@@ -43,7 +46,7 @@ export default function JoinScreen({ params }: Props) {
         return;
       }
       try {
-        const invite = await lookupInvite(code);
+        const invite = await lookupInvite(codeToLookup);
         if (cancelled) return;
         if (!invite) {
           setError("Invite link not found or has expired.");
@@ -61,7 +64,7 @@ export default function JoinScreen({ params }: Props) {
           groupId:     snapshot.group.id,
           groupName:   snapshot.groupName,
           memberCount: Object.keys(snapshot.members).length,
-          inviteCode:  code,
+          inviteCode:  codeToLookup,
         });
         setPhase("preview");
       } catch {
@@ -74,11 +77,20 @@ export default function JoinScreen({ params }: Props) {
 
     fetchPreview();
     return () => { cancelled = true; };
-  }, [code]);
+  }, [phase, codeToLookup]);
+
+  const handleContinue = () => {
+    if (!inputCode.trim()) {
+      setError("Please enter an invite key.");
+      return;
+    }
+    setError("");
+    setPhase("loading");
+  };
 
   const handleJoin = async () => {
     setPhase("joining");
-    const result = await joinGroupByCode(code);
+    const result = await joinGroupByCode(codeToLookup);
     if (result.ok && result.groupId) {
       setJoinedGroupId(result.groupId);
       setPhase("success");
@@ -96,6 +108,46 @@ export default function JoinScreen({ params }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 16 }}
     >
+      {/* Input */}
+      {phase === "input" && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-xs flex flex-col items-center gap-6 text-center"
+        >
+          <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center">
+            <Users size={36} className="text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Join group</h1>
+            <p className="text-sm text-muted-foreground mt-2">
+              Enter the invite key below.
+            </p>
+          </div>
+          <div className="w-full flex flex-col gap-2">
+            <input
+              type="text"
+              value={inputCode}
+              onChange={(e) => { setInputCode(e.target.value); setError(""); }}
+              placeholder="e.g. ABCDEF"
+              className="w-full bg-card border border-border/50 rounded-2xl p-4 text-center text-lg font-bold tracking-widest uppercase outline-none focus:border-primary/50"
+            />
+            {error && <p className="text-sm text-destructive font-semibold">{error}</p>}
+          </div>
+          <div className="flex flex-col w-full gap-2 mt-2">
+            <Button onClick={handleContinue} className="w-full h-13 rounded-2xl text-base font-semibold py-4">
+              Continue
+            </Button>
+            <button
+              onClick={() => setLocation("/get-started")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            >
+              Cancel
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* Loading */}
       {phase === "loading" && (
         <div className="flex flex-col items-center gap-4">
@@ -126,7 +178,7 @@ export default function JoinScreen({ params }: Props) {
             <h1 className="text-3xl font-bold text-foreground">{preview.groupName}</h1>
             <p className="text-sm text-muted-foreground mt-2">
               {preview.memberCount} member{preview.memberCount !== 1 ? "s" : ""} · Code{" "}
-              <span className="font-mono font-semibold text-foreground">{code}</span>
+              <span className="font-mono font-semibold text-foreground">{codeToLookup}</span>
             </p>
           </div>
 
