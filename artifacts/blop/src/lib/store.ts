@@ -899,13 +899,17 @@ export const useBlopStore = create<BlopStore>()(
 
       async joinGroupByCode(code) {
         try {
-          // Resolve invite code via Firestore (replaces the dead /api/join endpoint)
-          const { lookupInvite, pullGroupFromCloud } = await import("./cloudSync");
+          // Resolve invite code via Firestore
+          const { lookupInvite, pullGroupFromCloud, joinGroupCloud } = await import("./cloudSync");
           const invite = await lookupInvite(code.toUpperCase());
-          if (!invite) return { ok: false, error: "No group found with that invite code." };
+          if (!invite) return { ok: false, error: "Invite key not found." };
 
           const snapshot = await pullGroupFromCloud(invite.groupId);
           if (!snapshot) return { ok: false, error: "Could not load group data from the server." };
+
+          // Join the group in Firestore FIRST before local state updates
+          const joinSuccess = await joinGroupCloud(invite.groupId);
+          if (!joinSuccess) return { ok: false, error: "Could not join group. Please try again." };
 
           get().importGroupSnapshot(snapshot);
 

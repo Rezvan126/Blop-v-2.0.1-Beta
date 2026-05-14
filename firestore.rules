@@ -42,9 +42,11 @@ service cloud.firestore {
       // Only existing members can read.
       allow read: if isMember();
 
-      // Only existing members can update; they cannot remove themselves from
-      // memberUids (prevents accidental lock-out).
-      allow update: if isMember() && isMemberIncoming();
+      // Existing members can update (must keep themselves in memberUids).
+      // Non-members can join by ONLY appending themselves to memberUids.
+      allow update: if (isMember() && isMemberIncoming())
+                    || (!isMember() && isMemberIncoming() &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberUids']));
 
       // Hard-delete is disabled; use isArchived: true instead.
       allow delete: if false;

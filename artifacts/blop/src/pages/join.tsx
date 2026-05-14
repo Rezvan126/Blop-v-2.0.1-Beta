@@ -11,6 +11,21 @@ interface Props {
   params: { code: string };
 }
 
+function extractInviteCode(input: string): string {
+  const code = input.trim();
+  try {
+    const url = new URL(code);
+    const qCode = url.searchParams.get("code") || url.searchParams.get("invite");
+    if (qCode) return qCode.toUpperCase();
+    const match = url.pathname.match(/\/join\/([A-Za-z0-9]+)/);
+    if (match) return match[1].toUpperCase();
+  } catch {
+    const match = code.match(/\/join\/([A-Za-z0-9]+)/);
+    if (match) return match[1].toUpperCase();
+  }
+  return code.toUpperCase();
+}
+
 type Phase = "input" | "loading" | "preview" | "joining" | "success" | "error";
 
 interface GroupPreview {
@@ -31,7 +46,7 @@ export default function JoinScreen({ params }: Props) {
   const [joinedGroupId, setJoinedGroupId] = useState<string>("");
   const [inputCode, setInputCode] = useState(initialCode);
 
-  const codeToLookup = inputCode.toUpperCase().trim();
+  const codeToLookup = extractInviteCode(inputCode);
 
   useEffect(() => {
     if (phase !== "loading") return;
@@ -40,16 +55,19 @@ export default function JoinScreen({ params }: Props) {
     async function fetchPreview() {
       if (!isFirebaseConfigured()) {
         if (!cancelled) {
-          setError("Group sharing requires Firebase to be configured.");
+          setError("Cloud sync is not configured.");
           setPhase("error");
         }
         return;
       }
       try {
+        const { ensureAnonymousAuth } = await import("@/lib/firebase");
+        await ensureAnonymousAuth();
+
         const invite = await lookupInvite(codeToLookup);
         if (cancelled) return;
         if (!invite) {
-          setError("Invite link not found or has expired.");
+          setError("Invite key not found.");
           setPhase("error");
           return;
         }
@@ -96,7 +114,7 @@ export default function JoinScreen({ params }: Props) {
       setPhase("success");
       setTimeout(() => setLocation(`/group/${result.groupId}`), 1500);
     } else {
-      setError(result.error ?? "Could not join group. Invite link may be invalid.");
+      setError(result.error ?? "Could not join group. Please try again.");
       setPhase("error");
     }
   };

@@ -21,7 +21,7 @@ import {
   query, orderBy, limit, arrayUnion,
   type Unsubscribe,
 } from "firebase/firestore";
-import { getFirebaseDb } from "./firebase";
+import { getFirebaseDb, getCurrentUid } from "./firebase";
 import type {
   Group, Member, Expense, SettlementPayment,
   ActivityLog, SyncStatus, GroupSnapshotPayload,
@@ -203,6 +203,26 @@ export async function lookupInvite(
   const data = snap.data() as { groupId: string; expiresAt?: string };
   if (data.expiresAt && new Date(data.expiresAt) < new Date()) return null;
   return { groupId: data.groupId };
+}
+
+// ── Secure group joining ───────────────────────────────────────────────────
+
+export async function joinGroupCloud(groupId: string): Promise<boolean> {
+  const db = getFirebaseDb();
+  if (!db) return false;
+  const uid = getCurrentUid();
+  if (!uid) return false;
+
+  try {
+    // Only update memberUids to comply with Firestore security rules
+    await setDoc(doc(db, "groups", groupId), {
+      memberUids: arrayUnion(uid)
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.error("[blop sync] joinGroupCloud failed:", err);
+    return false;
+  }
 }
 
 // ── Pull a full group snapshot from Firestore ──────────────────────────────
