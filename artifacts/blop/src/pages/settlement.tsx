@@ -36,7 +36,6 @@ export default function SettlementScreen({ params }: Props) {
   const [pendingMethod,  setPendingMethod]  = useState("Cash");
   const [pendingNote,    setPendingNote]    = useState("");
   const [pickerOpen,     setPickerOpen]     = useState<"from" | "to" | null>(null);
-  const [confirmSuccess, setConfirmSuccess] = useState(false);
   const [showWhy,        setShowWhy]        = useState(false);
 
   if (!group) return null;
@@ -75,11 +74,16 @@ export default function SettlementScreen({ params }: Props) {
     if (isNaN(amt) || amt <= 0) { toast({ title: "Enter a valid amount", duration: 2000 }); return; }
     if (!pendingFrom || !pendingTo) { toast({ title: "Select from and to members", duration: 2000 }); return; }
     if (pendingFrom === pendingTo) { toast({ title: "From and to must be different", duration: 2000 }); return; }
+
+    const oweAmount = Math.abs(balances[pendingFrom] ?? 0);
+    if ((balances[pendingFrom] ?? 0) >= -0.01 || amt > oweAmount + 0.01) {
+       toast({ title: "Payment cannot exceed the outstanding balance.", duration: 2500, variant: "destructive" });
+       return;
+    }
+
     recordSettlement(params.id, pendingFrom, pendingTo, amt, pendingMethod, pendingNote.trim() || undefined);
     closeSheet();
-    setConfirmSuccess(true);
-    setTimeout(() => setConfirmSuccess(false), 2800);
-    const fromName = pendingFrom === effectiveMe ? "You" : members[pendingFrom]?.name?.split(" ")[0] ?? "?";
+    const fromName = pendingFrom === effectiveMe ? (settings.userName || "You").split(" ")[0] : members[pendingFrom]?.name?.split(" ")[0] ?? "?";
     const toName   = pendingTo   === effectiveMe ? "you" : members[pendingTo]?.name?.split(" ")[0] ?? "?";
     toast({ title: `${sym}${amt.toFixed(2)} — ${fromName} → ${toName} recorded`, duration: 2500 });
   };
@@ -99,7 +103,7 @@ export default function SettlementScreen({ params }: Props) {
             <>
               <Avatar member={m} size="sm" />
               <span className="flex-1 text-left text-body font-semibold text-foreground">
-                {m.id === effectiveMe ? "You" : m.name}
+                {m.id === effectiveMe ? (settings.userName || "You") : m.name}
               </span>
             </>
           ) : (
@@ -129,7 +133,7 @@ export default function SettlementScreen({ params }: Props) {
                 >
                   <Avatar member={gm} size="sm" />
                   <span className="flex-1 text-left text-body font-semibold text-foreground">
-                    {gm.id === settings.currentUserId ? "You" : gm.name}
+                    {gm.id === settings.currentUserId ? (settings.userName || "You") : gm.name}
                   </span>
                   {selected === gm.id && <Check size={16} className="text-primary" />}
                 </button>
@@ -174,26 +178,6 @@ export default function SettlementScreen({ params }: Props) {
 
       <ScrollArea className="scroll-pb-safe">
         <div className="px-5 space-y-6 pt-3">
-
-          {/* ── Success banner ── */}
-          <AnimatePresence>
-            {confirmSuccess && (
-              <motion.div
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-[20px] px-4 py-3.5 flex items-center gap-3"
-              >
-                <div className="w-9 h-9 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check size={17} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-[14px] font-bold text-emerald-700 dark:text-emerald-400">Payment recorded!</p>
-                  <p className="text-xs text-emerald-600/70 mt-0.5">Balances updated automatically.</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* ── Group summary hero ── */}
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
@@ -302,7 +286,7 @@ export default function SettlementScreen({ params }: Props) {
                         <div className="flex flex-col items-center gap-1 flex-shrink-0">
                           <Avatar member={from} size="lg" />
                           <p className="text-[10px] font-bold text-muted-foreground/70 leading-none mt-0.5">
-                            {fromIsMe ? "You" : from.name.split(" ")[0]}
+                            {fromIsMe ? (settings.userName || "You").split(" ")[0] : from.name.split(" ")[0]}
                           </p>
                         </div>
 
@@ -334,7 +318,7 @@ export default function SettlementScreen({ params }: Props) {
                         <div>
                           <p className="text-[13px] font-semibold text-foreground">
                             {fromIsMe ? "You pay" : `${from.name.split(" ")[0]} pays`}{" "}
-                            <span className="text-muted-foreground/60">{toIsMe ? "you" : to.name.split(" ")[0]}</span>
+                            <span className="text-muted-foreground/60">{toIsMe ? (settings.userName || "You").split(" ")[0] : to.name.split(" ")[0]}</span>
                           </p>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {fromIsMe || toIsMe ? "To settle your balance · " : ""}Tap to record payment
@@ -382,7 +366,7 @@ export default function SettlementScreen({ params }: Props) {
                         <Avatar member={m} size="md" meId={effectiveMe} />
                         <div className="min-w-0">
                           <p className="text-[13px] font-bold text-foreground truncate leading-snug">
-                            {isMe ? "You" : m.name.split(" ")[0]}
+                            {isMe ? (settings.userName || "You").split(" ")[0] : m.name.split(" ")[0]}
                           </p>
                           <p className="text-[10px] text-muted-foreground">
                             Paid <span className="text-[8px] font-semibold">{sym}</span>{paid.toFixed(2)}
@@ -459,7 +443,7 @@ export default function SettlementScreen({ params }: Props) {
                       <Avatar member={from} size="sm" />
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-semibold text-foreground">
-                          <span className="font-bold">{fromMe ? "You" : from?.name?.split(" ")[0] ?? "?"}</span>
+                          <span className="font-bold">{fromMe ? (settings.userName || "You").split(" ")[0] : from?.name?.split(" ")[0] ?? "?"}</span>
                           <span className="text-muted-foreground/60 mx-1">→</span>
                           <span className="font-bold">{toMe ? "you" : to?.name?.split(" ")[0] ?? "?"}</span>
                         </p>

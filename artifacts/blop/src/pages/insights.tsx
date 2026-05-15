@@ -276,7 +276,7 @@ export default function InsightsScreen({ params }: Props) {
                     </div>
                     <div>
                       <p className="text-[18px] font-bold text-foreground leading-tight">
-                        {isMe ? "You" : topMember?.name ?? "Unknown"}
+                        {isMe ? (settings.userName || "You") : topMember?.name ?? "Unknown"}
                       </p>
                       <p className="text-[13px] text-muted-foreground mt-0.5">
                         Paid <span className="font-bold text-foreground tabular-nums"><span className="text-xs font-bold">{sym}</span>{topPayer[1].toFixed(2)}</span> total
@@ -316,7 +316,7 @@ export default function InsightsScreen({ params }: Props) {
                         <div className="flex items-center gap-3 mb-1.5">
                           <Avatar member={m} size="sm" />
                           <span className="text-[13px] font-semibold text-foreground flex-1">
-                            {isMe ? "You" : m.name.split(" ")[0]}
+                            {isMe ? (settings.userName || "You").split(" ")[0] : m.name.split(" ")[0]}
                           </span>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-xs text-muted-foreground/50 tabular-nums">{pct.toFixed(0)}%</span>

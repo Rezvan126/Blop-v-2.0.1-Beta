@@ -5,7 +5,7 @@ import {
   TrendingUp, Tag, Utensils, Car, BedDouble, Music, ShoppingBag, Zap,
   Users, Plane, BedDouble as House, Heart, PartyPopper,
   ChevronDown, Archive, RotateCcw,
-} from "lucide-react";
+Crown } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
@@ -76,7 +76,7 @@ export default function HomeScreen() {
     return "Good evening";
   };
 
-  const allMinimized   = groups.flatMap((g) => getMinimizedSettlements(g.id));
+  const allMinimized   = groups.flatMap((g) => getMinimizedSettlements(g.id).map(s => ({ ...s, groupId: g.id })));
   const currentUserId  = settings.currentUserId;
   const owedByUser     = allMinimized.filter((s) => s.fromMemberId === currentUserId);
   const owedToUser     = allMinimized.filter((s) => s.toMemberId   === currentUserId);
@@ -85,6 +85,34 @@ export default function HomeScreen() {
   const netBalance     = totalOwedToMe - totalOwed;
 
   const allExpenses    = groups.flatMap((g) => getGroupExpenses(g.id));
+
+  const activeGroups = groups.filter(g => !g.isArchived);
+  
+  const groupsWithPending = new Set<string>();
+  for (const g of groups) {
+    const settlements = getMinimizedSettlements(g.id);
+    for (const s of settlements) {
+      if (s.amount > 0.01) {
+        groupsWithPending.add(g.id);
+      }
+    }
+  }
+
+  const receiptsCount = allExpenses.filter(e => !!e.receiptUrl).length;
+
+  let highestSpendingGroup: { group: any; spend: number } | null = null;
+  const groupSpending: Record<string, number> = {};
+  for (const e of allExpenses) {
+    groupSpending[e.groupId] = (groupSpending[e.groupId] || 0) + e.amount;
+  }
+  let maxSpend = 0;
+  for (const [gId, spend] of Object.entries(groupSpending)) {
+    if (spend > maxSpend) {
+      maxSpend = spend;
+      highestSpendingGroup = { group: groups.find(g => g.id === gId), spend };
+    }
+  }
+
   const totalSpend     = allExpenses.reduce((s, e) => s + e.amount, 0);
   const categoryTotals = allExpenses.reduce<Record<string, number>>(
     (acc, e) => ({ ...acc, [e.category]: (acc[e.category] || 0) + e.amount }),
@@ -316,7 +344,7 @@ export default function HomeScreen() {
                                 <span className="text-muted-foreground text-caption">→</span>
                                 <Avatar member={to} size="sm" />
                                 <span className="text-body text-foreground font-medium ml-1">
-                                  {fromIsMe ? "You" : from.name.split(" ")[0]} → {toIsMe ? "you" : to.name.split(" ")[0]}
+                                  {fromIsMe ? (settings.userName || "You").split(" ")[0] : from.name.split(" ")[0]} → {toIsMe ? (settings.userName || "You").split(" ")[0] : to.name.split(" ")[0]}
                                 </span>
                               </div>
                               <span className="text-body font-bold text-primary tabular-nums">
@@ -348,59 +376,128 @@ export default function HomeScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="px-5 pt-2 space-y-4"
+              className="px-5 pt-2 pb-6 space-y-4"
             >
-              <SectionLabel className="mb-4">Overall insights</SectionLabel>
+              <SectionLabel className="mb-4">Overall dashboard</SectionLabel>
 
-              <div className="bg-primary rounded-[28px] shadow-hero p-6 relative overflow-hidden">
-                <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full bg-white/[0.07] pointer-events-none" />
-                <p className="text-label text-white/60 mb-2">Total spend</p>
-                <p className="text-[40px] font-bold text-white tabular-nums leading-none">
-                  <span className="text-[22px] font-bold align-top mt-[0.12em] inline-block leading-none">{sym}</span>{totalSpend.toFixed(2).split(".")[0]}<span className="text-[0.65em]">.{totalSpend.toFixed(2).split(".")[1]}</span>
-                </p>
-                <p className="text-caption text-white/50 mt-2">
-                  {allExpenses.length} expense{allExpenses.length !== 1 ? "s" : ""} · {groups.length} split{groups.length !== 1 ? "s" : ""}
-                </p>
-              </div>
-
-              <InsightChartCard title="By category" icon={PieChart}>
-                <div className="space-y-3">
-                  {Object.entries(categoryTotals)
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([catId, amount]) => {
-                      const cat      = categories[catId];
-                      const IconComp = CATEGORY_ICONS[catId] || Tag;
-                      const pct      = totalSpend > 0 ? (amount / totalSpend) * 100 : 0;
-                      return (
-                        <div key={catId}>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-2.5">
-                              <div className={cn("w-7 h-7 rounded-[10px] flex items-center justify-center", cat?.color ?? "bg-muted text-muted-foreground")}>
-                                <IconComp size={13} />
-                              </div>
-                              <span className="text-body font-semibold text-foreground">{cat?.name ?? "Other"}</span>
-                            </div>
-                            <div className="text-right">
-                              <span className="text-body font-bold text-foreground tabular-nums">
-                                <span className="text-xs font-bold">{sym}</span>{amount.toFixed(2)}
-                              </span>
-                              <span className="text-caption text-muted-foreground ml-1.5">{pct.toFixed(0)}%</span>
-                            </div>
-                          </div>
-                          <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.6, type: "spring", damping: 18 }}
-                              className="h-full rounded-full"
-                              style={{ background: getCatColor(catId) }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+              {allExpenses.length === 0 ? (
+                <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-8 text-center mt-4">
+                  <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <PieChart size={24} className="text-muted-foreground/60" />
+                  </div>
+                  <p className="text-[18px] font-bold text-foreground">No insights yet</p>
+                  <p className="text-[14px] text-muted-foreground mt-2">Create a group and add expenses to see your spending overview.</p>
                 </div>
-              </InsightChartCard>
+              ) : (
+                <>
+                  {/* Top hero */}
+                  <div className="bg-primary rounded-[28px] shadow-hero p-6 relative overflow-hidden">
+                    <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full bg-white/[0.07] pointer-events-none" />
+                    <p className="text-label text-white/60 mb-2">Total spend</p>
+                    <p className="text-[40px] font-bold text-white tabular-nums leading-none">
+                      <span className="text-[22px] font-bold align-top mt-[0.12em] inline-block leading-none">{sym}</span>{totalSpend.toFixed(2).split(".")[0]}<span className="text-[0.65em]">.{totalSpend.toFixed(2).split(".")[1]}</span>
+                    </p>
+                    <p className="text-caption text-white/50 mt-2">
+                      {allExpenses.length} expense{allExpenses.length !== 1 ? "s" : ""} · {groups.length} split{groups.length !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+
+                  {/* Compact KPI grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
+                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{activeGroups.length}</p>
+                      <p className="text-[12px] text-muted-foreground font-semibold">Active groups</p>
+                    </div>
+                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
+                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{allExpenses.length}</p>
+                      <p className="text-[12px] text-muted-foreground font-semibold">Total expenses</p>
+                    </div>
+                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
+                      <p className="text-[20px] font-bold text-amber-500 tabular-nums leading-none mb-1">{groupsWithPending.size}</p>
+                      <p className="text-[12px] text-amber-500/80 font-semibold">Pending groups</p>
+                    </div>
+                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
+                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{receiptsCount}</p>
+                      <p className="text-[12px] text-muted-foreground font-semibold">Receipts attached</p>
+                    </div>
+                  </div>
+
+                  {/* Net position */}
+                  <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex items-center justify-between">
+                    <div>
+                      <p className="text-[12px] text-muted-foreground font-semibold mb-1">Net position</p>
+                      {Math.abs(netBalance) < 0.01 ? (
+                        <p className="text-[18px] font-bold text-emerald-500">All settled</p>
+                      ) : netBalance > 0 ? (
+                        <p className="text-[18px] font-bold text-emerald-500 tabular-nums">Owed {sym}{netBalance.toFixed(2)}</p>
+                      ) : (
+                        <p className="text-[18px] font-bold text-destructive tabular-nums">You owe {sym}{Math.abs(netBalance).toFixed(2)}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[12px] text-muted-foreground font-medium">Owe: <span className="font-bold">{sym}{totalOwed.toFixed(2)}</span></p>
+                      <p className="text-[12px] text-muted-foreground font-medium mt-0.5">Owed: <span className="font-bold">{sym}{totalOwedToMe.toFixed(2)}</span></p>
+                    </div>
+                  </div>
+
+                  {/* Highlights */}
+                  <div className="space-y-3">
+                    {highestSpendingGroup && highestSpendingGroup.spend > 0 && (
+                      <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Crown size={20} className="text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] font-bold text-primary uppercase tracking-wide mb-0.5">Highest Spending</p>
+                          <p className="text-[16px] font-bold text-foreground truncate">{highestSpendingGroup.group?.name}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-[16px] font-bold text-foreground tabular-nums">{sym}{highestSpendingGroup.spend.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <InsightChartCard title="By category" icon={PieChart}>
+                    <div className="space-y-3">
+                      {Object.entries(categoryTotals)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([catId, amount]) => {
+                          const cat      = categories[catId];
+                          const IconComp = CATEGORY_ICONS[catId] || Tag;
+                          const pct      = totalSpend > 0 ? (amount / totalSpend) * 100 : 0;
+                          return (
+                            <div key={catId}>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-center gap-2.5">
+                                  <div className={cn("w-7 h-7 rounded-[10px] flex items-center justify-center", cat?.color ?? "bg-muted text-muted-foreground")}>
+                                    <IconComp size={13} />
+                                  </div>
+                                  <span className="text-body font-semibold text-foreground">{cat?.name ?? "Other"}</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-body font-bold text-foreground tabular-nums">
+                                    <span className="text-xs font-bold">{sym}</span>{amount.toFixed(2)}
+                                  </span>
+                                  <span className="text-caption text-muted-foreground ml-1.5">{pct.toFixed(0)}%</span>
+                                </div>
+                              </div>
+                              <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${pct}%` }}
+                                  transition={{ duration: 0.6, type: "spring", damping: 18 }}
+                                  className="h-full rounded-full"
+                                  style={{ background: getCatColor(catId) }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </InsightChartCard>
+                </>
+              )}
             </motion.div>
           )}
 

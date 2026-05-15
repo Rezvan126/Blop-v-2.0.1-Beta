@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, UserPlus } from "lucide-react";
+import { X, UserPlus, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { useBlopStore } from "@/lib/store";
 import type { GroupType } from "@/lib/store";
-import { Screen } from "@/components/ds";
+import { Screen, ScrollArea } from "@/components/ds";
 import { cn } from "@/lib/utils";
 
 export default function CreateSplitScreen() {
   const [, setLocation] = useLocation();
-  const { createGroup, settings } = useBlopStore();
+  const { toast } = useToast();
+  const { createGroup, settings, groups } = useBlopStore();
   const [step,          setStep]          = useState(1);
   const [name,          setName]          = useState("");
   const [memberNames,   setMemberNames]   = useState<string[]>([]);
@@ -21,7 +23,12 @@ export default function CreateSplitScreen() {
 
   const addMember = () => {
     const t = newMemberName.trim();
-    if (!t || memberNames.includes(t)) return;
+    if (!t) return;
+    const isDup = memberNames.some(m => m.toLowerCase() === t.toLowerCase());
+    if (isDup || t.toLowerCase() === settings.userName.trim().toLowerCase()) {
+      toast({ title: "This member is already added.", duration: 2500, variant: "destructive" });
+      return;
+    }
     setMemberNames([...memberNames, t]);
     setNewMemberName("");
   };
@@ -29,9 +36,18 @@ export default function CreateSplitScreen() {
   const removeMember = (n: string) => setMemberNames(memberNames.filter((m) => m !== n));
 
   const nextStep = () => {
-    if (step === 1 && !name.trim()) return;
-    if (step < 3) setStep(step + 1);
-    else {
+    if (step === 1) {
+      const t = name.trim();
+      if (!t) return;
+      const isDup = Object.values(groups).some(g => !g.isArchived && g.name.trim().toLowerCase() === t.toLowerCase());
+      if (isDup) {
+        toast({ title: "You already have an active group with this name.", duration: 2500, variant: "destructive" });
+        return;
+      }
+      setStep(2);
+    } else if (step < 3) {
+      setStep(step + 1);
+    } else {
       const id = createGroup(name.trim(), memberNames, groupType, currency);
       setLocation(`/group/${id}`);
     }
@@ -65,15 +81,15 @@ export default function CreateSplitScreen() {
         <div className="w-10" />
       </header>
 
-      <div className="flex-1 flex flex-col px-6 overflow-hidden">
-        <AnimatePresence mode="wait">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <ScrollArea className="flex-1 px-6"><AnimatePresence mode="wait">
           <motion.div
             key={step}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex flex-col flex-1"
+            className="flex flex-col min-h-[calc(100vh-140px)]"
           >
             {/* Step heading */}
             <div className="pt-4 pb-8">
@@ -208,7 +224,7 @@ export default function CreateSplitScreen() {
               </Button>
             </div>
           </motion.div>
-        </AnimatePresence>
+        </AnimatePresence></ScrollArea>
       </div>
     </Screen>
   );

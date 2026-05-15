@@ -24,7 +24,7 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue>({
   colorTheme: "indigo",
-  mode: "system",
+  mode: "light",
   setColorTheme: () => {},
   setMode: () => {},
   isDark: false,
@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     () => (localStorage.getItem("blop-color-theme") as ColorTheme) ?? "indigo"
   );
   const [mode, setModeState] = useState<AppMode>(
-    () => (localStorage.getItem("blop-mode") as AppMode) ?? "system"
+    () => (localStorage.getItem("blop-mode") as AppMode) ?? "light"
   );
   const [isDark, setIsDark] = useState(false);
 

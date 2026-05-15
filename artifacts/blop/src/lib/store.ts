@@ -882,9 +882,20 @@ export const useBlopStore = create<BlopStore>()(
         }
 
         // Group: add/update, mark synced
+        const existingGroup = localGroups[snapshot.groupId];
         const mergedGroups = { ...localGroups };
+        
+        // Preserve local memberIds if the server snapshot has fewer members, to prevent destructive sync
+        const existingMemberIds = existingGroup?.memberIds || [];
+        const snapMemberIds = snapshot.group.memberIds || [];
+        const mergedMemberIds = snapshot.group.memberIds && snapshot.group.memberIds.length > 0
+          ? Array.from(new Set([...existingMemberIds, ...snapMemberIds]))
+          : existingMemberIds;
+
         mergedGroups[snapshot.groupId] = {
+          ...existingGroup,
           ...snapshot.group,
+          memberIds: mergedMemberIds,
           syncStatus: "synced" as SyncStatus,
         };
 

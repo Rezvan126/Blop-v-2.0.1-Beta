@@ -135,16 +135,17 @@ export default function AddExpenseScreen({ params }: Props) {
   };
 
   const handleAdd = () => {
-    if (!title.trim())          { toast({ title: "Enter a description", duration: 2000 }); return; }
     if (numAmount <= 0)         { toast({ title: "Enter a valid amount",  duration: 2000 }); return; }
+    if (!title.trim())          { toast({ title: "Enter a description", duration: 2000 }); return; }
+    if (!selectedCategory)      { toast({ title: "Select a category", duration: 2000 }); return; }
+    if (!paidByMemberId)        { toast({ title: "Select who paid", duration: 2000 }); return; }
     const errMsg = validateSplit();
     if (errMsg) { setSplitError(errMsg); setShowSplitSheet(true); return; }
     const participants = computeParticipants();
     if (!participants) return;
     addExpense(params.id, {
       title: title.trim(), amount: numAmount, category: selectedCategory,
-      paidByMemberId: paidByMemberId || groupMembers[0]?.id,
-      expenseDate, note: note.trim() || undefined, receiptUrl,
+      paidByMemberId, expenseDate, note: note.trim() || undefined, receiptUrl,
       participants, splitType,
     });
     toast({ title: "Expense added!", duration: 2000 });
@@ -168,7 +169,7 @@ export default function AddExpenseScreen({ params }: Props) {
 
       <AppHeader title="Add expense" onBack={() => setLocation(`/group/${params.id}`)} />
 
-      <ScrollArea className="px-6 py-6 scroll-pb-safe space-y-5">
+      <ScrollArea className="px-6 py-6 pb-40 space-y-5">
         {/* Amount hero */}
         <div className="bg-primary rounded-[32px] px-7 py-8 relative overflow-hidden shadow-hero">
           <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/[0.07] pointer-events-none" />
@@ -239,7 +240,7 @@ export default function AddExpenseScreen({ params }: Props) {
           >
             <Avatar member={payer} size="sm" />
             <span className="flex-1 text-left text-body font-semibold text-foreground">
-              {payer?.id === meId || payer?.id === settings.currentUserId ? "You" : payer?.name ?? "Select"}
+              {payer?.id === meId || payer?.id === settings.currentUserId ? (settings.userName || "You") : payer?.name ?? "Select"}
             </span>
             <ChevronDown size={16} className="text-muted-foreground" />
           </button>
@@ -321,24 +322,18 @@ export default function AddExpenseScreen({ params }: Props) {
           )}
         </div>
 
-        {/* Spacer for floating footer */}
-        <div className="h-24" />
+        {/* Submit */}
+        <div className="pt-2 pb-6">
+          <Button
+            onClick={handleAdd}
+            /* no disabled state to allow toast feedback */
+            className="w-full h-14 rounded-[20px] text-[16px] font-bold shadow-fab"
+            data-testid="button-add-expense"
+          >
+            Add expense · {sym}{numAmount.toFixed(2)}
+          </Button>
+        </div>
       </ScrollArea>
-
-      {/* Sticky footer for submit */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 px-6 pt-4 pb-6 bg-background/85 backdrop-blur-2xl border-t border-border/40 z-20"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}
-      >
-        <Button
-          onClick={handleAdd}
-          disabled={!title.trim() || numAmount <= 0}
-          className="w-full h-14 rounded-[20px] text-[16px] font-bold shadow-fab"
-          data-testid="button-add-expense"
-        >
-          Add expense · {sym}{numAmount.toFixed(2)}
-        </Button>
-      </div>
 
       {/* Payer sheet */}
       <BottomSheet open={showPayerSheet} onClose={() => setShowPayerSheet(false)} title="Who paid?">
@@ -353,7 +348,7 @@ export default function AddExpenseScreen({ params }: Props) {
                 className={`w-full flex items-center gap-3 p-3.5 rounded-[20px] border transition-all ${sel ? "border-primary bg-primary/5" : "border-border/40 hover:bg-muted/30"}`}
               >
                 <Avatar member={m} size="md" />
-                <span className="flex-1 text-left text-body font-semibold text-foreground">{isMe ? "You" : m.name}</span>
+                <span className="flex-1 text-left text-body font-semibold text-foreground">{isMe ? (settings.userName || "You") : m.name}</span>
                 {sel && <Check size={16} className="text-primary" />}
               </button>
             );
@@ -409,7 +404,7 @@ export default function AddExpenseScreen({ params }: Props) {
                       {sel && <Check size={11} className="text-white" strokeWidth={3} />}
                     </div>
                     <Avatar member={m} size="sm" />
-                    <span className="text-body font-semibold text-foreground">{isMe ? "You" : m.name.split(" ")[0]}</span>
+                    <span className="text-body font-semibold text-foreground">{isMe ? (settings.userName || "You").split(" ")[0] : m.name.split(" ")[0]}</span>
                   </button>
                   {sel && splitType !== "equal" && (
                     <div className="flex items-center gap-1.5 flex-shrink-0">

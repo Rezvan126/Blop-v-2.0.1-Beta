@@ -41,6 +41,11 @@ export default function GroupSettingsScreen({ params }: Props) {
   const handleAddMember = () => {
     const t = newMemberName.trim();
     if (!t) return;
+    const isDup = groupMembers.some(m => m.name.trim().toLowerCase() === t.toLowerCase());
+    if (isDup) {
+      toast({ title: "This member already exists in this group.", duration: 2500, variant: "destructive" });
+      return;
+    }
     addMemberToGroup(params.id, t);
     setNewMemberName("");
     toast({ title: `${t} added`, duration: 2000 });

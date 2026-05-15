@@ -40,7 +40,7 @@ export default function SplashScreen() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="relative flex flex-col items-center"
       >
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[28px] bg-card border border-border/40 shadow-card flex items-center justify-center relative">
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[28px] bg-white border border-border/40 shadow-card flex items-center justify-center relative">
           <div className="absolute inset-0 bg-primary/5 rounded-[28px] pointer-events-none" />
           <img 
             src="/icons/blop-logo-transparent.png" 

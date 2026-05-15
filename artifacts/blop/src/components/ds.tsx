@@ -677,7 +677,7 @@ export function ExpenseRow({
       <div className="flex-1 min-w-0">
         <p className="text-body font-semibold text-foreground truncate">{expense.title}</p>
         <p className="text-caption text-muted-foreground mt-0.5">
-          {iAmPayer ? "You" : payer?.name?.split(" ")[0] ?? "?"} paid
+          {(iAmPayer ? members[meId]?.name : payer?.name)?.split(" ")[0] ?? "?"} paid
           {expense.receiptUrl && <span className="ml-1.5 text-primary">· 📎</span>}
           {showDate && (
             <span className="ml-1.5">
@@ -765,7 +765,7 @@ export function ActivityItem({
             </div>
           )}
           <p className="text-caption text-muted-foreground">
-            {actorIsMe ? "You" : actor?.name?.split(" ")[0] ?? "Someone"} · {time}
+            {actor?.name?.split(" ")[0] ?? "Someone"} · {time}
           </p>
         </div>
       </div>

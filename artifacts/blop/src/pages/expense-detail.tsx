@@ -191,7 +191,7 @@ export default function ExpenseDetailScreen({ params }: Props) {
           <div className="px-5 py-4 flex items-center gap-3">
             <Avatar member={payer} size="md" />
             <p className="text-body font-semibold text-foreground">
-              {payer?.id === meId || payer?.id === settings.currentUserId ? "You" : payer?.name}
+              {payer?.id === meId || payer?.id === settings.currentUserId ? (settings.userName || "You") : payer?.name}
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function ExpenseDetailScreen({ params }: Props) {
                 return (
                   <div key={p.memberId} className="px-5 py-3.5 flex items-center gap-3">
                     <Avatar member={m} size="sm" />
-                    <p className="text-body font-medium text-foreground flex-1">{isMe ? "You" : m.name.split(" ")[0]}</p>
+                    <p className="text-body font-medium text-foreground flex-1">{isMe ? (settings.userName || "You").split(" ")[0] : m.name.split(" ")[0]}</p>
                     <div className="text-right">
                       <p className="text-body font-semibold text-foreground"><span className="text-xs font-bold">{sym}</span>{p.shareAmount.toFixed(2)}</p>
                       {p.owesAmount === 0 && <p className="text-caption text-emerald-600 font-bold">paid</p>}
@@ -317,7 +317,7 @@ export default function ExpenseDetailScreen({ params }: Props) {
                     <div className="flex-1 min-w-0">
                       <p className="text-body text-foreground leading-snug">{entry.message}</p>
                       <p className="text-caption text-muted-foreground mt-0.5">
-                        {isMe ? "You" : actor?.name?.split(" ")[0] ?? "Someone"} · {format(parseISO(entry.createdAt), "MMM d, h:mm a")}
+                        {isMe ? (settings.userName || "You").split(" ")[0] : actor?.name?.split(" ")[0] ?? "Someone"} · {format(parseISO(entry.createdAt), "MMM d, h:mm a")}
                       </p>
                     </div>
                   </div>

@@ -5,7 +5,7 @@ import {
   Tag, Heart, User2, Utensils, Car, BedDouble, Music,
   ShoppingBag, Zap, Link2, ArrowDownUp, SlidersHorizontal,
   Check, FileText, FileDown, WifiOff, MoreVertical,
-  ArrowLeft, ChevronRight, Bell,
+  ArrowLeft, ChevronRight, Bell, Crown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,73 @@ const TABS = [
   { id: "insights", label: "Insights", icon: BarChart2 },
 ];
 
+// ── SVG Donut chart ───────────────────────────────────────────────────────────
+
+const RADIUS   = 42;
+const STROKE   = 11;
+const CIRC     = 2 * Math.PI * RADIUS;
+const SVG_SIZE = (RADIUS + STROKE) * 2 + 4;
+
+function DonutChart({ slices, getColor }: { slices: { id: string; pct: number }[]; getColor: (id: string) => string }) {
+  let offset = 0;
+  return (
+    <svg width={SVG_SIZE} height={SVG_SIZE} viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}>
+      <circle
+        cx={SVG_SIZE / 2} cy={SVG_SIZE / 2}
+        r={RADIUS}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={STROKE}
+        className="text-muted/30"
+      />
+      {slices.map((s) => {
+        const dash   = (s.pct / 100) * CIRC;
+        const gap    = CIRC - dash;
+        const rotate = (offset / 100) * 360 - 90;
+        offset += s.pct;
+        if (s.pct < 0.5) return null;
+        return (
+          <motion.circle
+            key={s.id}
+            cx={SVG_SIZE / 2} cy={SVG_SIZE / 2}
+            r={RADIUS}
+            fill="none"
+            stroke={getColor(s.id)}
+            strokeWidth={STROKE}
+            strokeDasharray={`${dash} ${gap}`}
+            strokeLinecap="round"
+            initial={{ strokeDashoffset: CIRC }}
+            animate={{ strokeDashoffset: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+            transform={`rotate(${rotate} ${SVG_SIZE / 2} ${SVG_SIZE / 2})`}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function SectionCard({ title, icon: Icon, children, className }: {
+  title: string;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("bg-card rounded-[26px] shadow-card border border-border/40 overflow-hidden", className)}>
+      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-border/30">
+        {Icon && (
+          <div className="w-7 h-7 rounded-[10px] bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Icon size={13} className="text-primary" />
+          </div>
+        )}
+        <p className="text-[13px] font-bold text-foreground">{title}</p>
+      </div>
+      <div className="px-5 py-4">{children}</div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface Props { params: { id: string } }
@@ -114,7 +181,9 @@ export default function GroupDashboardScreen({ params }: Props) {
         let dirty = false;
         for (const change of changes) {
           if (change.type === "removed" || change.data === null) {
-            delete current[change.id]; dirty = true;
+            // Data is never deleted natively via sync to prevent offline-cache drop issues.
+            // Soft-deletes (isDeleted: true) are used for legitimate expense deletions.
+            continue;
           } else {
             const local = current[change.id];
             if (!local || change.data.updatedAt >= local.updatedAt) {
@@ -130,7 +199,8 @@ export default function GroupDashboardScreen({ params }: Props) {
         let dirty = false;
         for (const change of changes) {
           if (change.type === "removed" || change.data === null) {
-            delete current[change.id]; dirty = true;
+            // Settlements are never deleted; ignore "removed" cache events
+            continue;
           } else {
             current[change.id] = change.data; dirty = true;
           }
@@ -159,7 +229,8 @@ export default function GroupDashboardScreen({ params }: Props) {
         let dirty = false;
         for (const change of changes) {
           if (change.type === "removed" || change.data === null) {
-            delete current[change.id]; dirty = true;
+            // Member records are never deleted; ignore "removed" cache events
+            continue;
           } else {
             current[change.id] = change.data; dirty = true;
           }
@@ -181,9 +252,40 @@ export default function GroupDashboardScreen({ params }: Props) {
   const groupSettlements = getGroupSettlements(params.id);
   const minimized        = getMinimizedSettlements(params.id);
   const userBal          = getUserBalance(params.id);
+
+  const totalSpend = groupExpenses.reduce((s, e) => s + e.amount, 0);
+
+  const categoryTotals = groupExpenses.reduce<Record<string, number>>((acc, e) => {
+    acc[e.category] = (acc[e.category] ?? 0) + e.amount;
+    return acc;
+  }, {});
+
+  const payerTotals = groupExpenses.reduce<Record<string, number>>((acc, e) => {
+    acc[e.paidByMemberId] = (acc[e.paidByMemberId] ?? 0) + e.amount;
+    return acc;
+  }, {});
+
+  const sortedCategories = Object.entries(categoryTotals).sort(([, a], [, b]) => b - a);
+  const topPayer         = Object.entries(payerTotals).sort(([, a], [, b]) => b - a)[0];
+
+  const chartColors  = THEME_DEFINITIONS[colorTheme].chartPalette;
+  const CAT_IDS = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"];
+  const getCatColor  = (catId: string): string => chartColors[CAT_IDS.indexOf(catId)] ?? chartColors[6] ?? "#9ca3af";
+
+  const donutSlices = sortedCategories.map(([id, amt]) => ({
+    id,
+    pct: totalSpend > 0 ? (amt / totalSpend) * 100 : 0,
+  }));
+
+  const topPayerPct = topPayer && totalSpend > 0 ? (topPayer[1] / totalSpend) * 100 : 0;
+
+  const myPendingCount = minimized.filter(s => s.fromMemberId === effectiveMeId || s.toMemberId === effectiveMeId).length;
+
   const total            = getGroupTotal(params.id);
 
   const receiptsCount = groupExpenses.filter((e) => e.receiptUrl).length;
+
+
   const sevenDaysAgo  = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const recentCount   = activity.filter((a) => a.groupId === params.id && new Date(a.createdAt) >= sevenDaysAgo).length;
 
@@ -416,8 +518,8 @@ export default function GroupDashboardScreen({ params }: Props) {
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Pending</p>
-                  <p className={cn("text-[15px] font-bold tabular-nums mt-0.5", (paymentsFromMe.length + paymentsToMe.length) === 0 ? "text-emerald-300" : "text-amber-300")}>
-                    {paymentsFromMe.length + paymentsToMe.length}
+                  <p className={cn("text-[15px] font-bold tabular-nums mt-0.5", myPendingCount === 0 ? "text-emerald-300" : "text-amber-300")}>
+                    {myPendingCount}
                   </p>
                 </div>
               </div>
@@ -434,7 +536,6 @@ export default function GroupDashboardScreen({ params }: Props) {
                 <button
                   key={id}
                   onClick={() => {
-                    if (id === "insights") { setLocation(`/group/${params.id}/insights`); return; }
                     setActiveTab(id);
                   }}
                   className={cn(
@@ -653,7 +754,7 @@ export default function GroupDashboardScreen({ params }: Props) {
                             <span className="text-caption text-muted-foreground">→</span>
                             <Avatar member={to} size="sm" />
                             <span className="text-body font-medium text-foreground ml-1">
-                              {s.fromMemberId === effectiveMeId ? "You" : from.name.split(" ")[0]} → {s.toMemberId === effectiveMeId ? "you" : to.name.split(" ")[0]}
+                              {s.fromMemberId === effectiveMeId ? (settings.userName || "You").split(" ")[0] : from.name.split(" ")[0]} → {s.toMemberId === effectiveMeId ? (settings.userName || "You").split(" ")[0] : to.name.split(" ")[0]}
                             </span>
                           </div>
                           <span className="text-body font-bold text-primary tabular-nums"><span className="text-xs font-bold">{sym}</span>{s.amount.toFixed(2)}</span>
@@ -699,6 +800,116 @@ export default function GroupDashboardScreen({ params }: Props) {
                   <p className="text-body-lg font-bold text-foreground">Everyone is settled</p>
                   <p className="text-body text-muted-foreground mt-1.5">No pending payments in this group.</p>
                 </div>
+              )}
+            </motion.div>
+          )}
+
+          
+          {/* ── INSIGHTS TAB ── */}
+          {activeTab === "insights" && (
+            <motion.div key="tab-insights" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-5 pt-4 space-y-4 pb-6">
+              
+              {groupExpenses.length === 0 ? (
+                <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-8 text-center mt-4">
+                  <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <BarChart2 size={24} className="text-muted-foreground/60" />
+                  </div>
+                  <p className="text-[18px] font-bold text-foreground">No insights yet</p>
+                  <p className="text-[14px] text-muted-foreground mt-2">Add a few expenses to see spending patterns.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Category breakdown */}
+                  {sortedCategories.length > 0 && (
+                    <SectionCard title="By category" icon={Tag}>
+                      <div className="flex gap-5 items-center mb-5">
+                        <div className="flex-shrink-0">
+                          <DonutChart slices={donutSlices} getColor={getCatColor} />
+                        </div>
+                        <div className="flex-1 space-y-2.5 min-w-0">
+                          {sortedCategories.slice(0, 4).map(([catId, amount]) => {
+                            const pct = totalSpend > 0 ? (amount / totalSpend) * 100 : 0;
+                            const cat = categories[catId];
+                            return (
+                              <div key={catId} className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getCatColor(catId) }} />
+                                <span className="text-[12px] font-semibold text-foreground truncate flex-1">{cat?.name ?? "Other"}</span>
+                                <span className="text-xs font-bold text-muted-foreground/60 tabular-nums flex-shrink-0">{pct.toFixed(0)}%</span>
+                              </div>
+                            );
+                          })}
+                          {sortedCategories.length > 4 && (
+                            <p className="text-xs text-muted-foreground/40">+{sortedCategories.length - 4} more</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3.5">
+                        {sortedCategories.map(([catId, amount], i) => {
+                          const cat      = categories[catId];
+                          const IconComp = CATEGORY_ICONS[catId] ?? Tag;
+                          const pct      = totalSpend > 0 ? (amount / totalSpend) * 100 : 0;
+                          return (
+                            <div key={catId}>
+                              <div className="flex items-center gap-3 mb-1.5">
+                                <div className={cn("w-7 h-7 rounded-[10px] flex items-center justify-center flex-shrink-0", cat?.color ?? "bg-muted text-muted-foreground")}>
+                                  <IconComp size={13} />
+                                </div>
+                                <span className="text-[13px] font-semibold text-foreground flex-1">{cat?.name ?? "Other"}</span>
+                                <div className="text-right flex-shrink-0">
+                                  <span className="text-[13px] font-bold text-foreground tabular-nums"><span className="text-[10px] font-bold">{sym}</span>{amount.toFixed(2)}</span>
+                                  <span className="text-xs text-muted-foreground/50 ml-2 tabular-nums">{pct.toFixed(0)}%</span>
+                                </div>
+                              </div>
+                              <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden ml-10">
+                                <motion.div
+                                  initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.65, delay: i * 0.05, ease: "easeOut" }}
+                                  className="h-full rounded-full" style={{ background: getCatColor(catId) }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </SectionCard>
+                  )}
+
+                  {/* Top payer */}
+                  {topPayer && (() => {
+                    const topMember = members[topPayer[0]];
+                    const isMe = topMember?.id === effectiveMeId;
+                    return (
+                      <SectionCard title="Top payer" icon={Crown}>
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="relative">
+                            <Avatar member={topMember} size="xl" />
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center shadow-sm">
+                              <Crown size={9} className="text-white" />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[18px] font-bold text-foreground leading-tight">
+                              {isMe ? (settings.userName || "You") : topMember?.name ?? "Unknown"}
+                            </p>
+                            <p className="text-[13px] text-muted-foreground mt-0.5">
+                              Paid <span className="font-bold text-foreground tabular-nums"><span className="text-xs font-bold">{sym}</span>{topPayer[1].toFixed(2)}</span> total
+                            </p>
+                            <p className="text-xs text-muted-foreground/60 mt-0.5">
+                              {topPayerPct.toFixed(0)}% of group spend
+                            </p>
+                          </div>
+                        </div>
+                        <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }} animate={{ width: `${topPayerPct}%` }} transition={{ duration: 0.7, ease: "easeOut" }}
+                            className="h-full bg-accent rounded-full"
+                          />
+                        </div>
+                      </SectionCard>
+                    );
+                  })()}
+
+                </>
               )}
             </motion.div>
           )}
@@ -768,7 +979,7 @@ export default function GroupDashboardScreen({ params }: Props) {
                   className={cn("w-full flex items-center gap-3 p-3 rounded-2xl border transition-all",
                     filterPayers.has(m.id) ? "border-primary bg-primary/5" : "border-border/40 hover:bg-muted/30")}>
                   <Avatar member={m} size="sm" />
-                  <span className="text-body font-semibold text-foreground flex-1 text-left">{m.id === effectiveMeId ? "You" : m.name.split(" ")[0]}</span>
+                  <span className="text-body font-semibold text-foreground flex-1 text-left">{m.id === effectiveMeId ? (settings.userName || "You").split(" ")[0] : m.name.split(" ")[0]}</span>
                   {filterPayers.has(m.id) && <Check size={16} className="text-primary" />}
                 </button>
               ))}
