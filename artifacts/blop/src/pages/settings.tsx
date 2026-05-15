@@ -139,7 +139,7 @@ export default function SettingsScreen() {
   const [showReset, setShowReset]             = useState(false);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const [currencySearch, setCurrencySearch]   = useState("");
-  const [importStatus, setImportStatus]       = useState<"idle" | "success" | "error">("idle");
+  const [importStatus, setImportStatus]       = useState<"idle" | "loading" | "success" | "error">("idle");
   const [importError, setImportError]         = useState("");
   const importRef = useRef<HTMLInputElement>(null);
 
@@ -217,7 +217,7 @@ export default function SettingsScreen() {
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImportStatus("idle");
+    setImportStatus("loading");
     const reader = new FileReader();
     reader.onload = () => {
       const result = importData(reader.result as string);
@@ -415,15 +415,19 @@ export default function SettingsScreen() {
                       : "bg-destructive/5 border-destructive/20",
                   )}
                 >
-                  {importStatus === "success"
+                  {importStatus === "loading"
+                    ? <RefreshCw size={17} className="text-primary animate-spin flex-shrink-0 mt-0.5" />
+                    : importStatus === "success"
                     ? <CheckCircle size={17} className="text-emerald-600 flex-shrink-0 mt-0.5" />
                     : <AlertCircle size={17} className="text-destructive flex-shrink-0 mt-0.5" />
                   }
                   <p className={cn(
                     "text-body font-semibold",
+                    importStatus === "loading" ? "text-primary" :
                     importStatus === "success" ? "text-emerald-700 dark:text-emerald-400" : "text-destructive",
                   )}>
-                    {importStatus === "success" ? "Data restored!" : importError}
+                    {importStatus === "loading" ? "Restoring data…" :
+                     importStatus === "success" ? "Data restored!" : importError}
                   </p>
                 </motion.div>
               )}

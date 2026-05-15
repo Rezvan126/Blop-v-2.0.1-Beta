@@ -274,7 +274,14 @@ export const useBlopStore = create<BlopStore>()(
       },
 
       createGroup(name, memberNames, type = "friends", currency = "USD") {
-        const { settings } = get();
+        const { settings, groups: allGroups } = get();
+
+        // Check for duplicate group names (soft warning, or just handle gracefully)
+        const isDuplicateGroup = Object.values(allGroups).some(g => g.name.toLowerCase() === name.toLowerCase());
+        
+        // Filter out empty names and handle duplicates in the initial list
+        const uniqueMemberNames = Array.from(new Set(memberNames.map(n => n.trim()).filter(Boolean)));
+        
         const id = "g-" + uid();
         const currentUser: Member = {
           id: settings.currentUserId,
@@ -282,7 +289,7 @@ export const useBlopStore = create<BlopStore>()(
           avatarColor: "bg-emerald-500",
           joinedAt: new Date().toISOString(),
         };
-        const newMembers: Member[] = memberNames.map((n, i) => ({
+        const newMembers: Member[] = uniqueMemberNames.map((n, i) => ({
           id: "m-" + uid() + i,
           name: n,
           avatarColor: pickAvatarColor(i + 1),
@@ -336,9 +343,19 @@ export const useBlopStore = create<BlopStore>()(
       },
 
       addMemberToGroup(groupId, name) {
-        const { settings, groups } = get();
+        const { settings, groups, getGroupMembers } = get();
         const group = groups[groupId];
         if (!group) return "";
+
+        const trimmedName = name.trim();
+        if (!trimmedName) return "";
+
+        // Prevent duplicate names within the same group
+        const existingMembers = getGroupMembers(groupId);
+        if (existingMembers.some(m => m.name.toLowerCase() === trimmedName.toLowerCase())) {
+          return "EXISTS"; // Special return to indicate duplicate
+        }
+
         const id = "m-" + uid();
         const color = pickAvatarColor(group.memberIds.length);
         const member: Member = {
@@ -371,9 +388,16 @@ export const useBlopStore = create<BlopStore>()(
       },
 
       removeMemberFromGroup(groupId, memberId) {
-        const { settings, groups, members } = get();
+        const { settings, groups, members, expenses } = get();
         const group = groups[groupId];
         if (!group) return;
+
+        // Check if member is a payer for any non-deleted expense in this group
+        const hasExpenses = Object.values(expenses).some(
+          (e) => e.groupId === groupId && e.paidByMemberId === memberId && !e.isDeleted
+        );
+        if (hasExpenses) return; // Prevent removal if they are a payer
+
         const memberName = members[memberId]?.name ?? "Member";
         const act = makeActivity(settings.currentUserId, {
           groupId,

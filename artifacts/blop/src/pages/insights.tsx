@@ -186,6 +186,10 @@ export default function InsightsScreen({ params }: Props) {
                   <p className="text-[15px] font-bold text-white tabular-nums mt-0.5">{groupMembers.length}</p>
                 </div>
                 <div>
+                  <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Receipts</p>
+                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5">{expenses.filter(e => !!e.receiptUrl).length}</p>
+                </div>
+                <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Per person</p>
                   <p className="text-[15px] font-bold text-white tabular-nums mt-0.5"><span className="text-xs font-bold">{sym}</span>{perPerson.toFixed(2)}</p>
                 </div>

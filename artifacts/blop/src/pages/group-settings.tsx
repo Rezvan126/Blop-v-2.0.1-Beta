@@ -46,7 +46,11 @@ export default function GroupSettingsScreen({ params }: Props) {
       toast({ title: "This member already exists in this group.", duration: 2500, variant: "destructive" });
       return;
     }
-    addMemberToGroup(params.id, t);
+    const res = addMemberToGroup(params.id, t);
+    if (res === "EXISTS") {
+      toast({ title: "This member already exists.", duration: 2500, variant: "destructive" });
+      return;
+    }
     setNewMemberName("");
     toast({ title: `${t} added`, duration: 2000 });
   };
@@ -54,10 +58,24 @@ export default function GroupSettingsScreen({ params }: Props) {
   const handleRemoveMember = () => {
     if (!memberToRemove) return;
     const member = members[memberToRemove];
+    const prevCount = group.memberIds.length;
     removeMemberFromGroup(params.id, memberToRemove);
+    
+    // Check if member was actually removed (store logic prevents removal of payers)
+    const wasRemoved = !groups[params.id]?.memberIds.includes(memberToRemove);
+    if (!wasRemoved) {
+      toast({ 
+        title: "Cannot remove member", 
+        description: `${member?.name} is the payer for one or more expenses.`,
+        duration: 3500, 
+        variant: "destructive" 
+      });
+    } else {
+      toast({ title: `${member?.name ?? "Member"} removed`, duration: 2000 });
+    }
+    
     setShowRemoveConfirm(false);
     setMemberToRemove(null);
-    toast({ title: `${member?.name ?? "Member"} removed`, duration: 2000 });
   };
 
   const handleLeaveGroup = () => {

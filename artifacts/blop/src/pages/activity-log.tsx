@@ -118,11 +118,15 @@ export default function ActivityLogScreen({ params }: Props) {
       <ScrollArea className="scroll-pb-safe">
         <div className="px-5 pt-3">
           {activity.length === 0 ? (
-            <EmptyState
-              icon={Flag}
-              title="No activity yet"
-              subtitle="Start adding expenses to see the timeline here."
-            />
+            <div className="py-20 flex flex-col items-center text-center px-6">
+              <div className="w-20 h-20 rounded-[32px] bg-muted/40 flex items-center justify-center mb-6 shadow-sm border border-border/20">
+                <RefreshCw size={32} className="text-muted-foreground/30" />
+              </div>
+              <h2 className="text-title font-bold text-foreground mb-2">Timeline is empty</h2>
+              <p className="text-body text-muted-foreground max-w-[240px]">
+                Every expense, settlement, and change will appear here once the group gets moving.
+              </p>
+            </div>
           ) : (
             <div className="space-y-7">
               {grouped.map((group) => (

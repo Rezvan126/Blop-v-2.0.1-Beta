@@ -24,7 +24,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; classN
 const SPLIT_TABS: { id: SplitType; label: string }[] = [
   { id: "equal",      label: "Equal"  },
   { id: "exact",      label: "Exact"  },
-  { id: "percentage", label: "%"      },
+  { id: "percentage", label: "Percentage" },
   { id: "shares",     label: "Shares" },
 ];
 
@@ -169,7 +169,7 @@ export default function AddExpenseScreen({ params }: Props) {
 
       <AppHeader title="Add expense" onBack={() => setLocation(`/group/${params.id}`)} />
 
-      <ScrollArea className="px-6 py-6 pb-40 space-y-5">
+      <ScrollArea className="px-6 py-6 pb-40 scroll-pb-safe space-y-5">
         {/* Amount hero */}
         <div className="bg-primary rounded-[32px] px-7 py-8 relative overflow-hidden shadow-hero">
           <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/[0.07] pointer-events-none" />
@@ -378,6 +378,20 @@ export default function AddExpenseScreen({ params }: Props) {
               </button>
             ))}
           </div>
+          
+          {/* Real-time sum indicators */}
+          {splitType === "exact" && (
+            <div className={`text-caption font-bold px-4 py-2 rounded-xl flex justify-between items-center ${Math.abs(selectedArr.reduce((t, m) => t + (parseFloat(exactAmounts[m.id] ?? "0") || 0), 0) - numAmount) < 0.01 ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
+              <span>Total entered</span>
+              <span>{sym}{selectedArr.reduce((t, m) => t + (parseFloat(exactAmounts[m.id] ?? "0") || 0), 0).toFixed(2)} / {sym}{numAmount.toFixed(2)}</span>
+            </div>
+          )}
+          {splitType === "percentage" && (
+            <div className={`text-caption font-bold px-4 py-2 rounded-xl flex justify-between items-center ${Math.abs(selectedArr.reduce((t, m) => t + (parseFloat(percentages[m.id] ?? "0") || 0), 0) - 100) < 0.1 ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
+              <span>Total percentage</span>
+              <span>{selectedArr.reduce((t, m) => t + (parseFloat(percentages[m.id] ?? "0") || 0), 0).toFixed(1)}% / 100%</span>
+            </div>
+          )}
 
           {/* Error */}
           <AnimatePresence>

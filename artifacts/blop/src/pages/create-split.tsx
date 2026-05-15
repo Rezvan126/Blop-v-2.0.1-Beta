@@ -82,14 +82,14 @@ export default function CreateSplitScreen() {
       </header>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <ScrollArea className="flex-1 px-6"><AnimatePresence mode="wait">
+        <ScrollArea className="flex-1 px-6 scroll-pb-safe"><AnimatePresence mode="wait">
           <motion.div
             key={step}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex flex-col min-h-[calc(100vh-140px)]"
+            className="flex flex-col h-full"
           >
             {/* Step heading */}
             <div className="pt-4 pb-8">
