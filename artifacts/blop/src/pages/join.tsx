@@ -121,7 +121,7 @@ export default function JoinScreen({ params }: Props) {
 
   return (
     <motion.div
-      className="h-full flex flex-col bg-background items-center justify-center px-6"
+      className="h-full flex flex-col bg-background items-center justify-center px-6 pt-safe-header pb-safe"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 16 }}
