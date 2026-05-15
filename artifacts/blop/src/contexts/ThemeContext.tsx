@@ -48,6 +48,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const dark = mode === "dark" || (mode === "system" && prefersDark.matches);
       setIsDark(dark);
       root.classList.toggle("dark", dark);
+
+      // Sync native status bar style
+      if (window.hasOwnProperty("Capacitor")) {
+        import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
+          StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light }).catch(() => {});
+        });
+      }
     };
 
     apply();

@@ -939,12 +939,12 @@ export const useBlopStore = create<BlopStore>()(
           const invite = await lookupInvite(code.toUpperCase());
           if (!invite) return { ok: false, error: "Invite key not found." };
 
-          const snapshot = await pullGroupFromCloud(invite.groupId);
-          if (!snapshot) return { ok: false, error: "Could not load group data from the server." };
-
-          // Join the group in Firestore FIRST before local state updates
+          // Join the group in Firestore FIRST to get permission to read it
           const joinSuccess = await joinGroupCloud(invite.groupId);
           if (!joinSuccess) return { ok: false, error: "Could not join group. Please try again." };
+
+          const snapshot = await pullGroupFromCloud(invite.groupId);
+          if (!snapshot) return { ok: false, error: "Could not load group data from the server." };
 
           get().importGroupSnapshot(snapshot);
 

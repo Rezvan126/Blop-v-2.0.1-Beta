@@ -71,17 +71,10 @@ export default function JoinScreen({ params }: Props) {
           setPhase("error");
           return;
         }
-        const snapshot = await pullGroupFromCloud(invite.groupId);
-        if (cancelled) return;
-        if (!snapshot) {
-          setError("Could not load group details.");
-          setPhase("error");
-          return;
-        }
         setPreview({
-          groupId:     snapshot.group.id,
-          groupName:   snapshot.groupName,
-          memberCount: Object.keys(snapshot.members).length,
+          groupId:     invite.groupId,
+          groupName:   invite.groupName,
+          memberCount: 0, // Simplified preview for security
           inviteCode:  codeToLookup,
         });
         setPhase("preview");

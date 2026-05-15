@@ -504,41 +504,11 @@ export default function SettingsScreen() {
                   </div>
                 </div>
 
-                {/* Sync key row */}
-                <div className="px-5 py-4 border-b border-border/30">
-                  <p className="text-xs font-bold text-muted-foreground/55 tracking-wide uppercase mb-2">Your sync key</p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 text-xs font-mono bg-muted/40 rounded-[12px] px-3 py-2 text-foreground truncate border border-border/30">
-                      {syncKey.slice(0, 8)}–{syncKey.slice(9, 13)}–····
-                    </code>
-                    <button
-                      onClick={handleCopySyncKey}
-                      className="w-8 h-8 rounded-[10px] bg-muted/60 flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0"
-                    >
-                      <Copy size={13} className="text-muted-foreground" />
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground/50 mt-1.5 leading-relaxed">
-                    Copy this key to restore your data on another device.
+                <div className="px-5 py-4">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Cloud sync works automatically per group. To access a group on another device, use the group's invite code.
                   </p>
                 </div>
-
-                {/* Restore row */}
-                <button
-                  onClick={() => { setShowRestoreSheet(true); setRestoreStatus("idle"); setRestoreSyncKey(""); }}
-                  className="w-full text-left hover:bg-muted/25 transition-colors"
-                >
-                  <div className="flex items-center gap-3.5 px-5 py-4">
-                    <div className="w-9 h-9 rounded-[12px] bg-muted/60 flex items-center justify-center flex-shrink-0">
-                      <Smartphone size={16} className="text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[15px] font-semibold text-foreground">Restore from another device</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Enter a sync key to import data</p>
-                    </div>
-                    <ChevronRight size={15} className="text-muted-foreground/35 flex-shrink-0" />
-                  </div>
-                </button>
               </SettingsCard>
             )}
             <p className="text-xs text-muted-foreground/60 px-1 mt-2.5">
@@ -648,69 +618,7 @@ export default function SettingsScreen() {
         )}
       </AnimatePresence>
 
-      {/* ── Restore from another device sheet ── */}
-      <AnimatePresence>
-        {showRestoreSheet && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowRestoreSheet(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm z-40"
-            />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="absolute bottom-0 left-0 right-0 bg-background rounded-t-[32px] shadow-2xl z-50 p-6 pb-safe-sheet space-y-4"
-            >
-              <div className="w-10 h-1.5 bg-border rounded-full mx-auto mb-2" />
-              <div className="w-14 h-14 rounded-[20px] bg-primary/10 flex items-center justify-center mx-auto">
-                <Smartphone size={24} className="text-primary" />
-              </div>
-              <h2 className="text-[20px] font-bold text-foreground text-center">Restore from cloud</h2>
-              <p className="text-[13px] text-muted-foreground text-center leading-relaxed">
-                Paste the sync key from your other device to import its data here.
-              </p>
 
-              <div className="space-y-2">
-                <Input
-                  value={restoreSyncKey}
-                  onChange={(e) => { setRestoreSyncKey(e.target.value); setRestoreStatus("idle"); }}
-                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                  className="font-mono text-[13px] bg-muted/30 border-border/40 rounded-2xl"
-                />
-                {restoreStatus === "notfound" && (
-                  <p className="text-[12px] text-destructive flex items-center gap-1.5 px-1">
-                    <AlertCircle size={13} /> No data found for that key. Check for typos.
-                  </p>
-                )}
-                {restoreStatus === "error" && (
-                  <p className="text-[12px] text-destructive flex items-center gap-1.5 px-1">
-                    <AlertCircle size={13} /> Something went wrong. Check your connection.
-                  </p>
-                )}
-                {restoreStatus === "success" && (
-                  <p className="text-[12px] text-emerald-600 flex items-center gap-1.5 px-1">
-                    <CheckCircle size={13} /> Data restored!
-                  </p>
-                )}
-              </div>
-
-              <Button
-                onClick={handleRestoreFromKey}
-                disabled={!restoreSyncKey.trim() || restoreStatus === "loading"}
-                className="w-full h-12 rounded-2xl font-bold"
-              >
-                {restoreStatus === "loading" ? (
-                  <><RefreshCw size={15} className="mr-2 animate-spin" /> Restoring…</>
-                ) : "Restore data"}
-              </Button>
-              <Button variant="ghost" onClick={() => setShowRestoreSheet(false)} className="w-full rounded-2xl">
-                Cancel
-              </Button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       {/* ── Currency picker sheet ── */}
       <BottomSheet

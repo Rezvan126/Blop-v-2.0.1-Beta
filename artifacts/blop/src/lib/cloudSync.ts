@@ -117,7 +117,9 @@ export async function pushAllToCloud(payload: PushPayload): Promise<void> {
     if (group.syncStatus === "local") {
       bw.set(doc(db, "invites", group.inviteCode.toUpperCase()), {
         groupId:   group.id,
+        groupName: group.name,
         ownerUid:  uid,
+        ownerName: displayName,
         createdAt: group.createdAt,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       }, { merge: true });
@@ -195,14 +197,19 @@ export async function pushAllToCloud(payload: PushPayload): Promise<void> {
 
 export async function lookupInvite(
   code: string
-): Promise<{ groupId: string } | null> {
+): Promise<{ groupId: string; groupName: string; ownerName?: string; createdAt: string } | null> {
   const db = getFirebaseDb();
   if (!db) return null;
   const snap = await getDoc(doc(db, "invites", code.toUpperCase()));
   if (!snap.exists()) return null;
-  const data = snap.data() as { groupId: string; expiresAt?: string };
+  const data = snap.data() as { groupId: string; groupName: string; ownerName?: string; createdAt: string; expiresAt?: string };
   if (data.expiresAt && new Date(data.expiresAt) < new Date()) return null;
-  return { groupId: data.groupId };
+  return {
+    groupId: data.groupId,
+    groupName: data.groupName,
+    ownerName: data.ownerName,
+    createdAt: data.createdAt
+  };
 }
 
 // ── Secure group joining ───────────────────────────────────────────────────

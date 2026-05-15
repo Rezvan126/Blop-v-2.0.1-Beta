@@ -17,10 +17,10 @@ The following features are currently out of scope or deferred for future release
 - **Limitation**: All expenses are assumed to be in the same "value" as the group's default currency.
 - **Future Path**: Integration with an exchange rate API (e.g., Open Exchange Rates) to support real-time conversion.
 
-## 4. Anonymous Account Recovery
-- **Current Behavior**: Users are authenticated anonymously to provide a friction-less experience.
-- **Limitation**: If a user clears their browser data or loses their device, they cannot "log back in" to their account. They must use an invite code to rejoin their groups, but they will be treated as a new member identity.
-- **Future Path**: Option to link an email or Google account for permanent recovery.
+## 4. Cross-Device Data Sync
+- **Current Behavior**: Users access shared group data via unique invite codes. There is no central "account" to sync all groups at once.
+- **Limitation**: The legacy "Sync Key" feature was removed as it was incompatible with the new v2.0 real-time architecture. Cross-device access currently requires joining each group individually using its invite code.
+- **Future Path**: Account linking (Email/Google) to persist a single user identity across devices and automatically pull all joined groups.
 
 ## 5. Settlement Method Icons
 - **Current Behavior**: Settlements show the payment method as a text label (e.g., "Cash", "Bank Transfer").
