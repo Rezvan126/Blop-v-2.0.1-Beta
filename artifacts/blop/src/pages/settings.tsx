@@ -133,7 +133,7 @@ export default function SettingsScreen() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { colorTheme, mode, setColorTheme, setMode } = useTheme();
-  const { settings, updateSettings, exportData, importData, triggerSuccess, triggerFeedback, triggerHaptic } = useBlopStore();
+  const { settings, updateSettings, exportData, importData, triggerSuccess, triggerFeedback } = useBlopStore();
 
   const [userName, setUserName]               = useState(settings.userName);
   const [showReset, setShowReset]             = useState(false);

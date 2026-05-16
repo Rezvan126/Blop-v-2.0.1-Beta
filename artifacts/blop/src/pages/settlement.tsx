@@ -82,7 +82,6 @@ export default function SettlementScreen({ params }: Props) {
     }
 
     recordSettlement(params.id, pendingFrom, pendingTo, amt, pendingMethod, pendingNote.trim() || undefined);
-    const { triggerHaptic } = useBlopStore.getState();
     triggerHaptic("success");
     closeSheet();
     triggerSuccess();

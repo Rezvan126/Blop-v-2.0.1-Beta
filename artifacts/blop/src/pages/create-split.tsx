@@ -31,13 +31,11 @@ export default function CreateSplitScreen() {
     }
     setMemberNames([...memberNames, t]);
     setNewMemberName("");
-    const { triggerHaptic } = useBlopStore.getState();
     triggerHaptic("light");
   };
 
   const removeMember = (n: string) => {
     setMemberNames(memberNames.filter((m) => m !== n));
-    const { triggerHaptic } = useBlopStore.getState();
     triggerHaptic("light");
   };
 
@@ -55,10 +53,9 @@ export default function CreateSplitScreen() {
       setStep(step + 1);
     } else {
       const id = createGroup(name.trim(), memberNames, groupType, currency);
-      const { triggerSuccess, triggerHaptic } = useBlopStore.getState();
+      const { triggerSuccess } = useBlopStore.getState();
       triggerHaptic("success");
       triggerSuccess();
-      triggerHaptic();
       setLocation(`/group/${id}`);
     }
   };

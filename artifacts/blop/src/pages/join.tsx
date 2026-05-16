@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useBlopStore } from "@/lib/store";
 import { lookupInvite, pullGroupFromCloud } from "@/lib/cloudSync";
 import { isFirebaseConfigured } from "@/lib/firebase";
+import { triggerHaptic } from "@/lib/utils";
 
 interface Props {
   params: { code: string };
@@ -113,14 +114,13 @@ export default function JoinScreen({ params }: Props) {
     if (result.ok && result.groupId) {
       setJoinedGroupId(result.groupId);
       setPhase("success");
-      const { triggerSuccess, triggerHaptic } = useBlopStore.getState();
+      const { triggerSuccess } = useBlopStore.getState();
       triggerHaptic("success");
       triggerSuccess();
       setTimeout(() => setLocation(`/group/${result.groupId}`), 1500);
     } else {
       setError(result.error ?? "Could not join split. Please try again.");
       setPhase("error");
-      const { triggerHaptic } = useBlopStore.getState();
       triggerHaptic("error");
     }
   };

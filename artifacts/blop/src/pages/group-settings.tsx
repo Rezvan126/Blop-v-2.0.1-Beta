@@ -36,7 +36,7 @@ export default function GroupSettingsScreen({ params }: Props) {
   const handleSaveName = () => {
     if (!groupName.trim()) return;
     updateGroup(params.id, { name: groupName.trim() });
-    const { triggerFeedback, triggerHaptic } = useBlopStore.getState();
+    const { triggerFeedback } = useBlopStore.getState();
     triggerHaptic("success");
     triggerFeedback("info", "Split name updated");
   };
@@ -50,7 +50,6 @@ export default function GroupSettingsScreen({ params }: Props) {
       return;
     }
     const res = addMemberToGroup(params.id, t);
-    const { triggerHaptic } = useBlopStore.getState();
     if (res === "EXISTS") {
       triggerHaptic("warning");
       toast({ title: "This member already exists.", duration: 2500, variant: "destructive" });
@@ -69,7 +68,6 @@ export default function GroupSettingsScreen({ params }: Props) {
     
     // Check if member was actually removed (store logic prevents removal of payers)
     const wasRemoved = !groups[params.id]?.memberIds.includes(memberToRemove);
-    const { triggerHaptic } = useBlopStore.getState();
     if (!wasRemoved) {
       triggerHaptic("error");
       toast({ 
@@ -89,7 +87,7 @@ export default function GroupSettingsScreen({ params }: Props) {
 
   const handleLeaveGroup = () => {
     updateGroup(params.id, { isArchived: true });
-    const { triggerFeedback, triggerHaptic } = useBlopStore.getState();
+    const { triggerFeedback } = useBlopStore.getState();
     triggerHaptic("warning");
     triggerFeedback("archive", "Split archived");
     setLocation("/home");
