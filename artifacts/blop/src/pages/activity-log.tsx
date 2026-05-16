@@ -124,7 +124,7 @@ export default function ActivityLogScreen({ params }: Props) {
               </div>
               <h2 className="text-title font-bold text-foreground mb-2">Timeline is empty</h2>
               <p className="text-body text-muted-foreground max-w-[240px]">
-                Every expense, settlement, and change will appear here once the group gets moving.
+                Every expense, settlement, and change will appear here once the split gets moving.
               </p>
             </div>
           ) : (

@@ -205,8 +205,8 @@ export default function HomeScreen() {
                     <p className="text-[12px] font-bold text-foreground/60 tracking-wide uppercase">Your splits</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {groups.length === 0
-                        ? "No groups yet"
-                        : `${groups.length} group${groups.length !== 1 ? "s" : ""}`}
+                        ? "No splits yet"
+                        : `${groups.length} split${groups.length !== 1 ? "s" : ""}`}
                     </p>
                   </div>
                   <button

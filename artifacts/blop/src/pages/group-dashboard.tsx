@@ -5,7 +5,7 @@ import {
   Tag, Heart, User2, Utensils, Car, BedDouble, Music,
   ShoppingBag, Zap, Link2, ArrowDownUp, SlidersHorizontal,
   Check, FileText, FileDown, WifiOff, MoreVertical,
-  ArrowLeft, ChevronRight, Bell, Crown,
+  ArrowLeft, ChevronRight, Bell, Crown, Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";

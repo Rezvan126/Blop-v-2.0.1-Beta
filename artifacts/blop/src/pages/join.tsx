@@ -286,7 +286,7 @@ export default function JoinScreen({ params }: Props) {
             <div className="w-full bg-amber-50 dark:bg-amber-950/30 rounded-2xl p-4 flex items-start gap-3">
               <Wifi size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-amber-700 dark:text-amber-400">
-                Group sharing requires an internet connection. Connect and try again.
+                Split sharing requires an internet connection. Connect and try again.
               </p>
             </div>
           )}
