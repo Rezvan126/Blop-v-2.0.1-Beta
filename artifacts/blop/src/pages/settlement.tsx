@@ -150,29 +150,27 @@ export default function SettlementScreen({ params }: Props) {
     <Screen testId="page-settlement">
 
       {/* ── Header ── */}
-      <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-3 sticky top-0 bg-background z-40 border-b border-border/40">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLocation(`/group/${params.id}`)}
-            className="w-11 h-11 rounded-[14px] bg-card border border-border/50 shadow-card flex items-center justify-center hover:bg-muted/40 transition-colors flex-shrink-0"
-            data-testid="button-back"
-          >
-            <ArrowLeft size={18} className="text-foreground" />
-          </button>
+      <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-2 sticky top-0 bg-background z-40 border-b border-border/40">
+        <button
+          onClick={() => setLocation(`/group/${params.id}`)}
+          className="w-11 h-11 rounded-[14px] bg-card border border-border/50 shadow-card flex items-center justify-center hover:bg-muted/40 transition-colors flex-shrink-0"
+          data-testid="button-back"
+        >
+          <ArrowLeft size={18} className="text-foreground" />
+        </button>
 
-          <div className="flex-1 text-center">
-            <h1 className="text-[17px] font-bold text-foreground leading-tight">Settle up</h1>
-            <p className="text-xs text-muted-foreground">{group.name}</p>
-          </div>
-
-          <button
-            onClick={openCustom}
-            className="w-11 h-11 rounded-[14px] bg-primary/10 border border-primary/20 flex items-center justify-center hover:bg-primary/15 transition-colors flex-shrink-0"
-            data-testid="button-record-custom"
-          >
-            <Plus size={18} className="text-primary" />
-          </button>
+        <div className="flex-1 text-center min-w-0">
+          <h1 className="text-[17px] font-bold text-foreground leading-tight">Settle up</h1>
+          <p className="text-xs text-muted-foreground truncate">{group.name}</p>
         </div>
+
+        <button
+          onClick={openCustom}
+          className="w-11 h-11 rounded-[14px] bg-primary/10 border border-primary/20 flex items-center justify-center hover:bg-primary/15 transition-colors flex-shrink-0"
+          data-testid="button-record-custom"
+        >
+          <Plus size={18} className="text-primary" />
+        </button>
       </header>
 
       <ScrollArea className="scroll-pb-safe">
