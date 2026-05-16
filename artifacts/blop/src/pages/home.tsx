@@ -173,9 +173,9 @@ export default function HomeScreen() {
                   <SectionLabel>Your Splits</SectionLabel>
                   <button
                     onClick={() => setLocation("/get-started")}
-                    className="flex items-center gap-1.5 text-primary text-[13px] font-bold hover:opacity-80 active:scale-95 transition-all"
+                    className="flex items-center gap-1.5 bg-primary text-primary-foreground text-[12px] font-bold px-3.5 py-1.5 rounded-full hover:opacity-90 active:scale-95 transition-all"
                   >
-                    <Plus size={14} strokeWidth={3} />
+                    <Plus size={12} strokeWidth={3} />
                     New Split
                   </button>
                 </div>
@@ -266,7 +266,6 @@ export default function HomeScreen() {
                 <EmptyState
                   icon={ArrowLeftRight}
                   title="All caught up!"
-                  subtitle="No pending settlements in any of your splits."
                 />
               ) : (
                 <div className="grid gap-4">
@@ -316,14 +315,17 @@ export default function HomeScreen() {
               ) : (
                 <>
                   {/* Hero spend */}
-                  <InsightChartCard title="Total Spend" icon={TrendingUp}>
-                    <p className="text-[40px] font-bold text-foreground tabular-nums leading-none">
+                  <div className="bg-primary rounded-[28px] p-6 relative overflow-hidden shadow-hero">
+                    <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/[0.07] pointer-events-none" />
+                    <div className="absolute -bottom-8 -left-6 w-28 h-28 rounded-full bg-white/[0.06] pointer-events-none" />
+                    <p className="text-[11px] font-bold text-white/60 tracking-widest uppercase mb-2">Total spend</p>
+                    <p className="text-[40px] font-bold text-white tabular-nums leading-none">
                       {formatAmount(totalSpend, sym)}
                     </p>
-                    <p className="text-caption text-muted-foreground mt-2">
+                    <p className="text-[12px] text-white/50 mt-2">
                       {allExpenses.length} expense{allExpenses.length !== 1 ? "s" : ""} · {groups.length} split{groups.length !== 1 ? "s" : ""}
                     </p>
-                  </InsightChartCard>
+                  </div>
 
                   {/* Compact KPI grid */}
                   <div className="grid grid-cols-2 gap-3">
@@ -448,7 +450,10 @@ function NetBalanceHeroCard({
   return (
     <div className="rounded-[28px] overflow-hidden shadow-hero">
       <div className="bg-primary p-6 relative overflow-hidden">
-
+        {/* Decorative circles */}
+        <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/[0.07] pointer-events-none" />
+        <div className="absolute top-4 -right-6 w-20 h-20 rounded-full bg-white/[0.05] pointer-events-none" />
+        <div className="absolute -bottom-8 -left-6 w-28 h-28 rounded-full bg-white/[0.06] pointer-events-none" />
 
         {/* Label */}
         <p className="text-xs font-bold text-white/55 tracking-widest uppercase mb-2">
