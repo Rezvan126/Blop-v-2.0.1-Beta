@@ -491,7 +491,7 @@ export default function GroupDashboardScreen({ params }: Props) {
       <ScrollArea className="scroll-pb-fab">
 
         {/* ── Balance hero card ── */}
-        <div className="px-5 pb-5">
+        <div className="px-5 pt-5 pb-5">
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
             {/* Orbs */}
             <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/[0.07] pointer-events-none" />
@@ -510,7 +510,7 @@ export default function GroupDashboardScreen({ params }: Props) {
                 </p>
               )}
               <p className="text-[12px] text-white/50 mb-5">
-                {isSettled ? "All settled up in this group" : balIsPos ? "owed to you" : "you owe"} · {groupMembers.length} members
+                {isSettled ? "All settled up in this split" : balIsPos ? "owed to you" : "you owe"} · {groupMembers.length} members
               </p>
 
               {/* Avatar stack + settle button */}
@@ -555,7 +555,9 @@ export default function GroupDashboardScreen({ params }: Props) {
               return (
                 <button
                   key={id}
-                  onClick={() => {
+                  onClick={async () => {
+                    const { triggerHaptic } = await import("@/lib/utils");
+                    triggerHaptic("selection");
                     setActiveTab(id);
                   }}
                   className={cn(
@@ -915,7 +917,7 @@ export default function GroupDashboardScreen({ params }: Props) {
                               Paid <span className="font-bold text-foreground tabular-nums"><span className="text-xs font-bold">{sym}</span>{topPayer[1].toFixed(2)}</span> total
                             </p>
                             <p className="text-xs text-muted-foreground/60 mt-0.5">
-                              {topPayerPct.toFixed(0)}% of group spend
+                              {topPayerPct.toFixed(0)}% of split spend
                             </p>
                           </div>
                         </div>

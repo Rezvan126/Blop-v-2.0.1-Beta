@@ -148,6 +148,8 @@ export default function AddExpenseScreen({ params }: Props) {
       paidByMemberId, expenseDate, note: note.trim() || undefined, receiptUrl,
       participants, splitType,
     });
+    const { triggerHaptic } = useBlopStore.getState();
+    triggerHaptic("success");
     triggerSuccess();
     setLocation(`/group/${params.id}`);
   };
@@ -213,7 +215,11 @@ export default function AddExpenseScreen({ params }: Props) {
               return (
                 <button
                   key={id}
-                  onClick={() => setSelectedCategory(id)}
+                  onClick={async () => {
+                    const { triggerHaptic } = await import("@/lib/utils");
+                    triggerHaptic("selection");
+                    setSelectedCategory(id);
+                  }}
                   className={`flex flex-col items-center gap-1.5 py-3 rounded-2xl border transition-all ${
                     selectedCategory === id
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"

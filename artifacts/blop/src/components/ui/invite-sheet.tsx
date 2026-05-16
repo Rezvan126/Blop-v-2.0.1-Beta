@@ -18,15 +18,18 @@ export function InviteSheet({ open, onClose, inviteCode, groupName }: InviteShee
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   const fullUrl = `${window.location.origin}${base}/join/${inviteCode}`;
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
+    const { triggerHaptic } = await import("@/lib/utils");
     navigator.clipboard.writeText(fullUrl).then(() => {
       setCopied(true);
+      triggerHaptic("success");
       setTimeout(() => setCopied(false), 2000);
       try {
         const { useBlopStore } = require("@/lib/store");
         useBlopStore.getState().triggerSuccess();
       } catch {}
     }).catch(() => {
+      triggerHaptic("error");
       toast({ title: "Copy failed", variant: "destructive" });
     });
   };

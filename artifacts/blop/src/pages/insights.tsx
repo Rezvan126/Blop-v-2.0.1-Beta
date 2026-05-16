@@ -160,7 +160,7 @@ export default function InsightsScreen({ params }: Props) {
       </header>
 
       <ScrollArea className="scroll-pb-safe">
-        <div className="px-5 pt-3 space-y-4">
+        <div className="px-5 pt-5 space-y-4">
 
           {/* ── Summary hero card ── */}
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
@@ -168,7 +168,7 @@ export default function InsightsScreen({ params }: Props) {
             <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/[0.05] pointer-events-none" />
             <div className="relative z-10 px-6 pt-5 pb-5">
               <p className="text-[10px] font-bold text-white/55 tracking-[0.14em] uppercase mb-2">
-                Total group spend
+                Total split spend
               </p>
               <p className="text-[44px] font-bold text-white tabular-nums leading-none">
                 <span className="text-[24px] font-bold align-top mt-[0.12em] inline-block leading-none">{sym}</span>{totalSpend.toFixed(2)}
@@ -286,7 +286,7 @@ export default function InsightsScreen({ params }: Props) {
                         Paid <span className="font-bold text-foreground tabular-nums"><span className="text-xs font-bold">{sym}</span>{topPayer[1].toFixed(2)}</span> total
                       </p>
                       <p className="text-xs text-muted-foreground/60 mt-0.5">
-                        {topPayerPct.toFixed(0)}% of group spend
+                        {topPayerPct.toFixed(0)}% of split spend
                       </p>
                     </div>
                   </div>

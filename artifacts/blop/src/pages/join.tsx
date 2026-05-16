@@ -113,12 +113,15 @@ export default function JoinScreen({ params }: Props) {
     if (result.ok && result.groupId) {
       setJoinedGroupId(result.groupId);
       setPhase("success");
-      const { triggerSuccess } = useBlopStore.getState();
+      const { triggerSuccess, triggerHaptic } = useBlopStore.getState();
+      triggerHaptic("success");
       triggerSuccess();
       setTimeout(() => setLocation(`/group/${result.groupId}`), 1500);
     } else {
-      setError(result.error ?? "Could not join group. Please try again.");
+      setError(result.error ?? "Could not join split. Please try again.");
       setPhase("error");
+      const { triggerHaptic } = useBlopStore.getState();
+      triggerHaptic("error");
     }
   };
 
@@ -258,7 +261,7 @@ export default function JoinScreen({ params }: Props) {
             <CheckCircle size={40} className="text-emerald-600 dark:text-emerald-400" />
           </motion.div>
           <h2 className="text-xl font-bold text-foreground">Joined!</h2>
-          <p className="text-sm text-muted-foreground">Taking you to the group…</p>
+          <p className="text-sm text-muted-foreground">Taking you to the split…</p>
         </motion.div>
       )}
 

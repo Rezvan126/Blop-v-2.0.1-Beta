@@ -1,29 +1,60 @@
-# Blop Logo Asset Package
+# Blop v2.0
 
-Source: uploaded Blop logo image.
-Background color sampled from source: RGB (3, 191, 158) / Hex #03BF9E
+Blop is a fast, fair, and offline-first bill-splitting application. Built with a focus on privacy and minimalist design, it's the perfect tool for tracking shared expenses with friends, family, and roommates.
 
-Generated assets:
+## ✨ Key Features
+- **Privacy-First**: No accounts, no emails, no tracking.
+- **Offline-First**: Fully functional without an internet connection.
+- **Optional Cloud Sync**: Real-time split updates via Firebase.
+- **Professional Reports**: Export to PDF or CSV.
+- **Modern UI**: Dark/Light modes and premium color themes.
 
-## PWA / Web
-- public/icons/blop-icon-1024.png — 1024x1024, opaque
-- public/icons/icon-192.png — 192x192, opaque, purpose any
-- public/icons/icon-512.png — 512x512, opaque, purpose any
-- public/icons/icon-maskable-192.png — 192x192, opaque, extra padding, purpose maskable
-- public/icons/icon-maskable-512.png — 512x512, opaque, extra padding, purpose maskable
-- public/icons/blop-logo-transparent.png — 1024x1024, transparent background for splash/settings/onboarding
+## 🚀 Getting Started
 
-## Android Prep
-- android-prep/android-adaptive-foreground-432.png — 432x432, transparent foreground
-- android-prep/android-adaptive-background-432.png — 432x432, solid teal background
+### Prerequisites
+- Node.js 22+
+- NPM
 
-## iOS Prep
-- ios-prep/ios-icon-1024.png — 1024x1024, opaque, no transparency
+### Installation
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Manifest
-Use manifest-icons-snippet.json to update the web app manifest icons array.
+## 📱 Mobile Development (Android)
+Blop uses **Capacitor** to target Android.
 
-Notes:
-- Normal icons use logo at ~76% of canvas.
-- Maskable icons use logo at ~64% of canvas for cropping safety.
-- Android foreground uses logo at ~60% of 432px canvas to remain inside safe area.
+1. Build the web project:
+   ```bash
+   npm run build
+   ```
+2. Sync with Android:
+   ```bash
+   npx cap sync android
+   ```
+3. Open in Android Studio:
+   ```bash
+   npx cap open android
+   ```
+
+## 🛠 Tech Stack
+- **Frontend**: React 19, Vite 6, Tailwind CSS 4.
+- **State**: Zustand (with Persistence).
+- **Mobile**: Capacitor 8.
+- **Database**: Firestore (Optional Sync).
+- **Icons**: Lucide React.
+
+## 📄 Documentation
+- [Firebase Setup](docs/FIREBASE_SETUP.md)
+- [Android Release Guide](docs/ANDROID_RELEASE.md)
+- [Testing Checklist](docs/TESTING_CHECKLIST.md)
+- [Handover Notes](docs/HANDOVER_NOTES.md)
+- [Privacy Policy](docs/PRIVACY_NOTES.md)
+
+---
+*Created with ❤️ for simple splitting.*

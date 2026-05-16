@@ -4,11 +4,9 @@
  * Responsibilities:
  *  1. Calls signInAnonymously on first use; Firebase persists the UID in
  *     IndexedDB so the same UID is reused across sessions on the same device.
- *  2. On first successful auth, checks for an old flat `blop/{syncKey}`
- *     document and migrates it to the new subcollection structure.
- *  3. Debounces store changes and pushes per-entity to subcollections.
- *  4. Flushes immediately when the device comes back online.
- *  5. Exposes helpers used by the Cloud Sync settings UI.
+ *  2. Debounces store changes and pushes per-split to Firestore subcollections.
+ *  3. Flushes immediately when the device comes back online.
+ *  4. Exposes helpers used by the Cloud Sync settings UI.
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
@@ -16,10 +14,6 @@ import { useBlopStore } from "./store";
 import { isFirebaseConfigured, ensureAnonymousAuth, getCurrentUid } from "./firebase";
 import {
   pushAllToCloud,
-  pullOldFlatSnapshot,
-  deleteOldFlatSnapshot,
-  getDeviceSyncKey,
-  type OldFlatSnapshot,
 } from "./cloudSync";
 
 export type CloudSyncState = "disabled" | "idle" | "syncing" | "synced" | "error";
@@ -43,9 +37,7 @@ function _setLastSynced(iso: string) {
 
 // ── Exported state accessors ──────────────────────────────────────────────
 
-export function getSyncState(): CloudSyncState { return _state; }
-export function getLastSynced(): string | null { return _lastSynced; }
-export { getDeviceSyncKey };
+export { getSyncState, getLastSynced };
 
 /** React hook — subscribe to live sync state. */
 export function useSyncState() {
@@ -93,61 +85,7 @@ export async function triggerManualSync(): Promise<void> {
   return _doSync();
 }
 
-// ── Old flat-snapshot migration ───────────────────────────────────────────
 
-const MIGRATED_KEY = "blop-migrated-v2";
-
-async function _migrateIfNeeded(uid: string): Promise<void> {
-  if (localStorage.getItem(MIGRATED_KEY)) return;
-  try {
-    const old: OldFlatSnapshot | null = await pullOldFlatSnapshot();
-    if (!old) {
-      localStorage.setItem(MIGRATED_KEY, "1");
-      return;
-    }
-    // Push old data under the new structure
-    await pushAllToCloud({
-      uid,
-      displayName: old.settings?.userName || "Me",
-      members:     old.members     ?? {},
-      groups:      old.groups      ?? {},
-      expenses:    old.expenses    ?? {},
-      settlements: old.settlements ?? {},
-      activity:    old.activity    ?? [],
-    });
-    await deleteOldFlatSnapshot();
-    localStorage.setItem(MIGRATED_KEY, "1");
-    console.info("[blop sync] Migrated flat snapshot → subcollections");
-  } catch (err) {
-    console.warn("[blop sync] Migration skipped:", err);
-  }
-}
-
-// ── Cross-device restore (legacy sync-key flow) ───────────────────────────
-
-/**
- * Restore store data from a given sync key (for cross-device restore).
- * Tries the old flat `blop/{key}` document.
- * Returns true if data was found and imported.
- */
-export async function restoreFromKey(syncKey: string): Promise<boolean> {
-  const old = await pullOldFlatSnapshot(syncKey);
-  if (!old) return false;
-  const store = useBlopStore.getState();
-  store.importData(
-    JSON.stringify({
-      members:     old.members,
-      groups:      old.groups,
-      expenses:    old.expenses,
-      settlements: old.settlements,
-      activity:    old.activity,
-      settings:    old.settings,
-      groupMeIds:  old.groupMeIds,
-      version:     2,
-    })
-  );
-  return true;
-}
 
 // ── React hook (mounted once at App root) ─────────────────────────────────
 
@@ -172,7 +110,6 @@ export function useSyncEngine(): { isOnline: boolean } {
     ensureAnonymousAuth().then(async (user) => {
       if (!user) { _setState("error"); return; }
       _authReady = true;
-      await _migrateIfNeeded(user.uid);
       _pushNow();
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps

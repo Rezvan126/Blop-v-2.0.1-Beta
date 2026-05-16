@@ -35,7 +35,8 @@ export default function GroupSettingsScreen({ params }: Props) {
   const handleSaveName = () => {
     if (!groupName.trim()) return;
     updateGroup(params.id, { name: groupName.trim() });
-    const { triggerFeedback } = useBlopStore.getState();
+    const { triggerFeedback, triggerHaptic } = useBlopStore.getState();
+    triggerHaptic("success");
     triggerFeedback("info", "Split name updated");
   };
 
@@ -44,15 +45,18 @@ export default function GroupSettingsScreen({ params }: Props) {
     if (!t) return;
     const isDup = groupMembers.some(m => m.name.trim().toLowerCase() === t.toLowerCase());
     if (isDup) {
-      toast({ title: "This member already exists in this group.", duration: 2500, variant: "destructive" });
+      toast({ title: "This member already exists in this split.", duration: 2500, variant: "destructive" });
       return;
     }
     const res = addMemberToGroup(params.id, t);
+    const { triggerHaptic } = useBlopStore.getState();
     if (res === "EXISTS") {
+      triggerHaptic("warning");
       toast({ title: "This member already exists.", duration: 2500, variant: "destructive" });
       return;
     }
     setNewMemberName("");
+    triggerHaptic("success");
     toast({ title: `${t} added`, duration: 2000 });
   };
 
@@ -64,7 +68,9 @@ export default function GroupSettingsScreen({ params }: Props) {
     
     // Check if member was actually removed (store logic prevents removal of payers)
     const wasRemoved = !groups[params.id]?.memberIds.includes(memberToRemove);
+    const { triggerHaptic } = useBlopStore.getState();
     if (!wasRemoved) {
+      triggerHaptic("error");
       toast({ 
         title: "Cannot remove member", 
         description: `${member?.name} is the payer for one or more expenses.`,
@@ -72,6 +78,7 @@ export default function GroupSettingsScreen({ params }: Props) {
         variant: "destructive" 
       });
     } else {
+      triggerHaptic("light");
       toast({ title: `${member?.name ?? "Member"} removed`, duration: 2000 });
     }
     
@@ -81,7 +88,8 @@ export default function GroupSettingsScreen({ params }: Props) {
 
   const handleLeaveGroup = () => {
     updateGroup(params.id, { isArchived: true });
-    const { triggerFeedback } = useBlopStore.getState();
+    const { triggerFeedback, triggerHaptic } = useBlopStore.getState();
+    triggerHaptic("warning");
     triggerFeedback("archive", "Split archived");
     setLocation("/home");
   };
@@ -91,7 +99,7 @@ export default function GroupSettingsScreen({ params }: Props) {
   return (
     <Screen testId="page-group-settings">
       <AppHeader
-        title="Group settings"
+        title="Split settings"
         subtitle={group.name}
         onBack={() => setLocation(`/group/${params.id}`)}
         large
@@ -174,7 +182,7 @@ export default function GroupSettingsScreen({ params }: Props) {
             className="w-full border-destructive/25 text-destructive hover:bg-destructive/5 rounded-2xl h-12 font-semibold"
             data-testid="button-leave-group"
           >
-            <Archive size={16} className="mr-2" /> Archive group
+            <Archive size={16} className="mr-2" /> Archive split
           </Button>
         </section>
       </ScrollArea>
@@ -191,7 +199,7 @@ export default function GroupSettingsScreen({ params }: Props) {
             >
               <h2 className="text-title font-bold text-foreground">Remove member?</h2>
               <p className="text-body text-muted-foreground">
-                Remove <span className="font-semibold">{members[memberToRemove ?? ""]?.name ?? ""}</span> from this group? Their expenses will remain.
+                Remove <span className="font-semibold">{members[memberToRemove ?? ""]?.name ?? ""}</span> from this split? Their expenses will remain.
               </p>
               <Button onClick={handleRemoveMember} variant="destructive" className="w-full h-12 rounded-2xl font-bold" data-testid="button-confirm-remove">
                 Yes, remove them

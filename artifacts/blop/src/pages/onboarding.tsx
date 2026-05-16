@@ -27,7 +27,7 @@ export default function OnboardingScreen() {
   const slides = [
     {
       title: "Split expenses\nbeautifully",
-      subtitle: "Track shared expenses for trips, roommates, and friend groups. Fast, fair, and entirely offline.",
+      subtitle: "Track shared expenses for trips, roommates, and friend splits. Fast, fair, and entirely offline.",
       preview: (
         <div className="bg-card rounded-[28px] border border-border/40 shadow-card overflow-hidden">
           <div className="px-5 py-3.5 border-b border-border/30">
@@ -91,7 +91,7 @@ export default function OnboardingScreen() {
     },
     {
       title: "Works offline.\nSync when needed.",
-      subtitle: "We'll use this to identify you in shared groups. No email or password needed.",
+      subtitle: "We'll use this to identify you in shared splits. No email or password needed.",
       preview: null,
     },
   ];

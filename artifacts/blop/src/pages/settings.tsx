@@ -6,7 +6,7 @@ import {
   Bell, Globe, ShieldCheck, FileText, User, Check, Search, X,
   Cloud, CloudOff, RefreshCw, Copy, Smartphone, Wind, Zap,
 } from "lucide-react";
-import { useSyncState, triggerManualSync, restoreFromKey, getDeviceSyncKey } from "@/lib/sync-engine";
+import { useSyncState, triggerManualSync } from "@/lib/sync-engine";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,7 +133,7 @@ export default function SettingsScreen() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { colorTheme, mode, setColorTheme, setMode } = useTheme();
-  const { settings, updateSettings, exportData, importData } = useBlopStore();
+  const { settings, updateSettings, exportData, importData, triggerSuccess, triggerFeedback, triggerHaptic } = useBlopStore();
 
   const [userName, setUserName]               = useState(settings.userName);
   const [showReset, setShowReset]             = useState(false);
@@ -145,11 +145,7 @@ export default function SettingsScreen() {
 
   const { state: syncState, lastSynced }      = useSyncState();
   const syncEnabled                           = isFirebaseConfigured();
-  const [showRestoreSheet, setShowRestoreSheet] = useState(false);
-  const [restoreSyncKey, setRestoreSyncKey]   = useState("");
-  const [restoreStatus, setRestoreStatus]     = useState<"idle" | "loading" | "success" | "notfound" | "error">("idle");
   const [isSyncing, setIsSyncing]             = useState(false);
-  const [syncKey]                             = useState(() => getDeviceSyncKey());
 
   const handleManualSync = async () => {
     if (isSyncing) return;
@@ -158,27 +154,7 @@ export default function SettingsScreen() {
     setIsSyncing(false);
   };
 
-  const handleCopySyncKey = () => {
-    navigator.clipboard.writeText(syncKey).then(() => {
-      toast({ title: "Sync key copied", duration: 2000 });
-    });
-  };
 
-  const handleRestoreFromKey = async () => {
-    const key = restoreSyncKey.trim();
-    if (!key) return;
-    setRestoreStatus("loading");
-    try {
-      const found = await restoreFromKey(key);
-      setRestoreStatus(found ? "success" : "notfound");
-      if (found) {
-        toast({ title: "Data restored from cloud", duration: 3000 });
-        setTimeout(() => setShowRestoreSheet(false), 1200);
-      }
-    } catch {
-      setRestoreStatus("error");
-    }
-  };
 
   const filteredCurrencies = CURRENCIES.filter((c) => {
     if (!currencySearch) return true;
@@ -199,9 +175,10 @@ export default function SettingsScreen() {
 
   const handleExport = async () => {
     try {
+      const { triggerHaptic } = await import("@/lib/utils");
       const json = exportData();
       const now  = new Date();
-      const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}`;
+      const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
       const filename = `blop-backup-${stamp}.json`;
 
       const isNative = (window as any).Capacitor?.isNativePlatform();
@@ -223,6 +200,7 @@ export default function SettingsScreen() {
           dialogTitle: "Save Backup",
         });
         
+        triggerHaptic("success");
         triggerSuccess();
       } else {
         const blob = new Blob([json], { type: "application/json" });
@@ -230,13 +208,20 @@ export default function SettingsScreen() {
         const a    = document.createElement("a");
         a.href = url; a.download = filename;
         document.body.appendChild(a); a.click();
-        document.body.removeChild(a); URL.revokeObjectURL(url);
         
+        // Slight delay before revoking to ensure download starts on all browsers
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+        
+        triggerHaptic("success");
         triggerSuccess();
+        toast({ title: "Backup exported." });
       }
     } catch (e) {
       console.error("Export failed:", e);
-      toast({ title: "Export failed", duration: 2000, variant: "destructive" });
+      toast({ title: "Backup export failed.", duration: 2000, variant: "destructive" });
     }
   };
 
@@ -245,16 +230,20 @@ export default function SettingsScreen() {
     if (!file) return;
     setImportStatus("loading");
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const result = importData(reader.result as string);
+      const { triggerHaptic } = await import("@/lib/utils");
       if (result.ok) {
         setImportStatus("success");
-        toast({ title: "Data restored successfully", duration: 3000 });
-        setTimeout(() => setImportStatus("idle"), 4000);
+        triggerHaptic("success");
+        setTimeout(() => {
+          setImportStatus("idle");
+          setLocation("/home");
+        }, 1000);
       } else {
         setImportStatus("error");
-        setImportError(result.error ?? "Unknown error");
-        setTimeout(() => setImportStatus("idle"), 4000);
+        setImportError(result.error ?? "Failed to restore data");
+        triggerHaptic("error");
       }
     };
     reader.onerror = () => {
@@ -313,7 +302,7 @@ export default function SettingsScreen() {
                   </div>
                   <div>
                     <p className="text-[16px] font-bold text-foreground">{userName || settings.userName}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Your name in shared groups</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Your name in shared splits</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -358,7 +347,7 @@ export default function SettingsScreen() {
                     return (
                       <button
                         key={id}
-                        onClick={() => setMode(id)}
+                        onClick={() => { setMode(id); triggerHaptic("selection"); }}
                         className={cn(
                           "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[14px] text-[12px] font-bold transition-all duration-200",
                           active
@@ -389,7 +378,7 @@ export default function SettingsScreen() {
                       primaryHsl={def.primaryHsl}
                       accentHsl={def.accentHsl}
                       isActive={colorTheme === id}
-                      onClick={() => setColorTheme(id)}
+                      onClick={() => { setColorTheme(id); triggerHaptic("selection"); }}
                       testId={`button-theme-${id}`}
                     />
                   ),
@@ -419,8 +408,8 @@ export default function SettingsScreen() {
                 </span>
               </div>
             </SettingsCard>
-            <p className="text-caption text-muted-foreground px-1 mt-2 leading-relaxed">
-              Real-time group updates are active when sync is enabled. Push notifications will be added in a future release.
+            <p className="text-caption text-muted-foreground px-1 mt-2.5 leading-relaxed">
+              Real-time split updates are active when sync is enabled. Push notifications will be added in a future release.
             </p>
           </section>
 
@@ -489,7 +478,7 @@ export default function SettingsScreen() {
               />
             </SettingsCard>
             <p className="text-xs text-muted-foreground/60 px-1 mt-2.5">
-              Data is stored locally by default. No account required. Group sync is optional.
+              Data is stored locally by default. No account required. Split sync is optional.
             </p>
           </section>
 
@@ -525,14 +514,14 @@ export default function SettingsScreen() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      Group updates sync through Firebase when cloud sync is enabled.
+                      Split updates sync through Firebase when cloud sync is enabled.
                     </p>
                   </div>
                 </div>
 
                 <div className="px-5 py-4">
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Cloud sync works automatically per group. To access a group on another device, use the group's invite code.
+                    Cloud sync works automatically per split. To access a split on another device, use the invite code. You can also export a backup from Data & Backup.
                   </p>
                 </div>
               </SettingsCard>
@@ -554,7 +543,7 @@ export default function SettingsScreen() {
                 right={
                   <div className="flex items-center gap-1.5">
                     <img src="/icons/blop-logo-transparent.png" alt="Blop" className="w-4 h-4 rounded-sm" />
-                    <span className="text-[12px] text-muted-foreground font-semibold">v2.0.0</span>
+                    <span className="text-[12px] text-muted-foreground font-semibold">v2.0.1</span>
                   </div>
                 }
               />
@@ -593,7 +582,7 @@ export default function SettingsScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-[15px] font-semibold text-destructive">Reset all data</p>
-                <p className="text-xs text-destructive/60 mt-0.5">Permanently delete all groups and history</p>
+                <p className="text-xs text-destructive/60 mt-0.5">Permanently delete all splits and history</p>
               </div>
               <ChevronRight size={15} className="text-destructive/30" />
             </button>
@@ -624,7 +613,7 @@ export default function SettingsScreen() {
               </div>
               <h2 className="text-[20px] font-bold text-foreground text-center">Delete everything?</h2>
               <p className="text-[13px] text-muted-foreground text-center leading-relaxed">
-                All groups, expenses, and payment history will be permanently erased. This cannot be undone.
+                All splits, expenses, and payment history will be permanently erased. This cannot be undone.
               </p>
               <Button onClick={handleExport} variant="outline" className="w-full rounded-2xl h-12 font-semibold border-border/60">
                 <Download size={16} className="mr-2" /> Export backup first

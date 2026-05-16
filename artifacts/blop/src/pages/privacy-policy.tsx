@@ -7,7 +7,7 @@ const SECTIONS = [
   {
     icon: WifiOff,
     title: "Offline-first by design",
-    body: "Blop works entirely on your device. All your data — groups, members, expenses, and payments — is stored locally. No account or email is required to use the app.",
+    body: "Blop works entirely on your device. All your data — splits, members, expenses, and payments — is stored locally. No account or email is required to use the app.",
   },
   {
     icon: Database,
@@ -16,13 +16,13 @@ const SECTIONS = [
   },
   {
     icon: Share2,
-    title: "Optional Cloud Sync",
-    body: "If you want to share groups with friends, Blop uses Firebase for real-time syncing. This is optional. When enabled, your group data is synced through Firebase infrastructure so everyone stays up to date.",
+    title: "Optional Split Sync",
+    body: "If you want to share splits with friends, Blop uses Firebase for real-time syncing. This is optional. When enabled, your split data is synced through Firebase infrastructure so everyone stays up to date.",
   },
   {
     icon: Eye,
     title: "What data is synced",
-    body: "Only data necessary for group splitting is synced: group names, member names, expenses, and settlements. Anonymous authentication is used to identify your session safely without needing a password.",
+    body: "Only data necessary for bill splitting is synced: split names, member names, expenses, and settlements. Anonymous authentication is used to identify your session safely without needing a password.",
   },
   {
     icon: Shield,
@@ -70,7 +70,7 @@ export default function PrivacyPolicyScreen() {
                 Your data stays<br />with you.
               </p>
               <p className="text-[13px] text-white/60 leading-relaxed">
-                Offline-first split tracking. Optional cloud sync for shared groups. No ads, no selling data.
+                Offline-first split tracking. Optional split sync for shared splits. No ads, no selling data.
               </p>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function PrivacyPolicyScreen() {
           <div className="space-y-4 pt-4">
              <div className="bg-muted/30 rounded-[20px] p-5 border border-border/40">
                 <p className="text-[13px] text-muted-foreground leading-relaxed">
-                  Blop uses Firebase infrastructure for optional cloud sync. We do not sell your data or use it for advertising. 
+                  Blop uses Firebase infrastructure for optional split sync. We do not sell your data or use it for advertising. 
                   Firebase protects data in transit using HTTPS and encrypts supported stored data at rest.
                 </p>
              </div>

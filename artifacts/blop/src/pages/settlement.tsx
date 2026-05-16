@@ -82,6 +82,8 @@ export default function SettlementScreen({ params }: Props) {
     }
 
     recordSettlement(params.id, pendingFrom, pendingTo, amt, pendingMethod, pendingNote.trim() || undefined);
+    const { triggerHaptic } = useBlopStore.getState();
+    triggerHaptic("success");
     closeSheet();
     triggerSuccess();
   };
@@ -175,7 +177,7 @@ export default function SettlementScreen({ params }: Props) {
       </header>
 
       <ScrollArea className="scroll-pb-safe">
-        <div className="px-5 space-y-6 pt-3">
+        <div className="px-5 space-y-6 pt-5">
 
           {/* ── Group summary hero ── */}
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
@@ -188,7 +190,7 @@ export default function SettlementScreen({ params }: Props) {
               {isAllSettled ? (
                 <>
                   <p className="text-[36px] font-bold text-white leading-none mb-1">All settled 🎉</p>
-                  <p className="text-[12px] text-white/50">No pending payments in this group.</p>
+                  <p className="text-[12px] text-white/50">No pending payments in this split.</p>
                 </>
               ) : (
                 <>
@@ -254,7 +256,7 @@ export default function SettlementScreen({ params }: Props) {
               <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-8 text-center">
                 <p className="text-[40px] mb-3">🎉</p>
                 <p className="text-[17px] font-bold text-foreground">All settled!</p>
-                <p className="text-[13px] text-muted-foreground mt-1.5">No pending payments in this group.</p>
+                <p className="text-[13px] text-muted-foreground mt-1.5">No pending payments in this split.</p>
               </div>
             ) : (
               <div className="space-y-3">

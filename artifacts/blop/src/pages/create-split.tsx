@@ -31,9 +31,15 @@ export default function CreateSplitScreen() {
     }
     setMemberNames([...memberNames, t]);
     setNewMemberName("");
+    const { triggerHaptic } = useBlopStore.getState();
+    triggerHaptic("light");
   };
 
-  const removeMember = (n: string) => setMemberNames(memberNames.filter((m) => m !== n));
+  const removeMember = (n: string) => {
+    setMemberNames(memberNames.filter((m) => m !== n));
+    const { triggerHaptic } = useBlopStore.getState();
+    triggerHaptic("light");
+  };
 
   const nextStep = () => {
     if (step === 1) {
@@ -41,7 +47,7 @@ export default function CreateSplitScreen() {
       if (!t) return;
       const isDup = Object.values(groups).some(g => !g.isArchived && g.name.trim().toLowerCase() === t.toLowerCase());
       if (isDup) {
-        toast({ title: "You already have an active group with this name.", duration: 2500, variant: "destructive" });
+        toast({ title: "You already have an active split with this name.", duration: 2500, variant: "destructive" });
         return;
       }
       setStep(2);
@@ -49,7 +55,8 @@ export default function CreateSplitScreen() {
       setStep(step + 1);
     } else {
       const id = createGroup(name.trim(), memberNames, groupType, currency);
-      const { triggerSuccess } = useBlopStore.getState();
+      const { triggerSuccess, triggerHaptic } = useBlopStore.getState();
+      triggerHaptic("success");
       triggerSuccess();
       setLocation(`/group/${id}`);
     }
@@ -82,10 +89,11 @@ export default function CreateSplitScreen() {
 
         <button
           onClick={() => setLocation("/home")}
-          className="w-11 h-11 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+          className="px-3.5 py-1.5 rounded-xl bg-muted/50 flex items-center justify-center text-[13px] font-bold text-muted-foreground hover:bg-muted transition-colors"
           aria-label="Cancel"
+          data-testid="button-cancel-create"
         >
-          <X size={20} strokeWidth={2.5} />
+          Cancel
         </button>
       </header>
 

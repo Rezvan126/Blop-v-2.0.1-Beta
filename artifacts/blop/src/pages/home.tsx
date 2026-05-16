@@ -183,7 +183,7 @@ export default function HomeScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="px-5 space-y-5 pb-2"
+              className="px-5 pt-5 space-y-5 pb-2"
             >
               {/* Net balance hero */}
               <motion.div {...stagger(0)}>
@@ -417,7 +417,7 @@ export default function HomeScreen() {
                     <PieChart size={24} className="text-muted-foreground/60" />
                   </div>
                   <p className="text-[18px] font-bold text-foreground">No insights yet</p>
-                  <p className="text-[14px] text-muted-foreground mt-2">Create a group and add expenses to see your spending overview.</p>
+                  <p className="text-[14px] text-muted-foreground mt-2">Create a split and add expenses to see your spending overview.</p>
                 </div>
               ) : (
                 <>
@@ -437,7 +437,7 @@ export default function HomeScreen() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
                       <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{activeGroups.length}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Active groups</p>
+                      <p className="text-[12px] text-muted-foreground font-semibold">Active splits</p>
                     </div>
                     <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
                       <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{allExpenses.length}</p>
@@ -445,7 +445,7 @@ export default function HomeScreen() {
                     </div>
                     <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
                       <p className="text-[20px] font-bold text-amber-500 tabular-nums leading-none mb-1">{groupsWithPending.size}</p>
-                      <p className="text-[12px] text-amber-500/80 font-semibold">Pending groups</p>
+                      <p className="text-[12px] text-amber-500/80 font-semibold">Pending splits</p>
                     </div>
                     <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
                       <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{receiptsCount}</p>
@@ -732,7 +732,11 @@ function PremiumNav({
           return (
             <motion.button
               key={id}
-              onClick={() => onChange(id)}
+              onClick={async () => {
+                const { triggerHaptic } = await import("@/lib/utils");
+                triggerHaptic("selection");
+                onChange(id);
+              }}
               whileTap={{ scale: 0.96 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
               className="flex-1 flex flex-col items-center justify-center h-full gap-1 relative"

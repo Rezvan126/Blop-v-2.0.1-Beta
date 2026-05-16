@@ -27,18 +27,7 @@ import type {
   ActivityLog, SyncStatus, GroupSnapshotPayload,
 } from "./models";
 
-// ── Device sync-key (kept for backward-compat migration) ──────────────────
 
-export const SYNC_KEY_LS = "blop-sync-key";
-
-export function getDeviceSyncKey(): string {
-  let key = localStorage.getItem(SYNC_KEY_LS);
-  if (!key) {
-    key = crypto.randomUUID();
-    localStorage.setItem(SYNC_KEY_LS, key);
-  }
-  return key;
-}
 
 // ── Batch writer (splits into multiple Firestore batches at 490 ops each) ──
 
@@ -473,33 +462,4 @@ export function unsubscribeAll(): void {
   for (const id of [..._groupUnsubs.keys()]) unsubscribeFromGroup(id);
 }
 
-// ── Old flat-snapshot helpers (migration only) ────────────────────────────
 
-export interface OldFlatSnapshot {
-  version?: number;
-  members:     Record<string, Member>;
-  groups:      Record<string, Group>;
-  expenses:    Record<string, Expense>;
-  settlements: Record<string, SettlementPayment>;
-  activity:    ActivityLog[];
-  settings:    { currentUserId: string; userName: string };
-  groupMeIds:  Record<string, string>;
-}
-
-export async function pullOldFlatSnapshot(
-  syncKey?: string
-): Promise<OldFlatSnapshot | null> {
-  const db = getFirebaseDb();
-  if (!db) return null;
-  const key  = syncKey ?? getDeviceSyncKey();
-  const snap = await getDoc(doc(db, "blop", key));
-  if (!snap.exists()) return null;
-  return snap.data() as OldFlatSnapshot;
-}
-
-export async function deleteOldFlatSnapshot(syncKey?: string): Promise<void> {
-  const db = getFirebaseDb();
-  if (!db) return;
-  const key = syncKey ?? getDeviceSyncKey();
-  try { await deleteDoc(doc(db, "blop", key)); } catch { /* already gone */ }
-}

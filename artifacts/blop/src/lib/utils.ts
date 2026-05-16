@@ -27,3 +27,33 @@ export function parseTimestamp(ts: any): number {
   const parsed = new Date(ts).getTime();
   return isNaN(parsed) ? 0 : parsed;
 }
+
+/**
+ * Trigger purposeful haptic feedback using Capacitor Haptics.
+ * Fails silently if on an unsupported platform or browser.
+ */
+export async function triggerHaptic(type: 'success' | 'warning' | 'error' | 'light' | 'selection' = 'light') {
+  try {
+    const { Haptics, ImpactStyle, NotificationType } = await import('@capacitor/haptics');
+    
+    switch (type) {
+      case 'success':
+        await Haptics.notification({ type: NotificationType.Success });
+        break;
+      case 'warning':
+        await Haptics.notification({ type: NotificationType.Warning });
+        break;
+      case 'error':
+        await Haptics.notification({ type: NotificationType.Error });
+        break;
+      case 'light':
+        await Haptics.impact({ style: ImpactStyle.Light });
+        break;
+      case 'selection':
+        await Haptics.selectionStart();
+        break;
+    }
+  } catch (e) {
+    // Fail silently in browser or if not supported
+  }
+}
