@@ -113,6 +113,8 @@ export default function JoinScreen({ params }: Props) {
     if (result.ok && result.groupId) {
       setJoinedGroupId(result.groupId);
       setPhase("success");
+      const { triggerSuccess } = useBlopStore.getState();
+      triggerSuccess();
       setTimeout(() => setLocation(`/group/${result.groupId}`), 1500);
     } else {
       setError(result.error ?? "Could not join group. Please try again.");

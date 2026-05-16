@@ -204,7 +204,9 @@ export default function SettingsScreen() {
       const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}`;
       const filename = `blop-backup-${stamp}.json`;
 
-      if (window.hasOwnProperty("Capacitor")) {
+      const isNative = (window as any).Capacitor?.isNativePlatform();
+
+      if (isNative) {
         const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
         const { Share } = await import("@capacitor/share");
 
@@ -221,8 +223,6 @@ export default function SettingsScreen() {
           dialogTitle: "Save Backup",
         });
         
-        // On Android, Share.share resolves even if the user cancels or if it completes.
-        // We trigger success here as the file was successfully prepared and the share dialog shown.
         triggerSuccess();
       } else {
         const blob = new Blob([json], { type: "application/json" });
@@ -231,11 +231,12 @@ export default function SettingsScreen() {
         a.href = url; a.download = filename;
         document.body.appendChild(a); a.click();
         document.body.removeChild(a); URL.revokeObjectURL(url);
-        toast({ title: "Backup saved", description: filename, duration: 3000 });
+        
+        triggerSuccess();
       }
     } catch (e) {
       console.error("Export failed:", e);
-      toast({ title: "Export failed", duration: 2000 });
+      toast({ title: "Export failed", duration: 2000, variant: "destructive" });
     }
   };
 

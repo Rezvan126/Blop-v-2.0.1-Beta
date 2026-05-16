@@ -22,14 +22,18 @@ export function InviteSheet({ open, onClose, inviteCode, groupName }: InviteShee
     navigator.clipboard.writeText(fullUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast({ title: "Link copied to clipboard", duration: 2000 });
+      try {
+        const { useBlopStore } = require("@/lib/store");
+        useBlopStore.getState().triggerSuccess();
+      } catch {}
     }).catch(() => {
       toast({ title: "Copy failed", variant: "destructive" });
     });
   };
 
   const handleNativeShare = async () => {
-    if (window.hasOwnProperty("Capacitor")) {
+    const isNative = (window as any).Capacitor?.isNativePlatform();
+    if (isNative) {
       const { Share } = await import("@capacitor/share");
       await Share.share({
         title: `Join ${groupName} on Blop`,

@@ -49,6 +49,8 @@ export default function CreateSplitScreen() {
       setStep(step + 1);
     } else {
       const id = createGroup(name.trim(), memberNames, groupType, currency);
+      const { triggerSuccess } = useBlopStore.getState();
+      triggerSuccess();
       setLocation(`/group/${id}`);
     }
   };
