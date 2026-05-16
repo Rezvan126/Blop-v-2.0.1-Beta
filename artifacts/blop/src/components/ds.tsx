@@ -149,7 +149,7 @@ export function AppHeader({
   large?: boolean;
 }) {
   return (
-    <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-3 sticky top-0 bg-background/90 backdrop-blur-2xl z-10 border-b border-border/40">
+    <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-3 sticky top-0 bg-background/80 backdrop-blur-3xl z-40 border-b border-white/5 shadow-sm">
       {onBack && (
         <Button
           variant="ghost"
@@ -216,7 +216,7 @@ export function Card({
     "bg-card rounded-[28px] shadow-card border border-border/40",
     !noPad && "p-5",
     onClick &&
-      "hover:shadow-card-hover transition-shadow duration-200 cursor-pointer text-left",
+      "hover:shadow-card-hover transition-all duration-300 cursor-pointer text-left active:scale-[0.98]",
     className,
   );
   if (onClick) {
@@ -339,33 +339,49 @@ export function FloatingBottomNav({
   testIdPrefix?: string;
 }) {
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-2xl z-20 border-t border-border/20 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] dark:shadow-none">
-      <div className="flex items-center px-2 pt-1.5 nav-safe-bottom">
+    <nav className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-3xl z-40 border-t border-white/5 shadow-[0_-8px_40px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center px-2 pt-2 pb-1 nav-safe-bottom">
         {tabs.map(({ id, label, icon: Icon, route }) => {
           const active_ = active === id;
           return (
             <button
               key={id}
               onClick={() => onChange(id, route)}
-              className="flex-1 flex flex-col items-center gap-1"
+              className="flex-1 flex flex-col items-center relative group py-1"
               data-testid={`${testIdPrefix}-${id}`}
             >
-              <div
+              <AnimatePresence>
+                {active_ && (
+                  <motion.div
+                    layoutId="nav-glow"
+                    className="absolute inset-0 mx-auto w-12 h-12 bg-primary/10 blur-xl rounded-full -z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  />
+                )}
+              </AnimatePresence>
+
+              <motion.div
+                whileTap={{ scale: 0.9 }}
                 className={cn(
-                  "w-12 h-7 rounded-[12px] flex items-center justify-center transition-all duration-200",
-                  active_ ? "bg-primary/15" : "hover:bg-muted/40",
+                  "w-12 h-8 rounded-[14px] flex items-center justify-center transition-all duration-300 relative",
+                  active_ ? "bg-primary/10" : "hover:bg-muted/40",
                 )}
               >
                 <Icon
-                  size={18}
-                  className={active_ ? "text-primary" : "text-muted-foreground/60"}
+                  size={20}
+                  className={cn(
+                    "transition-all duration-300",
+                    active_ ? "text-primary scale-110" : "text-muted-foreground/50 group-hover:text-muted-foreground"
+                  )}
                   strokeWidth={active_ ? 2.5 : 2}
                 />
-              </div>
+              </motion.div>
               <span
                 className={cn(
-                  "text-[10px] font-bold leading-none transition-colors mt-0.5",
-                  active_ ? "text-primary" : "text-muted-foreground/60",
+                  "text-[10px] font-bold leading-none transition-all duration-300 mt-1",
+                  active_ ? "text-primary scale-105" : "text-muted-foreground/50 group-hover:text-muted-foreground",
                 )}
               >
                 {label}
@@ -502,15 +518,25 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center px-8">
-      <div className="w-16 h-16 rounded-[20px] bg-muted/50 flex items-center justify-center mb-5">
-        <Icon size={28} className="text-muted-foreground/40" />
+    <div className="flex flex-col items-center justify-center py-24 text-center px-8 relative overflow-hidden">
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-150 opacity-50" />
+        <div className="relative w-20 h-20 rounded-[24px] bg-card border border-border/40 shadow-card flex items-center justify-center rotate-3">
+          <div className="absolute inset-0 bg-primary/5 rounded-[24px] -rotate-6 scale-95" />
+          <Icon size={32} className="text-primary/60" />
+        </div>
       </div>
-      <p className="text-body-lg font-bold text-foreground">{title}</p>
+      <p className="text-[18px] font-black text-foreground tracking-tight">{title}</p>
       {subtitle && (
-        <p className="text-body text-muted-foreground mt-2 leading-relaxed">{subtitle}</p>
+        <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed max-w-[240px] mx-auto font-medium">
+          {subtitle}
+        </p>
       )}
-      {action && <div className="mt-6">{action}</div>}
+      {action && (
+        <div className="mt-8 transition-all duration-300 hover:translate-y-[-2px]">
+          {action}
+        </div>
+      )}
     </div>
   );
 }
@@ -596,9 +622,11 @@ export function GroupCard({
   return (
     <button
       onClick={onClick}
-      className="w-full bg-card rounded-[28px] shadow-card border border-border/40 p-5 text-left hover:shadow-card-hover transition-all duration-200"
+      className="w-full bg-card rounded-[28px] shadow-card border border-border/40 p-5 text-left hover:shadow-card-hover transition-all duration-300 active:scale-[0.98] relative overflow-hidden group"
       data-testid={testId}
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="relative z-10">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0 mr-3">
           <p className="font-bold text-foreground text-body-lg truncate">{group.name}</p>
@@ -622,6 +650,7 @@ export function GroupCard({
         )}
       </div>
       <AvatarStack ids={group.memberIds} members={members} max={5} size="sm" />
+      </div>
     </button>
   );
 }

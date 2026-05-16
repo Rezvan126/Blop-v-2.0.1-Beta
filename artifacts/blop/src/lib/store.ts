@@ -126,6 +126,12 @@ interface BlopStore {
   joinGroupByCode(code: string): Promise<{ ok: boolean; groupId?: string; error?: string }>;
   showSuccessOverlay: boolean;
   triggerSuccess: () => void;
+  feedback: {
+    visible: boolean;
+    type: "success" | "archive" | "unarchive" | "info";
+    message?: string;
+  };
+  triggerFeedback: (type: "success" | "archive" | "unarchive" | "info", message?: string) => void;
 }
 
 function makeActivity(
@@ -148,6 +154,11 @@ export const useBlopStore = create<BlopStore>()(
       triggerSuccess: () => {
         set({ showSuccessOverlay: true });
         setTimeout(() => set({ showSuccessOverlay: false }), 800);
+      },
+      feedback: { visible: false, type: "success" },
+      triggerFeedback: (type, message) => {
+        set({ feedback: { visible: true, type, message } });
+        setTimeout(() => set({ feedback: { visible: false, type, message } }), 1500);
       },
       settings: {
         currentUserId: "user-me",

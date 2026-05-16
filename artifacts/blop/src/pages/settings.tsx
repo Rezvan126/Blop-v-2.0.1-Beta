@@ -539,7 +539,7 @@ export default function SettingsScreen() {
             )}
             <p className="text-xs text-muted-foreground/60 px-1 mt-2.5">
               {syncEnabled
-                ? "You can also export a backup from Data & Backup."
+                ? ""
                 : "Your data stays private on this device. Cloud backup is optional."}
             </p>
           </section>

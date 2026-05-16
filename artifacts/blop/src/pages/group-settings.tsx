@@ -35,7 +35,8 @@ export default function GroupSettingsScreen({ params }: Props) {
   const handleSaveName = () => {
     if (!groupName.trim()) return;
     updateGroup(params.id, { name: groupName.trim() });
-    toast({ title: "Group name updated", duration: 2000 });
+    const { triggerFeedback } = useBlopStore.getState();
+    triggerFeedback("info", "Split name updated");
   };
 
   const handleAddMember = () => {
@@ -80,8 +81,9 @@ export default function GroupSettingsScreen({ params }: Props) {
 
   const handleLeaveGroup = () => {
     updateGroup(params.id, { isArchived: true });
+    const { triggerFeedback } = useBlopStore.getState();
+    triggerFeedback("archive", "Split archived");
     setLocation("/home");
-    toast({ title: "Group archived", duration: 2000 });
   };
 
   const currentMe = groupMembers.find((m) => m.id === meId);
@@ -98,9 +100,9 @@ export default function GroupSettingsScreen({ params }: Props) {
       <ScrollArea className="px-6 py-6 scroll-pb-safe space-y-8">
 
         {/* Group name */}
-        <SettingsSection label="Group">
+        <SettingsSection label="Split">
           <div className="px-5 py-5 space-y-3">
-            <SectionLabel>Group name</SectionLabel>
+            <SectionLabel>Split name</SectionLabel>
             <div className="flex gap-2">
               <Input
                 value={groupName}
@@ -210,7 +212,7 @@ export default function GroupSettingsScreen({ params }: Props) {
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
               className="absolute bottom-0 left-0 right-0 bg-background rounded-t-[32px] p-6 pb-safe-sheet space-y-3 z-50"
             >
-              <h2 className="text-title font-bold text-foreground">Archive group?</h2>
+              <h2 className="text-title font-bold text-foreground">Archive split?</h2>
               <p className="text-body text-muted-foreground">
                 "{group.name}" will be hidden from your home screen. All data is preserved.
               </p>

@@ -140,7 +140,7 @@ export default function JoinScreen({ params }: Props) {
             <Users size={36} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Join group</h1>
+            <h1 className="text-3xl font-bold text-foreground">Join split</h1>
             <p className="text-sm text-muted-foreground mt-2">
               Enter the invite key below.
             </p>
@@ -238,7 +238,7 @@ export default function JoinScreen({ params }: Props) {
             transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
             className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary"
           />
-          <p className="text-sm text-muted-foreground">Joining group…</p>
+          <p className="text-sm text-muted-foreground">Joining split…</p>
         </div>
       )}
 

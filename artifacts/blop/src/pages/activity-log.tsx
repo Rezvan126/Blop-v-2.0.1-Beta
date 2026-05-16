@@ -32,8 +32,8 @@ const EVENT_CONFIG: Record<ActionType, EventConfig> = {
   MEMBER_ADDED:        { icon: UserPlus,       bgCls: "bg-teal-100 dark:bg-teal-950/40",       iconCls: "text-teal-600 dark:text-teal-400",        label: "Member added" },
   MEMBER_REMOVED:      { icon: UserMinus,      bgCls: "bg-rose-50 dark:bg-rose-950/30",        iconCls: "text-rose-400",                           label: "Member removed", deleted: true },
   MEMBER_JOINED:       { icon: UserPlus,       bgCls: "bg-teal-100 dark:bg-teal-950/40",       iconCls: "text-teal-600 dark:text-teal-400",        label: "Member joined" },
-  GROUP_CREATED:       { icon: Flag,           bgCls: "bg-primary/10",                         iconCls: "text-primary",                            label: "Group created" },
-  GROUP_SYNCED:        { icon: RefreshCw,      bgCls: "bg-sky-100 dark:bg-sky-950/40",         iconCls: "text-sky-600 dark:text-sky-400",          label: "Group synced" },
+  GROUP_CREATED:       { icon: Flag,           bgCls: "bg-primary/10",                         iconCls: "text-primary",                            label: "Split created" },
+  GROUP_SYNCED:        { icon: RefreshCw,      bgCls: "bg-sky-100 dark:bg-sky-950/40",         iconCls: "text-sky-600 dark:text-sky-400",          label: "Split synced" },
   GROUP_SETTINGS_CHANGED: { icon: Settings,    bgCls: "bg-muted",                              iconCls: "text-muted-foreground",                   label: "Settings changed" },
 };
 

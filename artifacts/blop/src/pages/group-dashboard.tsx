@@ -382,9 +382,11 @@ export default function GroupDashboardScreen({ params }: Props) {
     return (
       <button
         onClick={() => setLocation(`/group/${params.id}/expense/${expense.id}`)}
-        className="w-full bg-card rounded-[22px] shadow-card border border-border/40 px-4 py-3.5 flex items-center gap-3.5 hover:shadow-card-hover transition-all duration-200 text-left active:scale-[0.99]"
+        className="w-full bg-card rounded-[22px] shadow-card border border-border/40 px-4 py-3.5 flex items-center gap-3.5 hover:shadow-card-hover transition-all duration-300 text-left active:scale-[0.98] relative overflow-hidden group"
         data-testid={`expense-row-${expense.id}`}
       >
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="relative z-10 flex items-center gap-3.5 w-full">
         <div className={cn("w-10 h-10 rounded-[14px] flex items-center justify-center flex-shrink-0", cat?.color ?? "bg-muted text-muted-foreground")}>
           <IconComp size={17} />
         </div>
@@ -404,6 +406,7 @@ export default function GroupDashboardScreen({ params }: Props) {
             </p>
           )}
         </div>
+        </div>
       </button>
     );
   };
@@ -412,7 +415,7 @@ export default function GroupDashboardScreen({ params }: Props) {
     <Screen testId="page-group-dashboard">
 
       {/* ── Header ── */}
-      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/92 backdrop-blur-2xl z-10">
+      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/80 backdrop-blur-3xl z-40 border-b border-white/5 shadow-sm">
         <div className="flex items-center gap-2 mb-1">
           {/* Back */}
           <button
@@ -454,14 +457,32 @@ export default function GroupDashboardScreen({ params }: Props) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setShowInviteSheet(true)}>
-                <Link2 size={14} className="mr-2" /> Share group
+              <DropdownMenuItem onClick={() => setShowInviteSheet(true)} className="gap-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Link2 size={16} />
+                </div>
+                Share split
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleExportCSV}><FileDown size={14} className="mr-2" /> Export report (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportPDF}><FileText size={14} className="mr-2" /> Export report (PDF)</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportCSV} className="gap-3">
+                <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                  <FileDown size={16} />
+                </div>
+                Export CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF} className="gap-3">
+                <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                  <FileText size={16} />
+                </div>
+                Export PDF
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setLocation(`/group/${params.id}/settings`)}>Group settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocation(`/group/${params.id}/settings`)} className="gap-3">
+                <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                  <Settings size={16} />
+                </div>
+                Split settings
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

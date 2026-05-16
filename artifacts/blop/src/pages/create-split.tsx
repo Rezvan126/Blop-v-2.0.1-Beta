@@ -80,7 +80,13 @@ export default function CreateSplitScreen() {
           ))}
         </div>
 
-        <div className="w-10" />
+        <button
+          onClick={() => setLocation("/home")}
+          className="w-11 h-11 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+          aria-label="Cancel"
+        >
+          <X size={20} strokeWidth={2.5} />
+        </button>
       </header>
 
       <div className="flex-1 flex flex-col overflow-hidden">
