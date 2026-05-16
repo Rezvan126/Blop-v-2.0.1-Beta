@@ -259,9 +259,9 @@ export default function HomeScreen() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="px-5 pt-5 pb-10 space-y-8"
+              className="px-5 pt-5 pb-10 space-y-4"
             >
-              <SectionLabel>Quick Settle</SectionLabel>
+              <SectionLabel>Pending settlements</SectionLabel>
               {groupsWithPending.size === 0 ? (
                 <EmptyState
                   icon={ArrowLeftRight}
@@ -269,27 +269,61 @@ export default function HomeScreen() {
                 />
               ) : (
                 <div className="grid gap-4">
-                  {groups.filter(g => groupsWithPending.has(g.id)).map((g, i) => (
-                    <motion.div key={g.id} {...stagger(i)}>
-                      <button
-                        onClick={() => setLocation(`/group/${g.id}/settle`)}
-                        className="w-full bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex items-center justify-between hover:shadow-card-hover transition-all"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-[16px] bg-primary/10 flex items-center justify-center">
-                            <ArrowLeftRight size={20} className="text-primary" />
+                  {groups.filter(g => groupsWithPending.has(g.id)).map((g, i) => {
+                    const groupSettlements = getMinimizedSettlements(g.id);
+                    const groupMemberIds = (rawGroups[g.id]?.memberIds ?? []);
+                    return (
+                      <motion.div key={g.id} {...stagger(i)}>
+                        <div className="bg-card rounded-[24px] shadow-card border border-border/40 overflow-hidden">
+                          {/* Group header */}
+                          <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border/30">
+                            <p className="text-[15px] font-bold text-foreground">{g.name}</p>
+                            <AvatarStack ids={groupMemberIds} members={members} size="sm" max={4} />
                           </div>
-                          <div className="text-left">
-                            <p className="text-[16px] font-bold text-foreground leading-tight">{g.name}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">Pending settlements</p>
+                          {/* Settlement rows */}
+                          {groupSettlements.map((s, si) => {
+                            const from = members[s.fromMemberId];
+                            const to   = members[s.toMemberId];
+                            if (!from || !to) return null;
+                            const fromName = s.fromMemberId === settings.currentUserId
+                              ? (settings.userName || "You").split(" ")[0]
+                              : from.name.split(" ")[0];
+                            const toName = s.toMemberId === settings.currentUserId
+                              ? (settings.userName || "You").split(" ")[0]
+                              : to.name.split(" ")[0];
+                            return (
+                              <div
+                                key={si}
+                                className={cn(
+                                  "flex items-center gap-3 px-5 py-3.5",
+                                  si < groupSettlements.length - 1 && "border-b border-border/20"
+                                )}
+                              >
+                                <Avatar member={from} size="sm" meId={settings.currentUserId} />
+                                <span className="text-muted-foreground/50 text-xs">→</span>
+                                <Avatar member={to} size="sm" meId={settings.currentUserId} />
+                                <p className="flex-1 text-[14px] font-semibold text-foreground">
+                                  {fromName} → {toName}
+                                </p>
+                                <p className="text-[15px] font-bold text-primary tabular-nums">
+                                  {formatAmount(s.amount, sym)}
+                                </p>
+                              </div>
+                            );
+                          })}
+                          {/* Record payment link */}
+                          <div className="px-5 pt-2 pb-4 border-t border-border/20">
+                            <button
+                              onClick={() => setLocation(`/group/${g.id}/settle`)}
+                              className="text-[13px] font-bold text-primary flex items-center gap-1 hover:opacity-75 transition-opacity"
+                            >
+                              Record payment →
+                            </button>
                           </div>
                         </div>
-                        <div className="w-9 h-9 rounded-full bg-muted/40 flex items-center justify-center">
-                          <Plus size={16} className="text-muted-foreground/60" />
-                        </div>
-                      </button>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </motion.div>
