@@ -10,6 +10,7 @@ import {
   Screen, ScrollArea, AppHeader, SettingsSection, SettingsRow,
   Avatar, SectionLabel,
 } from "@/components/ds";
+import { triggerHaptic } from "@/lib/utils";
 
 interface Props { params: { id: string } }
 
@@ -36,7 +37,8 @@ export default function GroupSettingsScreen({ params }: Props) {
     if (!groupName.trim()) return;
     updateGroup(params.id, { name: groupName.trim() });
     const { triggerFeedback } = useBlopStore.getState();
-    triggerFeedback("info", "Split name updated");
+    triggerFeedback("info", "Split updated");
+    triggerHaptic();
   };
 
   const handleAddMember = () => {

@@ -15,7 +15,7 @@ import { useTheme, THEME_DEFINITIONS, type ColorTheme, type AppMode } from "@/co
 import { useToast } from "@/hooks/use-toast";
 import { useBlopStore } from "@/lib/store";
 import { Screen, ScrollArea, BottomSheet } from "@/components/ds";
-import { cn } from "@/lib/utils";
+import { cn, triggerHaptic } from "@/lib/utils";
 import { CURRENCIES } from "@/lib/currencies";
 
 const MODE_OPTIONS: { id: AppMode; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
@@ -133,7 +133,10 @@ export default function SettingsScreen() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { colorTheme, mode, setColorTheme, setMode } = useTheme();
-  const { settings, updateSettings, exportData, importData } = useBlopStore();
+  const { 
+    settings, updateSettings, exportData, importData, 
+    triggerSuccess, triggerFeedback 
+  } = useBlopStore();
 
   const [userName, setUserName]               = useState(settings.userName);
   const [showReset, setShowReset]             = useState(false);
@@ -207,9 +210,6 @@ export default function SettingsScreen() {
       const isNative = (window as any).Capacitor?.isNativePlatform();
 
       if (isNative) {
-        const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
-        const { Share } = await import("@capacitor/share");
-
         const writeResult = await Filesystem.writeFile({
           path: filename,
           data: json,
@@ -224,6 +224,7 @@ export default function SettingsScreen() {
         });
         
         triggerSuccess();
+        triggerHaptic();
       } else {
         const blob = new Blob([json], { type: "application/json" });
         const url  = URL.createObjectURL(blob);
@@ -232,7 +233,8 @@ export default function SettingsScreen() {
         document.body.appendChild(a); a.click();
         document.body.removeChild(a); URL.revokeObjectURL(url);
         
-        triggerSuccess();
+        triggerFeedback("success", "Backup saved");
+        triggerHaptic();
       }
     } catch (e) {
       console.error("Export failed:", e);
@@ -290,7 +292,7 @@ export default function SettingsScreen() {
       </header>
 
       <ScrollArea className="scroll-pb-safe">
-        <div className="px-5 space-y-8 pt-2">
+        <div className="px-5 pt-5 pb-10 space-y-7">
 
           {/* ── App Identity ── */}
           <div className="flex flex-col items-center py-5">
@@ -452,8 +454,8 @@ export default function SettingsScreen() {
                     importStatus === "loading" ? "text-primary" :
                     importStatus === "success" ? "text-emerald-700 dark:text-emerald-400" : "text-destructive",
                   )}>
-                    {importStatus === "loading" ? "Restoring data…" :
-                     importStatus === "success" ? "Data restored!" : importError}
+                     {importStatus === "loading" ? "Restoring data…" :
+                      importStatus === "success" ? "Back on track!" : importError}
                   </p>
                 </motion.div>
               )}
@@ -525,14 +527,14 @@ export default function SettingsScreen() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      Group updates sync through Firebase when cloud sync is enabled.
+                      Split updates sync through Firebase when cloud sync is enabled.
                     </p>
                   </div>
                 </div>
 
                 <div className="px-5 py-4">
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Cloud sync works automatically per group. To access a group on another device, use the group's invite code.
+                    Cloud sync works automatically per split. To access a split on another device, use the split's invite code.
                   </p>
                 </div>
               </SettingsCard>
@@ -593,7 +595,7 @@ export default function SettingsScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-[15px] font-semibold text-destructive">Reset all data</p>
-                <p className="text-xs text-destructive/60 mt-0.5">Permanently delete all groups and history</p>
+                <p className="text-xs text-destructive/60 mt-0.5">Permanently delete all splits and history</p>
               </div>
               <ChevronRight size={15} className="text-destructive/30" />
             </button>

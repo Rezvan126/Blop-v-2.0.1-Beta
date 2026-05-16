@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useBlopStore } from "@/lib/store";
 import type { GroupType } from "@/lib/store";
 import { Screen, ScrollArea } from "@/components/ds";
-import { cn } from "@/lib/utils";
+import { cn, triggerHaptic } from "@/lib/utils";
 
 export default function CreateSplitScreen() {
   const [, setLocation] = useLocation();
@@ -51,6 +51,7 @@ export default function CreateSplitScreen() {
       const id = createGroup(name.trim(), memberNames, groupType, currency);
       const { triggerSuccess } = useBlopStore.getState();
       triggerSuccess();
+      triggerHaptic();
       setLocation(`/group/${id}`);
     }
   };

@@ -121,38 +121,10 @@ export default function HomeScreen() {
 
   return (
     <Screen testId="page-home">
-      {/* Dynamic Background Orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-        <motion.div
-          animate={{
-            x: [0, 40, 0],
-            y: [0, -20, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] bg-primary/[0.04] blur-[120px] rounded-full"
-        />
-        <motion.div
-          animate={{
-            x: [0, -30, 0],
-            y: [0, 40, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[40%] -right-[20%] w-[70%] h-[70%] bg-blue-400/[0.03] blur-[140px] rounded-full"
-        />
-        <motion.div
-          animate={{
-            x: [0, 20, 0],
-            y: [0, 20, 0],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-[10%] left-[20%] w-[50%] h-[50%] bg-emerald-400/[0.03] blur-[100px] rounded-full"
-        />
-      </div>
+
 
       {/* ── Header ── */}
-      <header className="px-6 pt-safe-header-lg pb-4 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-3xl z-40 border-b border-white/5 shadow-sm">
+      <header className="px-6 pt-safe-header-lg pb-4 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-2xl z-40 border-b border-border/40 shadow-sm">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-bold text-body-lg flex-shrink-0 shadow-avatar">
             {userName.charAt(0).toUpperCase()}
@@ -183,7 +155,7 @@ export default function HomeScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="px-5 space-y-5 pb-2"
+              className="px-5 space-y-5 pt-5 pb-2"
             >
               {/* Net balance hero */}
               <motion.div {...stagger(0)}>
