@@ -4,8 +4,9 @@ import {
   Settings, Plus, Home, ArrowLeftRight, PieChart,
   TrendingUp, Tag, Utensils, Car, BedDouble, Music, ShoppingBag, Zap,
   Users, Plane, BedDouble as House, Heart, PartyPopper,
-  ChevronDown, Archive, RotateCcw,
-Crown } from "lucide-react";
+  ChevronDown, Archive, RotateCcw, Crown,
+  Receipt, Clock, Camera,
+} from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
