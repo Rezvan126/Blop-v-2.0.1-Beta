@@ -385,33 +385,45 @@ export default function HomeScreen() {
 
                   {/* KPI grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
-                      <div className="w-9 h-9 rounded-[12px] bg-primary/10 flex items-center justify-center mb-3">
-                        <Users size={17} className="text-primary" />
+                    {/* Active splits */}
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4 flex flex-col justify-between min-h-[100px]">
+                      <div className="flex items-start justify-between">
+                        <p className="text-[32px] font-black text-foreground tabular-nums leading-none tracking-tight">{activeGroups.length}</p>
+                        <div className="w-8 h-8 rounded-[10px] bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Users size={15} className="text-primary" />
+                        </div>
                       </div>
-                      <p className="text-[28px] font-bold text-foreground tabular-nums leading-none">{activeGroups.length}</p>
-                      <p className="text-[11px] font-semibold text-muted-foreground mt-1.5">Active splits</p>
+                      <p className="text-[12px] font-semibold text-muted-foreground">Active splits</p>
                     </div>
-                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
-                      <div className="w-9 h-9 rounded-[12px] bg-primary/10 flex items-center justify-center mb-3">
-                        <Receipt size={17} className="text-primary" />
+                    {/* Expenses */}
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4 flex flex-col justify-between min-h-[100px]">
+                      <div className="flex items-start justify-between">
+                        <p className="text-[32px] font-black text-foreground tabular-nums leading-none tracking-tight">{allExpenses.length}</p>
+                        <div className="w-8 h-8 rounded-[10px] bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Receipt size={15} className="text-primary" />
+                        </div>
                       </div>
-                      <p className="text-[28px] font-bold text-foreground tabular-nums leading-none">{allExpenses.length}</p>
-                      <p className="text-[11px] font-semibold text-muted-foreground mt-1.5">Expenses</p>
+                      <p className="text-[12px] font-semibold text-muted-foreground">Expenses</p>
                     </div>
-                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
-                      <div className="w-9 h-9 rounded-[12px] bg-amber-500/10 flex items-center justify-center mb-3">
-                        <Clock size={17} className="text-amber-500" />
+                    {/* Pending */}
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4 flex flex-col justify-between min-h-[100px]">
+                      <div className="flex items-start justify-between">
+                        <p className="text-[32px] font-black text-amber-500 tabular-nums leading-none tracking-tight">{groupsWithPending.size}</p>
+                        <div className="w-8 h-8 rounded-[10px] bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                          <Clock size={15} className="text-amber-500" />
+                        </div>
                       </div>
-                      <p className="text-[28px] font-bold text-amber-500 tabular-nums leading-none">{groupsWithPending.size}</p>
-                      <p className="text-[11px] font-semibold text-amber-500/70 mt-1.5">Pending</p>
+                      <p className="text-[12px] font-semibold text-amber-500/80">Pending</p>
                     </div>
-                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
-                      <div className="w-9 h-9 rounded-[12px] bg-muted/60 flex items-center justify-center mb-3">
-                        <Camera size={17} className="text-muted-foreground" />
+                    {/* Receipts */}
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4 flex flex-col justify-between min-h-[100px]">
+                      <div className="flex items-start justify-between">
+                        <p className="text-[32px] font-black text-foreground tabular-nums leading-none tracking-tight">{receiptsCount}</p>
+                        <div className="w-8 h-8 rounded-[10px] bg-muted/60 flex items-center justify-center flex-shrink-0">
+                          <Camera size={15} className="text-muted-foreground" />
+                        </div>
                       </div>
-                      <p className="text-[28px] font-bold text-foreground tabular-nums leading-none">{receiptsCount}</p>
-                      <p className="text-[11px] font-semibold text-muted-foreground mt-1.5">Receipts</p>
+                      <p className="text-[12px] font-semibold text-muted-foreground">Receipts</p>
                     </div>
                   </div>
 
