@@ -3,6 +3,7 @@ import { AnimatePresence, MotionConfig } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import SplashScreen from "@/pages/splash";
 import OnboardingScreen from "@/pages/onboarding";
 import HomeScreen from "@/pages/home";
@@ -74,22 +75,24 @@ function App() {
   useSyncEngine();
   
   return (
-    <MotionConfig reducedMotion="user">
-      <ThemeProvider>
-        <TooltipProvider>
-          {/* Outer shell: soft lavender tint surrounds the phone frame on desktop; full screen on mobile */}
-          <div className="h-full w-full flex justify-center bg-[hsl(240,30%,95%)] dark:bg-[hsl(240,25%,6%)]">
-            <div className="relative w-full sm:max-w-[430px] h-full bg-background shadow-[0_0_80px_rgba(0,0,0,0.08)] overflow-hidden">
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <AnimatedRoutes />
-              </WouterRouter>
-              <SuccessOverlay />
+    <ErrorBoundary>
+      <MotionConfig reducedMotion="user">
+        <ThemeProvider>
+          <TooltipProvider>
+            {/* Outer shell: soft lavender tint surrounds the phone frame on desktop; full screen on mobile */}
+            <div className="h-full w-full flex justify-center bg-[hsl(240,30%,95%)] dark:bg-[hsl(240,25%,6%)]">
+              <div className="relative w-full sm:max-w-[430px] h-full bg-background shadow-[0_0_80px_rgba(0,0,0,0.08)] overflow-hidden">
+                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                  <AnimatedRoutes />
+                </WouterRouter>
+                <SuccessOverlay />
+              </div>
             </div>
-          </div>
-          <Toaster />
-        </TooltipProvider>
-      </ThemeProvider>
-    </MotionConfig>
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </MotionConfig>
+    </ErrorBoundary>
   );
 }
 

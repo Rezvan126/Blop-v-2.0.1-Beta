@@ -37,6 +37,9 @@ function _setLastSynced(iso: string) {
 
 // ── Exported state accessors ──────────────────────────────────────────────
 
+function getSyncState(): CloudSyncState { return _state; }
+function getLastSynced(): string | null { return _lastSynced; }
+
 export { getSyncState, getLastSynced };
 
 /** React hook — subscribe to live sync state. */

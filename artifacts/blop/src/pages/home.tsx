@@ -18,7 +18,7 @@ import {
 import { cn, getCurrencySymbol, formatAmount } from "@/lib/utils";
 import { useTheme, THEME_DEFINITIONS } from "@/contexts/ThemeContext";
 
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties; className?: string }>> = {
   c1: Utensils, c2: Car, c3: BedDouble, c4: Music, c5: ShoppingBag, c6: Zap, c7: Heart, c8: Tag,
 };
 
@@ -105,6 +105,7 @@ export default function HomeScreen() {
 
   const highestSpendingGroup = spendingByGroup[0];
   const totalSpend = spendingByGroup.reduce((s,g) => s+g.spend, 0);
+  const receiptsCount = allExpenses.filter((e) => e.receiptUrl).length;
 
   const categorySpending: Record<string, number> = {};
   allExpenses.forEach(e => {
@@ -183,9 +184,15 @@ export default function HomeScreen() {
                   <EmptyState
                     icon={Users}
                     title="No splits yet"
-                    description="Create a split to start tracking expenses with friends."
-                    actionLabel="Create my first split"
-                    onAction={() => setLocation("/get-started")}
+                    subtitle="Create a split to start tracking expenses with friends."
+                    action={
+                      <button
+                        onClick={() => setLocation("/get-started")}
+                        className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold"
+                      >
+                        Create my first split
+                      </button>
+                    }
                   />
                 ) : (
                   <div className="grid gap-4">
@@ -259,7 +266,7 @@ export default function HomeScreen() {
                 <EmptyState
                   icon={ArrowLeftRight}
                   title="All caught up!"
-                  description="No pending settlements in any of your splits."
+                  subtitle="No pending settlements in any of your splits."
                 />
               ) : (
                 <div className="grid gap-4">
@@ -309,12 +316,11 @@ export default function HomeScreen() {
               ) : (
                 <>
                   {/* Hero spend */}
-                  <InsightChartCard>
-                    <p className="text-label text-white/60 mb-2">Total spend</p>
-                    <p className="text-[40px] font-bold text-white tabular-nums leading-none">
+                  <InsightChartCard title="Total Spend" icon={TrendingUp}>
+                    <p className="text-[40px] font-bold text-foreground tabular-nums leading-none">
                       {formatAmount(totalSpend, sym)}
                     </p>
-                    <p className="text-caption text-white/50 mt-2">
+                    <p className="text-caption text-muted-foreground mt-2">
                       {allExpenses.length} expense{allExpenses.length !== 1 ? "s" : ""} · {groups.length} split{groups.length !== 1 ? "s" : ""}
                     </p>
                   </InsightChartCard>
@@ -593,7 +599,7 @@ function PremiumNav({
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = active === id;
           return (
-            <button
+            <motion.button
               key={id}
               onClick={async () => {
                 const { triggerHaptic } = await import("@/lib/utils");
@@ -628,7 +634,7 @@ function PremiumNav({
               >
                 {label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

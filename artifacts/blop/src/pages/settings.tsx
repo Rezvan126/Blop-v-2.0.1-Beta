@@ -184,6 +184,8 @@ export default function SettingsScreen() {
       const isNative = (window as any).Capacitor?.isNativePlatform();
 
       if (isNative) {
+        const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
+        const { Share } = await import("@capacitor/share");
         const writeResult = await Filesystem.writeFile({
           path: filename,
           data: json,
@@ -199,7 +201,6 @@ export default function SettingsScreen() {
         
         triggerHaptic("success");
         triggerSuccess();
-        triggerHaptic();
       } else {
         const blob = new Blob([json], { type: "application/json" });
         const url  = URL.createObjectURL(blob);

@@ -15,7 +15,7 @@ import { useBlopStore } from "@/lib/store";
 import type { SplitType, ExpenseParticipant } from "@/lib/store";
 import { buildEqualSplits, buildExactSplits, buildPercentageSplits, buildSharesSplits } from "@/lib/calculations";
 import { Screen, ScrollArea, AppHeader, SectionLabel, Avatar, BottomSheet } from "@/components/ds";
-import { getCurrencySymbol } from "@/lib/utils";
+import { getCurrencySymbol, triggerHaptic } from "@/lib/utils";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   c1: Utensils, c2: Car, c3: BedDouble, c4: Music, c5: ShoppingBag, c6: Zap, c7: Heart, c8: Tag,
@@ -148,7 +148,6 @@ export default function AddExpenseScreen({ params }: Props) {
       paidByMemberId, expenseDate, note: note.trim() || undefined, receiptUrl,
       participants, splitType,
     });
-    const { triggerHaptic } = useBlopStore.getState();
     triggerHaptic("success");
     triggerSuccess();
     setLocation(`/group/${params.id}`);
@@ -215,8 +214,7 @@ export default function AddExpenseScreen({ params }: Props) {
               return (
                 <button
                   key={id}
-                  onClick={async () => {
-                    const { triggerHaptic } = await import("@/lib/utils");
+                  onClick={() => {
                     triggerHaptic("selection");
                     setSelectedCategory(id);
                   }}

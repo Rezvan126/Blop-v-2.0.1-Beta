@@ -1,0 +1,390 @@
+FINAL REPLIT RECOVERY AND RELEASE-STABILIZATION PASS FOR BLOP v2.0
+
+Context:
+This project was moved back into Replit from another environment. Replit is now showing many bugs and the app is crashing. The goal is to stabilize, audit, repair, test, document, and prepare the project for client handover and Android release review.
+
+Important rules:
+- Do not rewrite the app from scratch.
+- Do not redesign the UI.
+- Do not change working product behavior unless a verified bug exists.
+- Do not change Firebase rules unless a real security/sync blocker exists.
+- Do not add new features.
+- Do not add push notifications.
+- Do not add Firebase Storage.
+- Do not start iOS work.
+- Do not remove files blindly.
+- Do not commit secrets.
+- Do not expose .env values.
+- Do not leave references to Replit, Gemini, Antigravity, ChatGPT, Claude, Codex, AI tools, prompts, or internal audit notes in client-facing files.
+- Fix crashes and broken flows first.
+
+PHASE 0 — SAFETY CHECKPOINT
+
+Before editing:
+1. Create a Replit checkpoint named:
+   blop-replit-recovery-before-fixes
+2. Check current git status.
+3. Do not delete files before the audit.
+4. Do not push anything until build and tests pass.
+
+PHASE 1 — CRASH TRIAGE FIRST
+
+The app is crashing in Replit. Find the exact crash source first.
+
+Tasks:
+1. Run dependency install:
+   npm install
+   or use the package manager already configured in the project.
+2. Run:
+   npm run build
+3. Run dev server.
+4. Capture all terminal errors.
+5. Capture browser console errors if available.
+6. Identify whether the crash is caused by:
+   - missing dependency
+   - wrong import path
+   - broken TypeScript
+   - env variable issue
+   - Firebase config issue
+   - Capacitor-only code running in browser
+   - Android plugin import breaking web build
+   - bad route
+   - broken component render
+   - undefined state/store data
+   - duplicate file/conflict from migration
+   - malformed JSON/config file
+7. Fix only the crash root cause.
+8. Add a React Error Boundary if the app does not already have one, so a single component crash does not blank the entire app.
+
+React error boundaries are appropriate here because they catch render-time component errors and show a fallback UI instead of crashing the whole tree.
+
+PHASE 2 — ENVIRONMENT AND CONFIG AUDIT
+
+Audit:
+1. package.json
+2. vite.config
+3. tsconfig
+4. tailwind config
+5. capacitor config
+6. Android config
+7. Firebase config
+8. .env.example
+9. README setup instructions
+
+Fix:
+1. Ensure required VITE_FIREBASE variables are documented.
+2. Do not hardcode Firebase secrets.
+3. Ensure browser mode does not crash if Firebase env vars are missing.
+4. Settings should show “Cloud sync not configured” only when Firebase vars are truly missing.
+5. Capacitor plugins should not break web dev mode.
+
+PHASE 3 — FULL FUNCTIONALITY AUDIT
+
+After the app opens, test/inspect these flows:
+
+A. First launch
+- App defaults to Light mode on first launch.
+- Onboarding loads.
+- No demo seed data appears unless VITE_SEED_DATA=true.
+
+B. Home
+- Home loads without crashing.
+- Long split names truncate.
+- Bottom navigation works.
+- Main Insights works.
+- Settings opens.
+
+C. Create split
+- User can cancel and return Home.
+- Duplicate split name is blocked on same device.
+- Long split name does not break UI.
+- Adding 10 members scrolls correctly.
+- Duplicate member name is blocked.
+- Member names have max length or safe truncation.
+
+D. Join split
+- Raw invite code works.
+- Full invite URL works.
+- Localhost-style invite URL pasted into the app extracts the code.
+- Invalid invite shows a clear error.
+- User B is added with arrayUnion.
+- User A remains in memberUids.
+- Joined split appears on Home.
+- No full private group data is exposed before membership.
+
+E. Add expense
+- Amount input works.
+- Native number spinner arrows are removed.
+- Keyboard does not cover required fields.
+- Add Expense button is reachable.
+- Required validation works.
+- Exact split sum validation works.
+- Percentage split total validation works.
+- Shares split total validation works.
+- Long expense titles do not break UI.
+
+F. Settlement
+- Payment can be recorded.
+- Overpayment is blocked.
+- Pending count becomes 0 when settled.
+- Settlement success feedback is not a big top banner.
+- Activity shows latest update at the top.
+
+G. Receipts
+- Receipt attach shows Camera, Gallery, Files options.
+- Existing receipt attach/remove behavior still works.
+- Receipt local-only limitation is documented.
+
+H. Export/import backup
+- Export backup works on browser/laptop.
+- Export backup works or correctly falls back in Android/Capacitor.
+- It does not show “Export failed” when file export actually succeeds.
+- Restore backup works.
+- User-facing wording says backup, not technical JSON.
+
+I. Settings
+- “Group Settings” visible copy should be “Split Settings” where user-facing.
+- Remove old sync-key/encryption-code copy.
+- Remove broken legacy “restore from sync key” if still present.
+- Cloud Sync copy is accurate.
+- Privacy Policy is accurate.
+
+J. Main Insights
+- Main Insights shows useful all-splits KPIs.
+- Group-level Insights remains group-specific.
+- Large numbers are truncated or formatted properly.
+- No fake data.
+
+K. Android-specific
+- Safe area works for gesture navigation.
+- Safe area works for 3-button navigation.
+- No content hidden behind Android navigation buttons.
+- Status bar/nav bar spacing is correct.
+- Capacitor sync works.
+
+PHASE 4 — BACKEND AND FIREBASE AUDIT
+
+Audit:
+1. cloudSync.ts
+2. firebase.ts
+3. Firestore rules
+4. invite creation
+5. invite lookup
+6. joinGroup
+7. pushAllToCloud
+8. subscribeToGroup
+9. local store merge logic
+10. seed data gating
+
+Verify:
+- memberUids is never overwritten with only current uid.
+- ownerUid is preserved.
+- group data is not wiped by empty snapshots.
+- cache eviction is not treated as deletion.
+- subcollections merge safely.
+- invite metadata can be read safely.
+- private group data remains protected until membership.
+- anonymous auth runs before lookup/join.
+- Firebase rules are documented and testable.
+
+If possible, add or update a small Firebase rules test note or emulator command. Firebase recommends testing Firestore Security Rules with the Emulator Suite before launch.
+
+PHASE 5 — UI/UX STABILITY PASS
+
+Do not redesign. Only fix broken or risky UI.
+
+Fix:
+1. Hero card top padding.
+2. Card top padding on Home and Split pages.
+3. Long text truncation everywhere.
+4. Safe-area bottom padding.
+5. Mobile keyboard overlap.
+6. Touch targets below 44px.
+7. Confusing top banners.
+8. Share split bottom sheet/popover.
+9. Archive/restore feedback.
+10. Dark mode logo.
+11. Large numbers causing overflow.
+12. Dropdown menu polish if broken.
+
+Do not bring back:
+- dynamic mesh background
+- heavy glassmorphism
+- glow navigation
+- bounce animations
+- layered empty state glows
+- hover gradient overlays
+
+Keep the approved minimal Blop design.
+
+PHASE 6 — CODE QUALITY CLEANUP
+
+Clean:
+1. unused imports
+2. unused variables
+3. dead functions
+4. stale TODOs
+5. temporary scripts
+6. old patch files
+7. debug logs
+8. duplicate docs
+9. obsolete reports
+10. tool references
+
+Keep useful comments only where they explain:
+- Firebase sync
+- invite join
+- backup export/restore
+- split calculations
+- settlement calculations
+- Android/Capacitor setup
+
+Add comments sparingly. Do not over-comment obvious code.
+
+PHASE 7 — DOCUMENTATION CLEANUP
+
+Create or update clean client-ready docs:
+
+1. README.md
+Include:
+- project overview
+- tech stack
+- features
+- setup
+- env variables
+- run command
+- build command
+- Android debug APK command
+- release AAB note
+- known limitations
+
+2. .env.example
+Include:
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_SEED_DATA=false
+
+3. docs/FIREBASE_SETUP.md
+Include Firebase setup, Anonymous Auth, Firestore, rules deployment, invite flow.
+
+4. docs/ANDROID_RELEASE.md
+Include JDK, Android SDK, Capacitor sync, debug APK, release AAB, signing notes.
+
+5. docs/TESTING_CHECKLIST.md
+Include all major flows and Android-specific tests.
+
+6. docs/KNOWN_LIMITATIONS.md
+Include:
+- receipts are local-only
+- push notifications not implemented
+- live exchange rates not implemented
+- anonymous account recovery limitation
+- iOS later
+- release signing requires owner credentials
+
+7. docs/PLAY_STORE_SUBMISSION.md
+Include:
+- store listing checklist
+- privacy policy requirement
+- Data Safety notes
+- target SDK check
+- AAB path
+- signing requirement
+- common rejection risks
+
+8. docs/HANDOVER_NOTES.md
+Include:
+- current status
+- completed work
+- pending owner actions
+- Android release status
+- next phase: iOS
+
+Docs must be simple, natural, and professional.
+No AI/tool references.
+
+PHASE 8 — GOOGLE PLAY READINESS CHECK
+
+Check:
+1. appId/applicationId
+2. app name
+3. versionCode
+4. versionName
+5. targetSdkVersion
+6. minSdkVersion
+7. debug mode disabled for release
+8. app icon
+9. adaptive icon
+10. splash
+11. unnecessary permissions
+12. privacy policy
+13. data safety notes
+14. release AAB build readiness
+
+Do not fabricate Play Store answers.
+Document what the owner/client must complete.
+
+PHASE 9 — BUILD AND TEST
+
+Run:
+1. npm run build
+2. npm run lint if available
+3. npm run typecheck if available
+4. npx cap sync android
+5. cd android && ./gradlew assembleDebug
+6. cd android && ./gradlew bundleRelease if release signing/config allows
+
+If release signing is missing:
+- Do not create fake signing credentials.
+- Report exactly what is needed.
+
+Android debugging note:
+If APK still crashes, use Android Studio Logcat and report the stack trace. Logcat shows device logs and exception stack traces in real time.
+
+Capacitor debugging note:
+Use Android WebView remote debugging or Capacitor debugging tools if the issue appears only in the APK.
+
+PHASE 10 — FINAL GIT PUSH
+
+Before commit:
+1. git status
+2. Ensure these are not staged:
+   - .env
+   - node_modules
+   - dist
+   - build
+   - APK/AAB files unless explicitly requested
+   - keystore
+   - service accounts
+   - logs
+   - temporary ZIP files
+
+Commit:
+“Stabilize Blop release candidate in Replit”
+
+Push to the existing GitHub branch.
+
+FINAL REPORT REQUIRED
+
+Return:
+1. What was crashing Replit
+2. Crash fixes made
+3. Functionality fixes made
+4. UI/UX fixes made
+5. Backend/Firebase fixes made
+6. Code cleanup done
+7. Docs created/updated
+8. Build result
+9. APK result
+10. AAB result if attempted
+11. GitHub commit hash
+12. Branch pushed
+13. Remaining risks
+14. What still requires owner/client action
+15. Whether Android APK testing can continue
+16. Whether the project is ready for expert developer review
+17. Whether the project is ready for Google Play upload
