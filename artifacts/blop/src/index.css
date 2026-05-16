@@ -1,0 +1,389 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --font-sans: var(--app-font-sans);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ============================================================
+   BASE LIGHT MODE  — soft lavender-white palette
+   ============================================================ */
+:root {
+  /* Soft lavender-tinted off-white background */
+  --background: 240 33% 97.5%;
+  --foreground: 240 45% 10%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 45% 10%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 45% 10%;
+
+  /* Lavender-gray for secondary/muted */
+  --secondary: 240 20% 94%;
+  --secondary-foreground: 240 30% 20%;
+
+  --muted: 240 22% 93%;
+  --muted-foreground: 240 12% 48%;
+
+  --border: 240 22% 89%;
+  --input: 240 22% 89%;
+  --ring: var(--primary);
+
+  /* Premium indigo default */
+  --primary: 243 76% 52%;
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 270 75% 65%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --app-font-sans: 'Inter', system-ui, sans-serif;
+
+  /* 16px base radius */
+  --radius: 1rem;
+}
+
+/* ============================================================
+   BASE DARK MODE
+   ============================================================ */
+.dark {
+  --background: 240 25% 8%;
+  --foreground: 240 20% 94%;
+
+  --card: 240 22% 12%;
+  --card-foreground: 240 20% 94%;
+
+  --popover: 240 22% 14%;
+  --popover-foreground: 240 20% 94%;
+
+  --secondary: 240 18% 17%;
+  --secondary-foreground: 240 15% 80%;
+
+  --muted: 240 18% 16%;
+  --muted-foreground: 240 10% 56%;
+
+  --border: 240 18% 20%;
+  --input: 240 18% 22%;
+
+  --destructive: 0 70% 52%;
+  --destructive-foreground: 0 0% 100%;
+
+  --primary-foreground: 0 0% 100%;
+  --accent-foreground: 0 0% 100%;
+}
+
+/* ============================================================
+   THEME: INDIGO (default — premium deep indigo)
+   ============================================================ */
+[data-theme="indigo"] {
+  --primary: 243 76% 52%;
+  --accent: 270 75% 65%;
+}
+[data-theme="indigo"].dark,
+[data-theme="indigo"] .dark {
+  --primary: 243 72% 65%;
+  --accent: 270 72% 70%;
+}
+
+/* ============================================================
+   THEME: FOREST (deep finance green)
+   ============================================================ */
+[data-theme="forest"] {
+  --primary: 158 52% 24%;
+  --accent: 14 85% 62%;
+}
+[data-theme="forest"].dark,
+[data-theme="forest"] .dark {
+  --primary: 158 48% 38%;
+  --accent: 14 85% 62%;
+}
+
+/* ============================================================
+   THEME: COGNAC (rich warm brown)
+   ============================================================ */
+[data-theme="cognac"] {
+  --primary: 20 58% 28%;
+  --accent: 38 88% 52%;
+}
+[data-theme="cognac"].dark,
+[data-theme="cognac"] .dark {
+  --primary: 20 55% 42%;
+  --accent: 38 88% 56%;
+}
+
+/* ============================================================
+   THEME: ESPRESSO (dark coffee & caramel)
+   ============================================================ */
+[data-theme="espresso"] {
+  --primary: 25 38% 20%;
+  --accent: 42 82% 50%;
+}
+[data-theme="espresso"].dark,
+[data-theme="espresso"] .dark {
+  --primary: 25 35% 36%;
+  --accent: 42 82% 54%;
+}
+
+/* ============================================================
+   THEME: GOLD RUSH (antique gold & copper)
+   ============================================================ */
+[data-theme="gold"] {
+  --primary: 42 65% 32%;
+  --accent: 18 78% 52%;
+}
+[data-theme="gold"].dark,
+[data-theme="gold"] .dark {
+  --primary: 42 62% 46%;
+  --accent: 18 78% 56%;
+}
+
+/* ============================================================
+   THEME: ROSE (dusty mauve & blush)
+   ============================================================ */
+[data-theme="rose"] {
+  --primary: 340 45% 35%;
+  --accent: 10 80% 60%;
+}
+[data-theme="rose"].dark,
+[data-theme="rose"] .dark {
+  --primary: 340 42% 50%;
+  --accent: 10 80% 64%;
+}
+
+/* ============================================================
+   THEME: OCEAN (deep navy & teal)
+   ============================================================ */
+[data-theme="ocean"] {
+  --primary: 215 55% 30%;
+  --accent: 185 65% 42%;
+}
+[data-theme="ocean"].dark,
+[data-theme="ocean"] .dark {
+  --primary: 215 52% 44%;
+  --accent: 185 65% 46%;
+}
+
+/* ============================================================
+   THEME: OBSIDIAN (charcoal & purple)
+   ============================================================ */
+[data-theme="obsidian"] {
+  --primary: 248 45% 35%;
+  --accent: 280 60% 58%;
+}
+[data-theme="obsidian"].dark,
+[data-theme="obsidian"] .dark {
+  --primary: 248 42% 50%;
+  --accent: 280 60% 62%;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+@layer base {
+  /* Any element with a solid primary background always gets white text.
+     Utility text-color classes (text-emerald-600 etc.) from @layer utilities
+     will still override this for child elements that need a different color. */
+  .bg-primary {
+    color: white;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 0;
+  }
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Design system shadow scale */
+  /* Card shadows are theme-neutral — dark glass, not indigo-tinted */
+  .shadow-card {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.11), 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  /* FAB and hero shadows adapt to the active primary color */
+  .shadow-fab {
+    box-shadow: 0 8px 32px hsl(var(--primary) / 0.42), 0 2px 8px hsl(var(--primary) / 0.18);
+  }
+  .shadow-hero {
+    box-shadow: 0 12px 48px hsl(var(--primary) / 0.20), 0 4px 12px hsl(var(--primary) / 0.10);
+  }
+  /* Avatar ring shadow — replaces hardcoded indigo inline shadows */
+  .shadow-avatar {
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.35);
+  }
+
+  /* Pixel-perfect font sizes */
+  .text-hero {
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .text-display {
+    font-size: 36px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .text-heading {
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+  }
+  .text-title {
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .text-body-lg {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .text-body {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .text-caption {
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+  .text-label {
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.07em;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* ── iOS / PWA Safe Area ─────────────────────────────────────────────────
+     viewport-fit=cover in index.html enables env() on real devices.
+     !important on padding rules ensures they win over conflicting Tailwind
+     pb-* / pt-* utilities declared in the same @layer utilities block.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /* Sticky page headers — content sits below notch / Dynamic Island */
+  .pt-safe-header {
+    padding-top: max(3.5rem, calc(env(safe-area-inset-top, 0px) + 0.875rem)) !important;
+  }
+  /* Home screen has a taller greeting header */
+  .pt-safe-header-lg {
+    padding-top: max(4rem, calc(env(safe-area-inset-top, 0px) + 1.25rem)) !important;
+  }
+  /* AppHeader DS component — replaces the top half of its internal py-4 */
+  .pt-safe-appheader {
+    padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 1rem)) !important;
+  }
+
+  /* Floating bottom nav pill — clears the home indicator (~34 px on iPhone) */
+  .nav-safe-bottom {
+    padding-bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)) !important;
+  }
+
+  /* Scroll areas ─────────────────────────────────────────────────────────── */
+  /* Home: clear floating nav (~70 px) + FAB (56 px) + breathing room */
+  .scroll-pb-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10rem) !important;
+  }
+  /* Group dashboard: clear FAB only (56 px), no bottom nav */
+  .scroll-pb-fab {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem) !important;
+  }
+  /* Detail screens: no floating elements, just safe-area + breathing */
+  .scroll-pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2.5rem) !important;
+  }
+
+  /* FAB positions ──────────────────────────────────────────────────────── */
+  /* Home FAB: must sit above the pill nav */
+  .fab-above-nav {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+  }
+  /* Detail-screen FAB: no nav below, just clear home indicator */
+  .fab-safe {
+    bottom: max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
+  }
+
+  /* Bottom sheet footer: clear home indicator */
+  .pb-safe-sheet {
+    padding-bottom: max(2rem, calc(env(safe-area-inset-bottom, 0px) + 1rem)) !important;
+  }
+}
+
+/* Remove native spinners from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: none;
+}

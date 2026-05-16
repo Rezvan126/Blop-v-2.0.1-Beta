@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Blop"
+version = "1.0.0"
+id = "artifacts/blop"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23499
+
+[services.development]
+run = "pnpm --filter @workspace/blop run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/blop", "run", "build" ]
+publicDir = "artifacts/blop/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23499"
+BASE_PATH = "/"
