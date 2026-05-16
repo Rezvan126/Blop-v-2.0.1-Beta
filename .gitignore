@@ -47,3 +47,30 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Environment / secrets — never commit
+.env
+.env.local
+.env.*.local
+*.env.local
+
+# Android signing & release artifacts
+*.keystore
+*.jks
+keystore.properties
+google-services.json
+GoogleService-Info.plist
+service-account*.json
+firebase-adminsdk*.json
+
+# Build artifacts (mobile)
+*.apk
+*.aab
+artifacts/blop/android/app/build/
+artifacts/blop/android/build/
+artifacts/blop/android/.gradle/
+artifacts/blop/ios/build/
+
+# Capacitor copy targets
+artifacts/blop/android/app/src/main/assets/public/
+

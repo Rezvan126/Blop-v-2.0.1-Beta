@@ -1,0 +1,706 @@
+FINAL BLOP v2.0 RELEASE-CANDIDATE AUDIT, CLEANUP, TESTING, BUILD, AND GITHUB PUSH
+
+Role:
+Act as a senior React/Vite engineer, Capacitor Android engineer, Firebase engineer, QA lead, Android release engineer, iOS readiness reviewer, Google Play submission reviewer, App Store readiness reviewer, and repository handover maintainer.
+
+Context:
+Blop v2.0 is a bill-splitting app built with React/Vite, Capacitor, and Firebase.
+The app is close to Android release testing, but the project was moved between environments and now must be fully stabilized, cleaned, documented, tested, built, and pushed to GitHub professionally.
+
+This is the final expensive model run.
+There may not be another revision cycle.
+Be careful, systematic, and do not guess.
+
+Primary goals:
+1. Fix the app crashing or breaking in Replit.
+2. Complete a full code and functionality audit.
+3. Clean the repository for expert developer/client handover.
+4. Remove all irrelevant references to AI tools and build tools.
+5. Ensure documentation is complete and professional.
+6. Run a complete A to Z test checklist.
+7. Prepare Android APK and Play Store relevant files.
+8. Check Google Play and iOS/App Store readiness.
+9. Push clean final code to GitHub.
+
+Hard rules:
+- Do not rewrite the app from scratch.
+- Do not redesign the app.
+- Do not add new features unless needed to fix a broken existing flow.
+- Do not change Firebase rules unless a verified blocker exists.
+- Do not change calculations unless a verified bug exists.
+- Do not add push notifications.
+- Do not add Firebase Storage.
+- Do not start iOS build work.
+- Do not expose secrets.
+- Do not commit .env files.
+- Do not commit keystore passwords.
+- Do not commit service account files.
+- Do not commit node_modules.
+- Do not commit APK/AAB files unless specifically required by the repo policy.
+- Do not leave references to Replit, Gemini, Antigravity, ChatGPT, Claude, Codex, AI-generated content, prompts, internal audit notes, temporary tool outputs, or build-agent wording in client-facing files.
+- Do not over-comment obvious code.
+- Do not create fake signing credentials.
+- Do not fabricate Play Store or App Store compliance answers.
+
+PHASE 0: Safety checkpoint
+
+Before editing anything:
+1. Create a Replit checkpoint named:
+   blop-final-release-candidate-before-fixes
+
+2. Check git status.
+3. Identify current branch.
+4. Identify remote GitHub repo.
+5. Do not delete files yet.
+6. Do not push yet.
+
+PHASE 1: Crash and build recovery
+
+The app is currently showing many issues in Replit.
+Find the root cause before changing broadly.
+
+Run:
+1. npm install or the correct package manager command.
+2. npm run build.
+3. npm run dev.
+4. Open the app preview.
+5. Capture terminal errors.
+6. Capture browser console errors if possible.
+
+Identify if crashes are caused by:
+- missing dependencies
+- wrong import paths
+- TypeScript errors
+- broken package versions
+- Capacitor plugin imports breaking browser mode
+- Firebase environment variable handling
+- undefined store state
+- malformed JSON/config files
+- route errors
+- missing assets
+- Android-only code running in web mode
+- duplicate files from migration
+- broken Tailwind/Vite config
+
+Fix only the exact crash causes first.
+
+If the app does not already have a React Error Boundary, add a simple production-safe Error Boundary so one component crash does not blank the whole app.
+
+PHASE 2: Full project audit
+
+Audit the complete project.
+
+Check:
+1. Source structure
+2. React/Vite setup
+3. TypeScript setup
+4. Tailwind/design system setup
+5. Capacitor config
+6. Android project files
+7. Firebase config
+8. Firestore rules
+9. Local storage/persistence
+10. Invite/join group flow
+11. Backup export/restore
+12. Settings
+13. Privacy Policy
+14. Main Insights
+15. Group-level Insights
+16. Activity feed
+17. Settlement flow
+18. Add Expense flow
+19. Create Split flow
+20. Receipt flow
+21. Android safe areas
+22. Keyboard behavior
+23. Long text handling
+24. Large numbers handling
+25. Splash/logo/icons
+26. PWA manifest
+27. Documentation
+28. Git hygiene
+29. Build scripts
+30. Dependencies
+31. Debug logs
+32. Unused files
+33. Temporary scripts
+34. Tool references
+35. Store readiness
+
+Return an audit summary before broad changes:
+- Critical blockers
+- High-priority issues
+- Medium issues
+- Low polish issues
+- Safe automatic fixes
+- Risky fixes requiring approval
+- Files likely to change
+
+Then continue only with safe release-candidate fixes.
+
+PHASE 3: Core functionality QA
+
+Test or inspect all core flows.
+
+A. First launch
+- App opens without crash.
+- Default mode is Light on first launch.
+- Onboarding works.
+- User is not forced only into Create Split.
+- Create or Join choice exists.
+- Demo seed data only loads when VITE_SEED_DATA=true.
+
+B. Home
+- Home loads.
+- Bottom nav works.
+- Long split names do not break layout.
+- Hero cards have proper top padding.
+- Large numbers do not overflow.
+- Main Insights opens.
+- Settings opens.
+
+C. Create Split
+- User can cancel and return Home.
+- Duplicate split name is blocked on same device.
+- Long split name is limited or safely truncated.
+- Adding 10 members scrolls correctly.
+- Duplicate member name is blocked.
+- Member names are trimmed and case-insensitive for duplicate checks.
+- Create button stays accessible on Android.
+
+D. Join Split
+- Raw invite code works.
+- Full invite URL works.
+- Localhost-style URL pasted into the app extracts the code.
+- Deployed URL pasted into the app extracts the code.
+- Invalid invite shows clear error.
+- User B is added using arrayUnion.
+- User A remains in memberUids.
+- Joined split appears on Home.
+- Full private data is not exposed before membership.
+- Real-time sync works after joining.
+
+E. Add Expense
+- Amount input works.
+- Native number spinner arrows are hidden.
+- Mobile keyboard does not cover fields.
+- Add Expense button is reachable.
+- Required validation works.
+- Exact split validation works.
+- Percentage split validation works.
+- Shares split validation works.
+- Long titles do not break UI.
+- Receipt attachment options work.
+
+F. Settlement
+- Payment records correctly.
+- Overpayment is blocked.
+- Pending count becomes 0 when settled.
+- Success feedback is not a large top banner.
+- Activity records the action.
+- Balances remain correct.
+
+G. Activity
+- Latest event appears at top.
+- Date grouping still works.
+- Long names/titles do not break layout.
+- Event types show cleanly.
+
+H. Backup Export/Restore
+- Export backup works on laptop/browser.
+- Export backup works or uses native share/save in Android APK.
+- It does not show “Export failed” when export succeeds.
+- Restore backup works.
+- Invalid backup shows clear error.
+- User-facing copy says Backup, not technical JSON.
+- Restore from old sync key is removed/hidden if not functional.
+
+I. Settings
+- “Group Settings” visible copy should be “Split Settings”.
+- Old sync key/encryption code text is removed.
+- Cloud Sync copy is accurate.
+- Privacy Policy is accurate.
+- “This is me” selector is removed from normal user UI if it is confusing.
+- Logo looks correct in dark mode.
+- Export/restore copy is clear.
+
+J. Android-specific
+- Works with gesture navigation.
+- Works with 3-button navigation.
+- No content hides behind Android navigation buttons.
+- No half-inch blank/unusable area.
+- Keyboard resizing is acceptable.
+- Status bar/nav bar behavior is correct.
+- APK opens without crash.
+
+PHASE 4: Firebase/backend audit
+
+Audit and verify:
+1. firebase.ts
+2. cloudSync.ts
+3. Firestore rules
+4. invite creation
+5. invite lookup
+6. joinGroup
+7. pushAllToCloud
+8. subscribeToGroup
+9. local store merge
+10. seed data gating
+11. anonymous auth
+12. Firestore document paths
+
+Required backend rules:
+- memberUids must never be overwritten with only current uid.
+- ownerUid must be preserved.
+- empty cache snapshots must not wipe local data.
+- cache eviction must not be treated as deletion.
+- subcollections must merge safely.
+- invite metadata can be read safely.
+- private expenses/members/settlements/activity stay protected until membership.
+- anonymous auth must run before invite lookup and join.
+- demo data cannot sync unless VITE_SEED_DATA=true.
+
+If Firebase rules are changed, document exactly why and what changed.
+
+PHASE 5: UI/UX stabilization
+
+Do not redesign.
+Only fix broken or risky UI.
+
+Fix:
+1. Hero card top padding.
+2. Home card top padding.
+3. Split/group hero top padding.
+4. Long text truncation everywhere.
+5. Large number formatting everywhere.
+6. Android safe-area bottom padding.
+7. Keyboard overlap.
+8. Touch targets under 44px.
+9. Top success banners.
+10. Share split invite UI.
+11. Archive/restore feedback.
+12. Dark mode logo.
+13. Dropdown menu polish only if broken.
+14. Settings copy accuracy.
+
+Do not reintroduce:
+- dynamic mesh background
+- heavy glassmorphism
+- glow navigation
+- bounce animations
+- overdone microinteractions
+- layered glowing empty states
+- hover gradient overlays
+
+Keep the approved minimal Blop design.
+
+Success feedback:
+- Replace top success banners with small elegant transient feedback.
+- Small light-green circle.
+- Check mark inside.
+- Bottom-left or non-intrusive location.
+- Around floating plus button size.
+- 0.7 to 1 second.
+- Fade/slide away.
+- No layout shift.
+- Errors can stay text-based.
+
+Share split feedback:
+- Do not use normal success banner.
+- Show compact invite popover or bottom sheet.
+- Include:
+  “Invite ready”
+  invite code/link
+  Copy again
+  Close
+  Share if native share exists
+- Keep Firestore invite logic unchanged.
+
+Haptics:
+Add haptic feedback only where meaningful:
+- create split success
+- join split success
+- add expense success
+- payment recorded
+- copy invite
+- backup exported
+- restore backup success
+- delete/archive confirmation
+- invalid/error action
+- important selection only if subtle
+
+Use Capacitor Haptics if available.
+If unavailable, install @capacitor/haptics and sync.
+Haptics must fail silently on unsupported browsers/devices.
+Do not add haptics to every button.
+
+PHASE 6: Code cleanup
+
+Clean code carefully without changing behavior.
+
+Tasks:
+1. Remove unused imports.
+2. Remove unused variables.
+3. Remove dead code if clearly unused.
+4. Remove console.log/debug logs.
+5. Keep console.error only where useful.
+6. Remove stale TODOs if irrelevant.
+7. Remove temporary scripts and patch files.
+8. Remove old reports.
+9. Remove duplicate docs.
+10. Remove obsolete snippets.
+11. Remove internal prompt files.
+12. Remove tool-generated notes.
+13. Ensure source files are organized.
+
+Add useful comments only where helpful:
+- Firebase sync flow
+- invite join flow
+- backup export/restore
+- split calculations
+- settlement calculations
+- Android/Capacitor build notes
+
+Do not over-comment obvious UI code.
+
+PHASE 7: Remove tool references
+
+Search the whole project for:
+- Replit
+- Gemini
+- Antigravity
+- ChatGPT
+- Claude
+- Codex
+- AI-generated
+- generated by AI
+- prompt
+- internal audit
+- debug report
+- temporary report
+- tool output
+- agent
+
+Remove or rewrite these from client-facing files.
+
+If a reference is technically required, report it and explain why.
+
+PHASE 8: Documentation
+
+Create or update clean documentation.
+
+Documentation tone:
+- Simple English
+- Natural
+- Professional
+- No AI-style wording
+- No excessive dashes
+- No tool references
+- No fake claims
+
+Required files:
+
+1. README.md
+Include:
+- Blop v2.0 overview
+- What the app does
+- Tech stack
+- Core features
+- Project structure
+- Local setup
+- Environment variables
+- Firebase setup summary
+- Run command
+- Build command
+- Android debug APK command
+- Android release AAB command
+- Known limitations
+- Handover notes
+
+2. .env.example
+Include only:
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_SEED_DATA=false
+
+No real values.
+
+3. docs/FIREBASE_SETUP.md
+Include:
+- Firebase project setup
+- Anonymous Auth
+- Firestore setup
+- Firestore rules deployment
+- web app config
+- required env variables
+- Cloud Sync verification
+- invite code flow
+
+4. docs/ANDROID_RELEASE.md
+Include:
+- JDK requirement
+- Android SDK requirement
+- Android Studio note
+- Capacitor sync
+- debug APK build
+- release AAB build
+- signing notes
+- Play App Signing note
+- output paths
+- what should not be committed
+
+5. docs/TESTING_CHECKLIST.md
+Include full A to Z test checklist:
+- first launch
+- onboarding
+- light/dark mode
+- create split
+- duplicate split validation
+- add 10 members
+- duplicate member validation
+- join with raw invite code
+- join with full URL
+- add expense
+- receipt attach
+- exact split
+- percentage split
+- shares split
+- edit/delete expense
+- record payment
+- overpayment blocking
+- activity latest first
+- export backup
+- restore backup
+- main Insights
+- group Insights
+- Android gesture navigation
+- Android 3-button navigation
+- keyboard behavior
+- offline/online sync
+- two-device Firebase sync
+- reset data
+- archive/restore split
+
+6. docs/KNOWN_LIMITATIONS.md
+Include:
+- receipts are local-only
+- push notifications not implemented
+- live exchange rates not implemented
+- anonymous UID recovery limitation
+- iOS/TestFlight later
+- release signing requires owner credentials
+- Google Play Data Safety must be completed by account owner
+
+7. docs/PRIVACY_NOTES.md
+Include:
+- offline-first behavior
+- local storage
+- optional Firebase sync
+- anonymous Firebase Auth
+- invite codes
+- backup export/restore
+- local receipts
+- no sale of user data
+- no advertising use
+- Privacy Policy must match Play Console Data Safety answers
+
+8. docs/HANDOVER_NOTES.md
+Include:
+- current status
+- completed work
+- pending owner/client actions
+- Firebase ownership/access note
+- Android release status
+- Play Store upload requirements
+- next phase: iOS after Android
+
+9. docs/PLAY_STORE_SUBMISSION.md
+Include:
+- Play Console items needed
+- app name
+- short description placeholder
+- full description placeholder
+- privacy policy requirement
+- Data Safety draft notes
+- target API level check
+- AAB path
+- signing requirement
+- store listing assets needed
+- testing notes
+- common rejection risks
+- owner actions
+
+PHASE 9: Privacy Policy and settings copy
+
+Review and update in-app Privacy Policy.
+
+It must accurately mention:
+- offline-first
+- local device storage by default
+- optional Firebase sync
+- Firebase Firestore for shared split sync
+- Firebase Anonymous Auth for sync identity
+- invite codes for joining shared splits
+- backup export/restore
+- receipts are local-only
+- push notifications are not active
+- live exchange rates are not active
+- no selling user data
+- no advertising use
+- local data can be reset
+- synced Firebase data may remain until deleted according to app behavior
+
+Remove outdated claims:
+- sync key
+- encryption code
+- only sync key can access backup
+- end-to-end encryption if not implemented
+- no third-party access if Firebase is used
+
+Settings Cloud Sync copy:
+Use:
+“Group updates sync through Firebase when cloud sync is enabled.”
+
+Do not include:
+“You can also export a backup from Data & Backup.”
+
+Backup section copy:
+“Export a backup file to save or move your data. Restore backup imports a saved Blop backup file.”
+
+PHASE 10: Google Play readiness
+
+Check current official Google Play readiness requirements.
+
+Verify:
+1. Android App Bundle can be built.
+2. Target SDK meets current Google Play requirement.
+3. App uses target API 35 or higher if required.
+4. minSdkVersion is reasonable.
+5. versionCode is set.
+6. versionName is set.
+7. applicationId is production-friendly.
+8. App label is Blop.
+9. Launcher icon is correct.
+10. Adaptive icon is correct.
+11. Splash is acceptable.
+12. Debuggable is false for release.
+13. No debug banners.
+14. No placeholder/demo data.
+15. No broken buttons.
+16. No non-functional settings.
+17. No unnecessary permissions.
+18. Privacy Policy is accurate.
+19. Data Safety notes are prepared.
+20. Backup/export works.
+21. Join split works.
+22. App works without forced account signup.
+23. No secrets in source.
+24. Release signing status is known.
+
+Do not fabricate Data Safety answers.
+Prepare a conservative Data Safety draft based on actual behavior.
+
+PHASE 11: iOS/App Store readiness audit only
+
+Do not build iOS now.
+
+Audit readiness:
+1. iOS icon 1024x1024 exists or is documented as needed.
+2. Privacy Policy is accurate.
+3. No misleading settings.
+4. No broken links.
+5. No placeholder/demo content.
+6. Data collection statements are accurate.
+7. App performance and design are acceptable.
+8. Future TestFlight/iOS requirements are documented.
+
+Create notes in docs/HANDOVER_NOTES.md or docs/IOS_READINESS.md if helpful.
+
+PHASE 12: Build files and release artifacts
+
+Run:
+
+1. npm run build
+2. npm run lint if available
+3. npm run typecheck if available
+4. npm test if available
+5. npx cap sync android
+6. cd android && ./gradlew assembleDebug
+7. cd android && ./gradlew bundleRelease if release signing/config allows
+
+Expected debug APK:
+android/app/build/outputs/apk/debug/app-debug.apk
+
+Expected release AAB:
+android/app/build/outputs/bundle/release/app-release.aab
+
+If release signing is missing:
+- Do not create fake keystore.
+- Report what signing credentials are needed.
+- Document steps in docs/ANDROID_RELEASE.md.
+- Still build debug APK if possible.
+
+Do not commit APK/AAB unless explicitly requested.
+
+PHASE 13: Final verification
+
+Before Git push, verify:
+1. App builds.
+2. Debug APK builds.
+3. Release AAB status is known.
+4. No .env tracked.
+5. No node_modules tracked.
+6. No dist/build tracked unless intended.
+7. No APK/AAB tracked unless explicitly required.
+8. No keystore tracked.
+9. No service account tracked.
+10. No logs tracked.
+11. No tool references in client-facing files.
+12. README is clean.
+13. Docs are complete.
+14. Privacy Policy is updated.
+15. Play Store submission notes exist.
+16. Testing checklist exists.
+17. Known limitations are documented.
+18. Handover notes exist.
+
+PHASE 14: GitHub push
+
+If build and cleanup pass:
+
+1. Run git status.
+2. Stage safe source, config, and docs changes only.
+3. Commit:
+“Prepare Blop v2.0 release candidate”
+
+4. Push to the existing GitHub branch.
+
+Final report required:
+1. Crash/root issue summary
+2. Audit summary
+3. Functionality fixes made
+4. UI/UX fixes made
+5. Backend/Firebase fixes made
+6. Code cleanup completed
+7. Files removed
+8. Docs created/updated
+9. Tool references removed
+10. Privacy Policy changes
+11. Google Play readiness result
+12. Target SDK status
+13. iOS readiness notes
+14. Debug APK build result
+15. Release AAB build result
+16. APK/AAB paths
+17. GitHub commit hash
+18. Branch pushed
+19. Remaining risks
+20. Owner/client actions required
+21. Whether Android APK testing can continue
+22. Whether expert developer review can begin
+23. Whether Google Play upload can begin
+24. Whether iOS phase can start later

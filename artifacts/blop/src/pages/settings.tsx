@@ -520,7 +520,7 @@ export default function SettingsScreen() {
 
                 <div className="px-5 py-4">
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Cloud sync works automatically per split. To access a split on another device, use the invite code. You can also export a backup from Data & Backup.
+                    Group updates sync through Firebase when cloud sync is enabled.
                   </p>
                 </div>
               </SettingsCard>
