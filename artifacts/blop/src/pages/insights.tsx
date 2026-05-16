@@ -9,6 +9,7 @@ import { useBlopStore } from "@/lib/store";
 import { useTheme, THEME_DEFINITIONS } from "@/contexts/ThemeContext";
 import { Screen, ScrollArea, Avatar } from "@/components/ds";
 import { cn, getCurrencySymbol, formatAmount } from "@/lib/utils";
+import { Amount } from "@/components/ds";
 
 // ── Category config ───────────────────────────────────────────────────────────
 
@@ -169,9 +170,7 @@ export default function InsightsScreen({ params }: Props) {
               <p className="text-[10px] font-bold text-white/55 tracking-[0.14em] uppercase mb-2">
                 Total split spend
               </p>
-              <p className="text-[44px] font-bold text-white tabular-nums leading-none">
-                {formatAmount(totalSpend, sym)}
-              </p>
+              <Amount amount={totalSpend} symbol={sym} className="text-[44px] font-bold text-white leading-none" decimalClassName="text-white" />
               <p className="text-[12px] text-white/45 mt-1.5 mb-5">
                 across {expenses.length} expense{expenses.length !== 1 ? "s" : ""}
               </p>

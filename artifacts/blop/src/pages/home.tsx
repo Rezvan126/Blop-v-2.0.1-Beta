@@ -17,6 +17,7 @@ import {
   Avatar, AvatarStack, SectionLabel,
 } from "@/components/ds";
 import { cn, getCurrencySymbol, formatAmount } from "@/lib/utils";
+import { Amount } from "@/components/ds";
 import { useTheme, THEME_DEFINITIONS } from "@/contexts/ThemeContext";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties; className?: string }>> = {
@@ -375,9 +376,7 @@ export default function HomeScreen() {
                     <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/[0.07] pointer-events-none" />
                     <div className="absolute -bottom-8 -left-6 w-28 h-28 rounded-full bg-white/[0.06] pointer-events-none" />
                     <p className="text-[11px] font-bold text-white/60 tracking-widest uppercase mb-2">Total spend</p>
-                    <p className="text-[40px] font-bold text-white tabular-nums leading-none">
-                      {formatAmount(totalSpend, sym)}
-                    </p>
+                    <Amount amount={totalSpend} symbol={sym} className="text-[40px] font-bold text-white leading-none" decimalClassName="text-white" />
                     <p className="text-[12px] text-white/50 mt-2">
                       {allExpenses.length} expense{allExpenses.length !== 1 ? "s" : ""} · {groups.length} split{groups.length !== 1 ? "s" : ""}
                     </p>
@@ -434,7 +433,7 @@ export default function HomeScreen() {
                         <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-1">Top split</p>
                         <p className="text-[16px] font-bold text-foreground truncate">{highestSpendingGroup.group?.name}</p>
                       </div>
-                      <p className="text-[18px] font-bold text-primary tabular-nums flex-shrink-0">{formatAmount(highestSpendingGroup.spend, sym)}</p>
+                      <Amount amount={highestSpendingGroup.spend} symbol={sym} className="text-[18px] font-bold text-primary flex-shrink-0" />
                     </div>
                   )}
 
@@ -555,17 +554,13 @@ function NetBalanceHeroCard({
             <p className="text-[10px] font-semibold text-white/55 tracking-wide uppercase mb-1.5">
               To pay
             </p>
-            <p className="text-[22px] font-bold text-white tabular-nums leading-none truncate">
-              {formatAmount(totalOwed, sym)}
-            </p>
+            <Amount amount={totalOwed} symbol={sym} className="text-[22px] font-bold text-white leading-none" decimalClassName="text-white" />
           </div>
           <div className="bg-white/[0.12] rounded-[20px] px-4 py-3.5">
             <p className="text-[10px] font-semibold text-white/55 tracking-wide uppercase mb-1.5">
               Incoming
             </p>
-            <p className="text-[22px] font-bold text-white tabular-nums leading-none truncate">
-              {formatAmount(totalOwedToMe, sym)}
-            </p>
+            <Amount amount={totalOwedToMe} symbol={sym} className="text-[22px] font-bold text-white leading-none" decimalClassName="text-white" />
           </div>
         </div>
       </div>
@@ -629,9 +624,7 @@ function SplitCard({
                 ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/40"
                 : "bg-destructive/8 dark:bg-destructive/12 border-destructive/20 dark:border-destructive/30",
             )}>
-              <p className={cn("text-[16px] font-bold tabular-nums leading-none", isPos ? "text-emerald-600" : "text-destructive")}>
-                {formatAmount(Math.abs(balance), sym)}
-              </p>
+              <Amount amount={Math.abs(balance)} symbol={sym} className={cn("text-[16px] font-bold leading-none", isPos ? "text-emerald-600" : "text-destructive")} />
               <p className={cn("text-[10px] font-semibold mt-0.5", isPos ? "text-emerald-500" : "text-destructive/70")}>
                 {isPos ? "incoming" : "you owe"}
               </p>

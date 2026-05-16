@@ -10,6 +10,7 @@ import { format, parseISO } from "date-fns";
 import type { MinimizedSettlement } from "@/lib/store";
 import { Screen, ScrollArea, Avatar, BottomSheet } from "@/components/ds";
 import { cn, getCurrencySymbol, formatAmount, triggerHaptic } from "@/lib/utils";
+import { Amount } from "@/components/ds";
 import { ArrowLeft } from "lucide-react";
 
 interface Props { params: { id: string } }
@@ -321,9 +322,7 @@ export default function SettlementScreen({ params }: Props) {
                             {fromIsMe || toIsMe ? "To settle your balance · " : ""}Tap to record payment
                           </p>
                         </div>
-                         <p className={cn("text-[24px] font-bold tabular-nums truncate max-w-[120px]", isMyPayment ? "text-destructive" : "text-primary")}>
-                          {formatAmount(s.amount, sym)}
-                        </p>
+                        <Amount amount={s.amount} symbol={sym} className={cn("text-[24px] font-bold", isMyPayment ? "text-destructive" : "text-primary")} />
                       </div>
                     </motion.button>
                   );

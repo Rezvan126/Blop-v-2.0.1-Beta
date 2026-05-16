@@ -104,6 +104,36 @@ export function AvatarStack({
   );
 }
 
+// ─── Amount ───────────────────────────────────────────────────────────────────
+/** Renders a monetary amount with the decimal visually smaller than the whole. */
+export function Amount({
+  amount,
+  symbol,
+  className = "",
+  decimalClassName = "",
+}: {
+  amount: number;
+  symbol: string;
+  className?: string;
+  decimalClassName?: string;
+}) {
+  const isNeg = amount < 0;
+  const abs = Math.abs(amount);
+  const intPart = Math.floor(abs).toString();
+  const decPart = (abs % 1 !== 0 ? (abs % 1).toFixed(2).slice(1) : ".00");
+  return (
+    <span className={cn("tabular-nums inline-flex items-start leading-none", className)}>
+      <span>{isNeg ? "−" : ""}{symbol}{intPart}</span>
+      <span
+        className={cn("opacity-60", decimalClassName)}
+        style={{ fontSize: "0.58em", paddingTop: "0.18em" }}
+      >
+        {decPart}
+      </span>
+    </span>
+  );
+}
+
 // ─── Screen Layout ────────────────────────────────────────────────────────────
 
 export function Screen({ children, testId }: { children: ReactNode; testId?: string }) {

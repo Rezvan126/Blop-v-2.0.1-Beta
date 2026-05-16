@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useBlopStore } from "@/lib/store";
 import { cn, formatAmount, triggerHaptic, parseTimestamp, getCurrencySymbol } from "@/lib/utils";
+import { Amount } from "@/components/ds";
 import { subscribeToGroup, unsubscribeFromGroup } from "@/lib/cloudSync";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { generateCSV, downloadCSV, openPrintWindow } from "@/lib/export";
@@ -501,9 +502,7 @@ export default function GroupDashboardScreen({ params }: Props) {
               {isSettled ? (
                 <p className="text-[38px] font-bold text-white leading-none mb-1">Settled ✓</p>
               ) : (
-                <p className={cn("text-[38px] font-bold tabular-nums leading-none mb-1", balIsPos ? "text-white" : "text-orange-100")}>
-                  {balIsPos ? "" : "−"}{formatAmount(Math.abs(userBal), sym)}
-                </p>
+                <Amount amount={balIsPos ? userBal : -Math.abs(userBal)} symbol={sym} className={cn("text-[38px] font-bold leading-none mb-1", balIsPos ? "text-white" : "text-orange-100")} decimalClassName={balIsPos ? "text-white" : "text-orange-100"} />
               )}
               <p className="text-[12px] text-white/50 mb-5">
                 {isSettled ? "All settled up in this split" : balIsPos ? "owed to you" : "you owe"} · {groupMembers.length} members
