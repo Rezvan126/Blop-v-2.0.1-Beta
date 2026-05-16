@@ -16,12 +16,18 @@ function extractInviteCode(input: string): string {
   try {
     const url = new URL(code);
     const qCode = url.searchParams.get("code") || url.searchParams.get("invite");
-    if (qCode) return qCode.toUpperCase();
+    if (qCode) {
+      return qCode.toUpperCase();
+    }
     const match = url.pathname.match(/\/join\/([A-Za-z0-9]+)/);
-    if (match) return match[1].toUpperCase();
+    if (match) {
+      return match[1].toUpperCase();
+    }
   } catch {
     const match = code.match(/\/join\/([A-Za-z0-9]+)/);
-    if (match) return match[1].toUpperCase();
+    if (match) {
+      return match[1].toUpperCase();
+    }
   }
   return code.toUpperCase();
 }
@@ -61,10 +67,11 @@ export default function JoinScreen({ params }: Props) {
         return;
       }
       try {
-        const { ensureAnonymousAuth } = await import("@/lib/firebase");
-        await ensureAnonymousAuth();
+        const { ensureAnonymousAuth, getCurrentUid } = await import("@/lib/firebase");
+        const user = await ensureAnonymousAuth();
 
         const invite = await lookupInvite(codeToLookup);
+        
         if (cancelled) return;
         if (!invite) {
           setError("Invite key not found.");
@@ -78,7 +85,7 @@ export default function JoinScreen({ params }: Props) {
           inviteCode:  codeToLookup,
         });
         setPhase("preview");
-      } catch {
+      } catch (err: any) {
         if (!cancelled) {
           setError("Network error — make sure you're connected to the internet.");
           setPhase("error");
@@ -102,6 +109,7 @@ export default function JoinScreen({ params }: Props) {
   const handleJoin = async () => {
     setPhase("joining");
     const result = await joinGroupByCode(codeToLookup);
+    
     if (result.ok && result.groupId) {
       setJoinedGroupId(result.groupId);
       setPhase("success");

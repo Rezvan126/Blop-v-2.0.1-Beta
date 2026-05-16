@@ -453,7 +453,8 @@ export default function GroupDashboardScreen({ params }: Props) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => {
                 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-                navigator.clipboard.writeText(`${window.location.origin}${base}/join/${group.inviteCode}`).catch(() => {});
+                const fullUrl = `${window.location.origin}${base}/join/${group.inviteCode}`;
+                navigator.clipboard.writeText(fullUrl).catch(() => {});
                 toast({ title: "Invite link copied!", description: `Code: ${group.inviteCode}`, duration: 3000 });
               }}>
                 <Link2 size={14} className="mr-2" /> Copy invite link

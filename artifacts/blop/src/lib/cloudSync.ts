@@ -99,6 +99,7 @@ export async function pushAllToCloud(payload: PushPayload): Promise<void> {
 
   // Groups + their subcollections
   for (const group of Object.values(groups)) {
+
     bw.set(doc(db, "groups", group.id), {
       name:            group.name,
       type:            group.type,
@@ -115,6 +116,8 @@ export async function pushAllToCloud(payload: PushPayload): Promise<void> {
 
     // Invite lookup document
     if (group.syncStatus === "local") {
+      const invitePath = `invites/${group.inviteCode.toUpperCase()}`;
+      
       bw.set(doc(db, "invites", group.inviteCode.toUpperCase()), {
         groupId:   group.id,
         groupName: group.name,
@@ -123,6 +126,7 @@ export async function pushAllToCloud(payload: PushPayload): Promise<void> {
         createdAt: group.createdAt,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       }, { merge: true });
+    } else {
     }
 
     // Members belonging to this group
@@ -199,17 +203,32 @@ export async function lookupInvite(
   code: string
 ): Promise<{ groupId: string; groupName: string; ownerName?: string; createdAt: string } | null> {
   const db = getFirebaseDb();
-  if (!db) return null;
-  const snap = await getDoc(doc(db, "invites", code.toUpperCase()));
-  if (!snap.exists()) return null;
-  const data = snap.data() as { groupId: string; groupName: string; ownerName?: string; createdAt: string; expiresAt?: string };
-  if (data.expiresAt && new Date(data.expiresAt) < new Date()) return null;
-  return {
-    groupId: data.groupId,
-    groupName: data.groupName,
-    ownerName: data.ownerName,
-    createdAt: data.createdAt
-  };
+  if (!db) {
+    return null;
+  }
+  
+  const invitePath = `invites/${code.toUpperCase()}`;
+  
+  try {
+    const snap = await getDoc(doc(db, "invites", code.toUpperCase()));
+    
+    if (!snap.exists()) return null;
+    
+    const data = snap.data() as { groupId: string; groupName: string; ownerName?: string; createdAt: string; expiresAt?: string };
+    
+    if (data.expiresAt && new Date(data.expiresAt) < new Date()) {
+      return null;
+    }
+    
+    return {
+      groupId: data.groupId,
+      groupName: data.groupName,
+      ownerName: data.ownerName,
+      createdAt: data.createdAt
+    };
+  } catch (err: any) {
+    throw err;
+  }
 }
 
 // ── Secure group joining ───────────────────────────────────────────────────
@@ -220,14 +239,15 @@ export async function joinGroupCloud(groupId: string): Promise<boolean> {
   const uid = getCurrentUid();
   if (!uid) return false;
 
+
   try {
     // Only update memberUids to comply with Firestore security rules
     await setDoc(doc(db, "groups", groupId), {
       memberUids: arrayUnion(uid)
     }, { merge: true });
+    
     return true;
-  } catch (err) {
-    console.error("[blop sync] joinGroupCloud failed:", err);
+  } catch (err: any) {
     return false;
   }
 }

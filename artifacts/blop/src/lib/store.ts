@@ -331,6 +331,7 @@ export const useBlopStore = create<BlopStore>()(
           newValue: { name, type },
         });
 
+
         set((s) => ({
           groups: { ...s.groups, [id]: group },
           members: { ...s.members, ...memberMap },
@@ -991,7 +992,7 @@ export const useBlopStore = create<BlopStore>()(
           });
 
           return { ok: true, groupId: snapshot.groupId };
-        } catch {
+        } catch (err: any) {
           return { ok: false, error: "Network error — are you connected?" };
         }
       },

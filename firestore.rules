@@ -81,7 +81,8 @@ service cloud.firestore {
       match /activity/{activityId} {
         allow read: if isGroupMember(groupId);
         allow create: if isGroupMember(groupId);
-        allow update, delete: if false;
+        allow update: if isGroupMember(groupId);
+        allow delete: if false;
       }
     }
 
