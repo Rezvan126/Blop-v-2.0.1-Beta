@@ -23,6 +23,27 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; style?
   c1: Utensils, c2: Car, c3: BedDouble, c4: Music, c5: ShoppingBag, c6: Zap, c7: Heart, c8: Tag,
 };
 
+const CAT_BG: Record<string, string> = {
+  c1: "bg-emerald-50 dark:bg-emerald-950/30",
+  c2: "bg-blue-50 dark:bg-blue-950/30",
+  c3: "bg-violet-50 dark:bg-violet-950/30",
+  c4: "bg-rose-50 dark:bg-rose-950/30",
+  c5: "bg-amber-50 dark:bg-amber-950/30",
+  c6: "bg-slate-100 dark:bg-slate-800/40",
+  c7: "bg-pink-50 dark:bg-pink-950/30",
+  c8: "bg-muted/50",
+};
+const CAT_ICON: Record<string, string> = {
+  c1: "text-emerald-600 dark:text-emerald-400",
+  c2: "text-blue-600 dark:text-blue-400",
+  c3: "text-violet-600 dark:text-violet-400",
+  c4: "text-rose-600 dark:text-rose-400",
+  c5: "text-amber-600 dark:text-amber-400",
+  c6: "text-slate-500 dark:text-slate-400",
+  c7: "text-pink-600 dark:text-pink-400",
+  c8: "text-muted-foreground",
+};
+
 const GROUP_TYPE_META: Record<string, { label: string; icon: React.ComponentType<{ size?: number; className?: string }>; dot: string }> = {
   trip:       { label: "Trip",        icon: Plane,        dot: "bg-blue-400"   },
   roommates:  { label: "Roommates",   icon: House,        dot: "bg-violet-400" },
@@ -362,77 +383,86 @@ export default function HomeScreen() {
                     </p>
                   </div>
 
-                  {/* Compact KPI grid */}
+                  {/* KPI grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{activeGroups.length}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Active splits</p>
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
+                      <div className="w-9 h-9 rounded-[12px] bg-primary/10 flex items-center justify-center mb-3">
+                        <Users size={17} className="text-primary" />
+                      </div>
+                      <p className="text-[28px] font-bold text-foreground tabular-nums leading-none">{activeGroups.length}</p>
+                      <p className="text-[11px] font-semibold text-muted-foreground mt-1.5">Active splits</p>
                     </div>
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{allExpenses.length}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Total expenses</p>
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
+                      <div className="w-9 h-9 rounded-[12px] bg-primary/10 flex items-center justify-center mb-3">
+                        <Receipt size={17} className="text-primary" />
+                      </div>
+                      <p className="text-[28px] font-bold text-foreground tabular-nums leading-none">{allExpenses.length}</p>
+                      <p className="text-[11px] font-semibold text-muted-foreground mt-1.5">Expenses</p>
                     </div>
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-amber-500 tabular-nums leading-none mb-1">{groupsWithPending.size}</p>
-                      <p className="text-[12px] text-amber-500/80 font-semibold">Pending splits</p>
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
+                      <div className="w-9 h-9 rounded-[12px] bg-amber-500/10 flex items-center justify-center mb-3">
+                        <Clock size={17} className="text-amber-500" />
+                      </div>
+                      <p className="text-[28px] font-bold text-amber-500 tabular-nums leading-none">{groupsWithPending.size}</p>
+                      <p className="text-[11px] font-semibold text-amber-500/70 mt-1.5">Pending</p>
                     </div>
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{receiptsCount}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Receipts attached</p>
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 p-4">
+                      <div className="w-9 h-9 rounded-[12px] bg-muted/60 flex items-center justify-center mb-3">
+                        <Camera size={17} className="text-muted-foreground" />
+                      </div>
+                      <p className="text-[28px] font-bold text-foreground tabular-nums leading-none">{receiptsCount}</p>
+                      <p className="text-[11px] font-semibold text-muted-foreground mt-1.5">Receipts</p>
                     </div>
                   </div>
 
-                    <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex flex-col justify-between">
-                      <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-2 leading-none">Top split</p>
-                      {highestSpendingGroup && (
-                        <div className="flex items-center gap-2 mt-auto">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[16px] font-bold text-foreground truncate">{highestSpendingGroup.group?.name}</p>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-[16px] font-bold text-foreground tabular-nums">{formatAmount(highestSpendingGroup.spend, sym)}</p>
-                          </div>
-                        </div>
-                      )}
+                  {/* Top split */}
+                  {highestSpendingGroup && (
+                    <div className="bg-card rounded-[22px] shadow-card border border-border/40 px-5 py-4 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-1">Top split</p>
+                        <p className="text-[16px] font-bold text-foreground truncate">{highestSpendingGroup.group?.name}</p>
+                      </div>
+                      <p className="text-[18px] font-bold text-primary tabular-nums flex-shrink-0">{formatAmount(highestSpendingGroup.spend, sym)}</p>
                     </div>
+                  )}
 
                   {/* Category breakdown */}
                   <div className="bg-card rounded-[28px] shadow-card border border-border/40 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-border/30 bg-muted/20">
-                      <p className="text-xs font-bold text-foreground uppercase tracking-widest">Categories</p>
+                    {/* Header */}
+                    <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-border/20">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <PieChart size={18} className="text-primary" />
+                      </div>
+                      <p className="text-[18px] font-bold text-foreground">By category</p>
                     </div>
-                    <div className="p-1">
-                      {sortedCategories.map(({ id, amount, pct, label, icon: Icon }, i) => (
-                        <div key={id} className={`flex items-center gap-4 px-4 py-3.5 ${i < sortedCategories.length - 1 ? "border-b border-border/20" : ""}`}>
-                          <div
-                            className="w-10 h-10 rounded-[14px] flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: getCatColor(id), opacity: 0.15 }}
-                          >
-                            <Icon size={18} style={{ color: getCatColor(id) }} />
+                    {/* Rows */}
+                    {sortedCategories.map(({ id, amount, pct, label, icon: Icon }, i) => (
+                      <div
+                        key={id}
+                        className={cn("px-5 py-4", i < sortedCategories.length - 1 && "border-b border-border/10")}
+                      >
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className={cn("w-11 h-11 rounded-[16px] flex items-center justify-center flex-shrink-0", CAT_BG[id] ?? "bg-muted/50")}>
+                            <Icon size={20} className={CAT_ICON[id] ?? "text-muted-foreground"} />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-body font-bold text-foreground">{label}</span>
-                              <div className="text-right">
-                                <span className="text-body font-bold text-foreground tabular-nums">
-                                  {formatAmount(amount, sym)}
-                                </span>
-                                <span className="text-caption text-muted-foreground ml-1.5">{pct.toFixed(0)}%</span>
-                              </div>
-                            </div>
-                            <div className="h-1.5 w-full bg-muted/40 rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${pct}%` }}
-                                transition={{ duration: 1, delay: i * 0.1 }}
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: getCatColor(id) }}
-                              />
+                          <div className="flex flex-1 items-center justify-between gap-2 min-w-0">
+                            <p className="text-[16px] font-bold text-foreground truncate">{label}</p>
+                            <div className="flex items-baseline gap-1.5 flex-shrink-0">
+                              <p className="text-[16px] font-bold text-foreground tabular-nums">{formatAmount(amount, sym)}</p>
+                              <p className="text-[13px] text-muted-foreground/60 tabular-nums">{pct.toFixed(0)}%</p>
                             </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        <div className="h-[4px] w-full bg-muted/40 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 0.9, delay: i * 0.08, ease: "easeOut" }}
+                            className="h-full rounded-full bg-primary"
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </>
               )}
