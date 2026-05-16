@@ -380,18 +380,14 @@ export default function SettlementScreen({ params }: Props) {
                         </div>
                       ) : gets ? (
                         <div>
-                          <p className="text-[20px] font-bold text-emerald-600 tabular-nums leading-none truncate">
-                            {formatAmount(net, sym)}
-                          </p>
+                          <Amount amount={net} symbol={sym} className="text-[20px] font-bold text-emerald-600 leading-none" />
                           <p className="text-[10px] font-semibold text-emerald-500/80 mt-0.5">
                             {isMe ? "you get back" : "gets back"}
                           </p>
                         </div>
                       ) : (
                         <div>
-                          <p className="text-[20px] font-bold text-destructive tabular-nums leading-none truncate">
-                            {formatAmount(net, sym)}
-                          </p>
+                          <Amount amount={net} symbol={sym} className="text-[20px] font-bold text-destructive leading-none" />
                           <p className="text-[10px] font-semibold text-destructive/60 mt-0.5">
                             {isMe ? "you owe" : "owes"}
                           </p>

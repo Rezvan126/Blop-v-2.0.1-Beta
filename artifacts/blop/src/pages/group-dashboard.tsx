@@ -525,11 +525,11 @@ export default function GroupDashboardScreen({ params }: Props) {
               <div className="flex gap-5 mt-5 pt-4 border-t border-white/15">
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">You paid</p>
-                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5 truncate max-w-[80px]">{formatAmount(myTotalPaid, sym)}</p>
+                  <Amount amount={myTotalPaid} symbol={sym} className="text-[15px] font-bold text-white mt-0.5" decimalClassName="text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Your share</p>
-                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5 truncate max-w-[80px]">{formatAmount(myTotalShare, sym)}</p>
+                  <Amount amount={myTotalShare} symbol={sym} className="text-[15px] font-bold text-white mt-0.5" decimalClassName="text-white" />
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Pending</p>

@@ -119,17 +119,14 @@ export function Amount({
 }) {
   const isNeg = amount < 0;
   const abs = Math.abs(amount);
-  const intPart = Math.floor(abs).toString();
+  const intPart = Math.floor(abs).toLocaleString();
   const decPart = (abs % 1 !== 0 ? (abs % 1).toFixed(2).slice(1) : ".00");
+  const small: React.CSSProperties = { fontSize: "0.55em", lineHeight: 1, paddingTop: "0.15em", display: "inline-block", opacity: 0.65 };
   return (
     <span className={cn("tabular-nums inline-flex items-start leading-none", className)}>
-      <span>{isNeg ? "−" : ""}{symbol}{intPart}</span>
-      <span
-        className={cn("opacity-60", decimalClassName)}
-        style={{ fontSize: "0.58em", paddingTop: "0.18em" }}
-      >
-        {decPart}
-      </span>
+      <span style={small} className={decimalClassName}>{isNeg ? "−" : ""}{symbol}</span>
+      <span>{intPart}</span>
+      <span style={small} className={decimalClassName}>{decPart}</span>
     </span>
   );
 }
@@ -641,14 +638,10 @@ export function GroupCard({
             Settled ✓
           </span>
         ) : (
-          <p
-            className={cn(
-              "text-body-lg font-bold tabular-nums flex-shrink-0",
-              balance > 0 ? "text-emerald-600" : "text-destructive",
-            )}
-          >
-            {balance > 0 ? "+" : ""}{formatAmount(Math.abs(balance), "$")}
-          </p>
+          <span className={cn("text-body-lg font-bold flex-shrink-0", balance > 0 ? "text-emerald-600" : "text-destructive")}>
+            {balance > 0 && <span className="text-[0.75em]">+</span>}
+            <Amount amount={Math.abs(balance)} symbol="$" />
+          </span>
         )}
       </div>
       <AvatarStack ids={group.memberIds} members={members} max={5} size="sm" />
@@ -717,9 +710,7 @@ export function ExpenseRow({
         </p>
       </div>
       <div className="text-right flex-shrink-0">
-        <p className="text-body font-bold text-foreground tabular-nums truncate">
-          {formatAmount(expense.amount, "$")}
-        </p>
+        <Amount amount={expense.amount} symbol="$" className="text-body font-bold text-foreground" />
         {myShare > 0 && (
           <p
             className={cn(

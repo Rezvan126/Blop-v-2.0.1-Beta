@@ -53,11 +53,21 @@ export function AnimatedCounter({
   const [intPart, decPart] = formatted.split(".");
   const intWithCommas = parseInt(intPart).toLocaleString();
 
+  const small: React.CSSProperties = {
+    fontSize: "0.55em",
+    lineHeight: 1,
+    paddingTop: "0.15em",
+    display: "inline-block",
+    opacity: 0.65,
+  };
+
   return (
-    <span className={className}>
-      <span className="text-[0.55em] font-bold align-top mt-[0.1em] inline-block leading-none">{prefix}</span>
-      {isNeg && <span className="text-[0.7em]"> −</span>}
-      {intWithCommas}<span className="text-[0.65em]">.{decPart}</span>{suffix}
+    <span className={`inline-flex items-start leading-none tabular-nums ${className ?? ""}`}>
+      <span style={small}>{prefix}</span>
+      {isNeg && <span style={small}>−</span>}
+      <span>{intWithCommas}</span>
+      <span style={small}>.{decPart}</span>
+      {suffix && <span style={small}>{suffix}</span>}
     </span>
   );
 }
