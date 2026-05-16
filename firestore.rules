@@ -51,36 +51,36 @@ service cloud.firestore {
       // Hard-delete is disabled; use isArchived: true instead.
       allow delete: if false;
 
+      // Helper to support batch writes (e.g. creating group + members at once)
+      function isGroupMember(groupId) {
+        let groupBefore = get(/databases/$(database)/documents/groups/$(groupId));
+        let groupAfter = getAfter(/databases/$(database)/documents/groups/$(groupId));
+        return request.auth != null && (
+          (groupBefore != null && request.auth.uid in groupBefore.data.memberUids) ||
+          (groupAfter != null && request.auth.uid in groupAfter.data.memberUids)
+        );
+      }
+
       // ── Members subcollection ──────────────────────────────────────────
       match /members/{memberId} {
-        allow read, write: if request.auth != null
-                           && request.auth.uid in
-                              get(/databases/$(database)/documents/groups/$(groupId)).data.memberUids;
+        allow read, write: if isGroupMember(groupId);
       }
 
       // ── Expenses subcollection ─────────────────────────────────────────
       match /expenses/{expenseId} {
-        allow read, write: if request.auth != null
-                           && request.auth.uid in
-                              get(/databases/$(database)/documents/groups/$(groupId)).data.memberUids;
+        allow read, write: if isGroupMember(groupId);
       }
 
       // ── Settlements subcollection ──────────────────────────────────────
       match /settlements/{settlementId} {
-        allow read, write: if request.auth != null
-                           && request.auth.uid in
-                              get(/databases/$(database)/documents/groups/$(groupId)).data.memberUids;
+        allow read, write: if isGroupMember(groupId);
       }
 
       // ── Activity subcollection ─────────────────────────────────────────
       // Members can read and append; they cannot edit or delete past entries.
       match /activity/{activityId} {
-        allow read: if request.auth != null
-                    && request.auth.uid in
-                       get(/databases/$(database)/documents/groups/$(groupId)).data.memberUids;
-        allow create: if request.auth != null
-                      && request.auth.uid in
-                         get(/databases/$(database)/documents/groups/$(groupId)).data.memberUids;
+        allow read: if isGroupMember(groupId);
+        allow create: if isGroupMember(groupId);
         allow update, delete: if false;
       }
     }

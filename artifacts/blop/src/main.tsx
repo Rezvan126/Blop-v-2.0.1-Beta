@@ -5,7 +5,6 @@ import "./index.css";
 
 // Initialise Capacitor plugins for Android edge-to-edge
 if (window.hasOwnProperty("Capacitor")) {
-  StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
   StatusBar.setStyle({ style: Style.Light }).catch(() => {});
 }
 

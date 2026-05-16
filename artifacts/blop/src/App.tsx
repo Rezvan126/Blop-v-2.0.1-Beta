@@ -68,6 +68,8 @@ function AnimatedRoutes() {
   );
 }
 
+import { SuccessOverlay } from "@/components/ui/success-overlay";
+
 function App() {
   useSyncEngine();
   
@@ -81,6 +83,7 @@ function App() {
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
                 <AnimatedRoutes />
               </WouterRouter>
+              <SuccessOverlay />
             </div>
           </div>
           <Toaster />

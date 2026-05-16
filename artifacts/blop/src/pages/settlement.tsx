@@ -23,7 +23,7 @@ export default function SettlementScreen({ params }: Props) {
   const {
     groups, members, getGroupMembers, getGroupBalances, getGroupSettlements,
     getMinimizedSettlements, getGroupExpenses, recordSettlement, toggleSettlement,
-    settings, getGroupMeId,
+    settings, getGroupMeId, triggerSuccess
   } = useBlopStore();
 
   const group = groups[params.id];
@@ -83,9 +83,7 @@ export default function SettlementScreen({ params }: Props) {
 
     recordSettlement(params.id, pendingFrom, pendingTo, amt, pendingMethod, pendingNote.trim() || undefined);
     closeSheet();
-    const fromName = pendingFrom === effectiveMe ? (settings.userName || "You").split(" ")[0] : members[pendingFrom]?.name?.split(" ")[0] ?? "?";
-    const toName   = pendingTo   === effectiveMe ? "you" : members[pendingTo]?.name?.split(" ")[0] ?? "?";
-    toast({ title: `${sym}${amt.toFixed(2)} — ${fromName} → ${toName} recorded`, duration: 2500 });
+    triggerSuccess();
   };
 
   // ─── Member picker ─────────────────────────────────────────────────────────

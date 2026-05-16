@@ -197,19 +197,41 @@ export default function SettingsScreen() {
     toast({ title: "Name updated", duration: 2000 });
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
       const json = exportData();
-      const blob = new Blob([json], { type: "application/json" });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
       const now  = new Date();
       const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}`;
-      a.href = url; a.download = `blop-backup-${stamp}.json`;
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a); URL.revokeObjectURL(url);
-      toast({ title: "Backup saved", description: `blop-backup-${stamp}.json`, duration: 3000 });
-    } catch {
+      const filename = `blop-backup-${stamp}.json`;
+
+      if (window.hasOwnProperty("Capacitor")) {
+        const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
+        const { Share } = await import("@capacitor/share");
+
+        const writeResult = await Filesystem.writeFile({
+          path: filename,
+          data: json,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        });
+
+        await Share.share({
+          title: "Blop Backup",
+          url: writeResult.uri,
+          dialogTitle: "Save Backup",
+        });
+        toast({ title: "Backup exported", duration: 3000 });
+      } else {
+        const blob = new Blob([json], { type: "application/json" });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+        toast({ title: "Backup saved", description: filename, duration: 3000 });
+      }
+    } catch (e) {
+      console.error("Export failed:", e);
       toast({ title: "Export failed", duration: 2000 });
     }
   };
@@ -438,15 +460,15 @@ export default function SettingsScreen() {
                 icon={<Download size={16} className="text-primary" />}
                 iconBg="bg-primary/10"
                 label="Export backup"
-                sublabel="Download your data as JSON"
+                sublabel="Save a local copy"
                 right={<ChevronRight size={15} className="text-muted-foreground/35" />}
                 onClick={handleExport}
                 testId="button-export"
               />
               <Row
                 icon={<Upload size={16} className="text-muted-foreground" />}
-                label="Import data"
-                sublabel="Restore from a backup file"
+                label="Restore backup"
+                sublabel="Restore from a local file"
                 right={<ChevronRight size={15} className="text-muted-foreground/35" />}
                 onClick={() => importRef.current?.click()}
                 testId="button-import"

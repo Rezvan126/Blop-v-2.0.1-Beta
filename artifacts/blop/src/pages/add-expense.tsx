@@ -33,7 +33,7 @@ interface Props { params: { id: string } }
 export default function AddExpenseScreen({ params }: Props) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { groups, getGroupMembers, addExpense, getGroupMeId, settings } = useBlopStore();
+  const { groups, getGroupMembers, addExpense, getGroupMeId, settings, triggerSuccess } = useBlopStore();
   const group        = groups[params.id];
   const sym          = getCurrencySymbol(group?.defaultCurrency || settings.currency || "USD");
   const meId         = getGroupMeId(params.id);
@@ -148,7 +148,7 @@ export default function AddExpenseScreen({ params }: Props) {
       paidByMemberId, expenseDate, note: note.trim() || undefined, receiptUrl,
       participants, splitType,
     });
-    toast({ title: "Expense added!", duration: 2000 });
+    triggerSuccess();
     setLocation(`/group/${params.id}`);
   };
 

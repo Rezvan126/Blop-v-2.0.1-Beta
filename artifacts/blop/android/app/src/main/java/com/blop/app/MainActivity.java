@@ -8,7 +8,5 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Enable edge-to-edge support so the webview can fill the entire screen
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
     }
 }

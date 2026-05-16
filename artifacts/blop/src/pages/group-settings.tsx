@@ -161,28 +161,7 @@ export default function GroupSettingsScreen({ params }: Props) {
           </div>
         </SettingsSection>
 
-        {/* This is me */}
-        <section className="space-y-3">
-          <SectionLabel className="px-1">This is me</SectionLabel>
-          <div className="bg-card rounded-[28px] shadow-card border border-border/40 overflow-hidden">
-            {groupMembers.map((m, i) => {
-              const selected = m.id === meId;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setGroupMe(params.id, m.id)}
-                  className={`w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-muted/30 ${i < groupMembers.length - 1 ? "border-b border-border/30" : ""}`}
-                  data-testid={`button-me-${m.id}`}
-                >
-                  <Avatar member={m} size="md" />
-                  <p className="text-body font-semibold text-foreground flex-1 truncate">{m.name}</p>
-                  {selected && <Check size={16} className="text-primary flex-shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-xs text-muted-foreground/60 px-1">Select your name so balances show "You".</p>
-        </section>
+
 
         {/* Danger */}
         <section className="space-y-3 pb-4">

@@ -124,6 +124,8 @@ interface BlopStore {
   getGroupSnapshot(groupId: string): GroupSnapshotPayload;
   importGroupSnapshot(snapshot: GroupSnapshotPayload): void;
   joinGroupByCode(code: string): Promise<{ ok: boolean; groupId?: string; error?: string }>;
+  showSuccessOverlay: boolean;
+  triggerSuccess: () => void;
 }
 
 function makeActivity(
@@ -142,6 +144,11 @@ export const useBlopStore = create<BlopStore>()(
       settlements: {},
       activity: [],
       groupMeIds: {},
+      showSuccessOverlay: false,
+      triggerSuccess: () => {
+        set({ showSuccessOverlay: true });
+        setTimeout(() => set({ showSuccessOverlay: false }), 800);
+      },
       settings: {
         currentUserId: "user-me",
         currency: "USD",

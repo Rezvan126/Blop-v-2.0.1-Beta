@@ -31,7 +31,7 @@ interface Props { params: { id: string; expenseId: string } }
 export default function ExpenseDetailScreen({ params }: Props) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { expenses, groups, members, settings, activity, deleteExpense, restoreExpense, editExpense, getGroupMeId } = useBlopStore();
+  const { expenses, groups, members, settings, activity, deleteExpense, restoreExpense, editExpense, getGroupMeId, triggerSuccess } = useBlopStore();
   const expense = expenses[params.expenseId];
   const group   = groups[params.id];
   const sym     = getCurrencySymbol(group?.defaultCurrency || settings.currency || "USD");
@@ -76,7 +76,7 @@ export default function ExpenseDetailScreen({ params }: Props) {
     if (file.size > 500 * 1024) { toast({ title: "Large image — may slow the app", duration: 2500 }); }
     setReceiptLoading(true);
     const reader = new FileReader();
-    reader.onload  = () => { setEditReceiptUrl(reader.result as string); setReceiptLoading(false); };
+    reader.onload  = () => { setEditReceiptUrl(reader.result as string); setReceiptLoading(false); triggerSuccess(); };
     reader.onerror = () => { toast({ title: "Upload failed", duration: 2500 }); setReceiptLoading(false); };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -100,7 +100,7 @@ export default function ExpenseDetailScreen({ params }: Props) {
       category: editCategory,
       expenseDate: editDate || expense.expenseDate,
     });
-    toast({ title: "Expense updated", duration: 2000 });
+    triggerSuccess();
     setEditing(false);
   };
 

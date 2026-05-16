@@ -103,7 +103,7 @@ export async function pushAllToCloud(payload: PushPayload): Promise<void> {
       name:            group.name,
       type:            group.type,
       defaultCurrency: group.defaultCurrency,
-      memberIds:       group.memberIds,
+      memberIds:       arrayUnion(...group.memberIds),
       ...(group.syncStatus === "local" ? { ownerUid: uid } : {}),
       memberUids:      arrayUnion(uid),
       createdBy:       group.createdBy,

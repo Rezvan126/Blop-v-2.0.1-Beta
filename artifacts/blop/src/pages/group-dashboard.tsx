@@ -459,8 +459,8 @@ export default function GroupDashboardScreen({ params }: Props) {
                 <Link2 size={14} className="mr-2" /> Copy invite link
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleExportCSV}><FileDown size={14} className="mr-2" /> Export CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportPDF}><FileText size={14} className="mr-2" /> Export PDF</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportCSV}><FileDown size={14} className="mr-2" /> Export report (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF}><FileText size={14} className="mr-2" /> Export report (PDF)</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setLocation(`/group/${params.id}/settings`)}>Group settings</DropdownMenuItem>
             </DropdownMenuContent>
