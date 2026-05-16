@@ -145,7 +145,7 @@ export default function HomeScreen() {
         </button>
       </header>
 
-      <ScrollArea className="scroll-pb-navbar">
+      <ScrollArea className="scroll-pb-nav">
         <AnimatePresence mode="wait">
           {activeTab === "home" && (
             <motion.div
@@ -153,7 +153,7 @@ export default function HomeScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="px-5 pt-5 space-y-5 pb-2"
+              className="px-5 pt-5 space-y-5 pb-32"
             >
               {/* Balance Hero */}
               <NetBalanceHeroCard
