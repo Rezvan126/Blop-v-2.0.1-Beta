@@ -99,7 +99,7 @@ export default function GroupSettingsScreen({ params }: Props) {
         large
       />
 
-      <ScrollArea className="px-6 py-6 scroll-pb-safe space-y-8">
+      <ScrollArea className="px-6 pt-5 pb-10 scroll-pb-safe space-y-8">
 
         {/* Group name */}
         <SettingsSection label="Split">

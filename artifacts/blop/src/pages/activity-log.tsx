@@ -93,7 +93,7 @@ export default function ActivityLogScreen({ params }: Props) {
     <Screen testId="page-activity-log">
 
       {/* ── Header ── */}
-      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/92 backdrop-blur-2xl z-10">
+      <header className="px-5 pt-safe-appheader pb-3 sticky top-0 bg-background/95 z-40 border-b border-border/40 shadow-sm">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLocation(`/group/${params.id}`)}
@@ -116,7 +116,7 @@ export default function ActivityLogScreen({ params }: Props) {
       </header>
 
       <ScrollArea className="scroll-pb-safe">
-        <div className="px-5 pt-3">
+        <div className="px-5 pt-5 pb-10">
           {activity.length === 0 ? (
             <div className="py-20 flex flex-col items-center text-center px-6">
               <div className="w-20 h-20 rounded-[32px] bg-muted/40 flex items-center justify-center mb-6 shadow-sm border border-border/20">

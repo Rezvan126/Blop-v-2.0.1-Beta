@@ -11,14 +11,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { categories } from "@/lib/mockData";
 import { format, parseISO } from "date-fns";
-import { parseTimestamp } from "@/lib/utils";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useBlopStore } from "@/lib/store";
-import { cn, formatAmount, triggerHaptic } from "@/lib/utils";
+import { cn, formatAmount, triggerHaptic, parseTimestamp, getCurrencySymbol } from "@/lib/utils";
 import { subscribeToGroup, unsubscribeFromGroup } from "@/lib/cloudSync";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { generateCSV, downloadCSV, openPrintWindow } from "@/lib/export";
@@ -29,7 +29,6 @@ import {
   Screen, ScrollArea, SectionLabel, EmptyState,
   Avatar, AvatarStack, BottomSheet,
 } from "@/components/ds";
-import { cn, getCurrencySymbol } from "@/lib/utils";
 import { InviteSheet } from "@/components/ui/invite-sheet";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -407,7 +406,6 @@ export default function GroupDashboardScreen({ params }: Props) {
             </p>
           )}
         </div>
-        </div>
       </button>
     );
   };
@@ -416,7 +414,7 @@ export default function GroupDashboardScreen({ params }: Props) {
     <Screen testId="page-group-dashboard">
 
       {/* ── Header ── */}
-      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/95 backdrop-blur-2xl z-40 border-b border-border/40 shadow-sm">
+      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/95 z-40 border-b border-border/40 shadow-sm">
         <div className="flex items-center gap-2 mb-1">
           {/* Back */}
           <button
@@ -492,10 +490,7 @@ export default function GroupDashboardScreen({ params }: Props) {
       <ScrollArea className="scroll-pb-fab">
         <div className="px-5 pt-5 pb-5">
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
-            {/* Orbs */}
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/[0.07] pointer-events-none" />
-            <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/[0.05] pointer-events-none" />
-            <div className="absolute top-8 right-28 w-18 h-18 rounded-full bg-white/[0.04] pointer-events-none" />
+
 
             <div className="relative z-10 px-6 pt-5 pb-5">
               <p className="text-[10px] font-bold text-white/55 tracking-[0.14em] uppercase mb-2">

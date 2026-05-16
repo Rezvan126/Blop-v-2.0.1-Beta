@@ -51,12 +51,13 @@ export function AnimatedCounter({
 
   const formatted = absValue.toFixed(decimals);
   const [intPart, decPart] = formatted.split(".");
+  const intWithCommas = parseInt(intPart).toLocaleString();
 
   return (
     <span className={className}>
       <span className="text-[0.55em] font-bold align-top mt-[0.1em] inline-block leading-none">{prefix}</span>
       {isNeg && <span className="text-[0.7em]"> −</span>}
-      {intPart}<span className="text-[0.65em]">.{decPart}</span>{suffix}
+      {intWithCommas}<span className="text-[0.65em]">.{decPart}</span>{suffix}
     </span>
   );
 }

@@ -8,7 +8,7 @@ import { categories } from "@/lib/mockData";
 import { useBlopStore } from "@/lib/store";
 import { useTheme, THEME_DEFINITIONS } from "@/contexts/ThemeContext";
 import { Screen, ScrollArea, Avatar } from "@/components/ds";
-import { cn, getCurrencySymbol } from "@/lib/utils";
+import { cn, getCurrencySymbol, formatAmount } from "@/lib/utils";
 
 // ── Category config ───────────────────────────────────────────────────────────
 
@@ -142,7 +142,7 @@ export default function InsightsScreen({ params }: Props) {
     <Screen testId="page-insights">
 
       {/* ── Header ── */}
-      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/92 backdrop-blur-2xl z-10">
+      <header className="px-5 pt-safe-appheader pb-3 sticky top-0 bg-background/95 z-40 border-b border-border/40 shadow-sm">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLocation(`/group/${params.id}`)}
@@ -160,18 +160,17 @@ export default function InsightsScreen({ params }: Props) {
       </header>
 
       <ScrollArea className="scroll-pb-safe">
-        <div className="px-5 pt-3 space-y-4">
+        <div className="px-5 pt-5 pb-10 space-y-5">
 
           {/* ── Summary hero card ── */}
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
-            <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-white/[0.07] pointer-events-none" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/[0.05] pointer-events-none" />
+
             <div className="relative z-10 px-6 pt-5 pb-5">
               <p className="text-[10px] font-bold text-white/55 tracking-[0.14em] uppercase mb-2">
                 Total group spend
               </p>
               <p className="text-[44px] font-bold text-white tabular-nums leading-none">
-                <span className="text-[24px] font-bold align-top mt-[0.12em] inline-block leading-none">{sym}</span>{totalSpend.toFixed(2)}
+                {formatAmount(totalSpend, sym)}
               </p>
               <p className="text-[12px] text-white/45 mt-1.5 mb-5">
                 across {expenses.length} expense{expenses.length !== 1 ? "s" : ""}
@@ -179,7 +178,7 @@ export default function InsightsScreen({ params }: Props) {
               <div className="flex gap-5 pt-4 border-t border-white/15">
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Avg expense</p>
-                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5"><span className="text-xs font-bold">{sym}</span>{avgExpense.toFixed(2)}</p>
+                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5 truncate max-w-[80px]">{formatAmount(avgExpense, sym)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Members</p>
@@ -191,7 +190,7 @@ export default function InsightsScreen({ params }: Props) {
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Per person</p>
-                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5"><span className="text-xs font-bold">{sym}</span>{perPerson.toFixed(2)}</p>
+                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5 truncate max-w-[80px]">{formatAmount(perPerson, sym)}</p>
                 </div>
               </div>
             </div>

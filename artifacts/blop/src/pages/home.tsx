@@ -15,7 +15,7 @@ import {
   Screen, ScrollArea, InsightChartCard, EmptyState,
   Avatar, AvatarStack, SectionLabel,
 } from "@/components/ds";
-import { cn, getCurrencySymbol } from "@/lib/utils";
+import { cn, getCurrencySymbol, formatAmount } from "@/lib/utils";
 import { useTheme, THEME_DEFINITIONS } from "@/contexts/ThemeContext";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -98,42 +98,42 @@ export default function HomeScreen() {
     }
   }
 
-  const receiptsCount = allExpenses.filter(e => !!e.receiptUrl).length;
+  const spendingByGroup = activeGroups.map(g => ({
+    group: g,
+    spend: getGroupTotal(g.id)
+  })).sort((a,b) => b.spend - a.spend);
 
-  let highestSpendingGroup: { group: any; spend: number } | null = null;
-  const groupSpending: Record<string, number> = {};
-  for (const e of allExpenses) {
-    groupSpending[e.groupId] = (groupSpending[e.groupId] || 0) + e.amount;
-  }
-  let maxSpend = 0;
-  for (const [gId, spend] of Object.entries(groupSpending)) {
-    if (spend > maxSpend) {
-      maxSpend = spend;
-      highestSpendingGroup = { group: groups.find(g => g.id === gId), spend };
-    }
-  }
+  const highestSpendingGroup = spendingByGroup[0];
+  const totalSpend = spendingByGroup.reduce((s,g) => s+g.spend, 0);
 
-  const totalSpend     = allExpenses.reduce((s, e) => s + e.amount, 0);
-  const categoryTotals = allExpenses.reduce<Record<string, number>>(
-    (acc, e) => ({ ...acc, [e.category]: (acc[e.category] || 0) + e.amount }),
-    {},
-  );
+  const categorySpending: Record<string, number> = {};
+  allExpenses.forEach(e => {
+    categorySpending[e.category] = (categorySpending[e.category] || 0) + e.amount;
+  });
+
+  const sortedCategories = Object.entries(categorySpending)
+    .sort(([,a], [,b]) => b - a)
+    .map(([id, amount]) => ({
+      id,
+      amount,
+      pct: totalSpend > 0 ? (amount / totalSpend) * 100 : 0,
+      icon: CATEGORY_ICONS[id] || Tag,
+      label: categories[id]?.name || "Other"
+    }));
 
   return (
     <Screen testId="page-home">
-
-
       {/* ── Header ── */}
-      <header className="px-6 pt-safe-header-lg pb-4 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-2xl z-40 border-b border-border/40 shadow-sm">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-bold text-body-lg flex-shrink-0 shadow-avatar">
-            {userName.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground leading-none tracking-wide uppercase">
-              {getGreeting()}
-            </p>
-            <h1 className="text-[18px] font-bold text-foreground leading-tight mt-0.5">{userName}</h1>
+      <header className="px-6 pt-safe-header pb-4 flex items-center justify-between sticky top-0 bg-background/95 z-20">
+        <div>
+          <p className="text-[12px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-1">
+            {getGreeting()}
+          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-[24px] font-black text-foreground tracking-tight leading-none">
+              {userName}
+            </h1>
+            <Crown size={16} className="text-primary mt-0.5" />
           </div>
         </div>
         <button
@@ -141,364 +141,255 @@ export default function HomeScreen() {
           className="w-11 h-11 rounded-[14px] bg-card border border-border/50 shadow-card flex items-center justify-center hover:bg-muted/40 transition-colors"
           data-testid="button-settings"
         >
-          <Settings size={18} className="text-muted-foreground" />
+          <Settings size={18} className="text-foreground" />
         </button>
       </header>
 
-      <ScrollArea className="scroll-pb-nav">
+      <ScrollArea className="scroll-pb-navbar">
         <AnimatePresence mode="wait">
-
-          {/* ── HOME TAB — balance + splits merged ── */}
           {activeTab === "home" && (
             <motion.div
-              key="tab-home"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="px-5 space-y-5 pt-5 pb-2"
+              key="home"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="px-5 pt-5 pb-10 space-y-8"
             >
-              {/* Net balance hero */}
-              <motion.div {...stagger(0)}>
-                <NetBalanceHeroCard
-                  netBalance={netBalance}
-                  totalOwed={totalOwed}
-                  totalOwedToMe={totalOwedToMe}
-                  owedByUser={owedByUser}
-                  owedToUser={owedToUser}
-                  groups={groups}
-                  sym={sym}
-                />
-              </motion.div>
+              {/* Balance Hero */}
+              <NetBalanceHeroCard
+                netBalance={netBalance}
+                totalOwed={totalOwed}
+                totalOwedToMe={totalOwedToMe}
+                owedByUser={owedByUser}
+                owedToUser={owedToUser}
+                groups={groups}
+                sym={sym}
+              />
 
-              {/* Splits section */}
-              <motion.div {...stagger(2)}>
-                <div className="flex items-center justify-between mb-3 px-1">
-                  <div>
-                    <p className="text-[12px] font-bold text-foreground/60 tracking-wide uppercase">Your splits</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {groups.length === 0
-                        ? "No splits yet"
-                        : `${groups.length} split${groups.length !== 1 ? "s" : ""}`}
-                    </p>
-                  </div>
+              {/* Splits List */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                  <SectionLabel>Your Splits</SectionLabel>
                   <button
                     onClick={() => setLocation("/get-started")}
-                    className="flex items-center gap-1.5 bg-primary text-white text-[12px] font-bold px-4 py-2.5 rounded-full shadow-fab hover:brightness-105 transition-all"
-                    data-testid="button-create-split-splits-tab"
+                    className="flex items-center gap-1.5 text-primary text-[13px] font-bold hover:opacity-80 active:scale-95 transition-all"
                   >
-                    <Plus size={14} strokeWidth={2.5} /> New split
+                    <Plus size={14} strokeWidth={3} />
+                    New Split
                   </button>
                 </div>
 
-                {groups.length === 0 ? (
-                  <div className="bg-card rounded-[28px] border border-dashed border-border/60 p-10 text-center shadow-card space-y-4">
-                    <div className="w-14 h-14 rounded-[18px] bg-primary/8 flex items-center justify-center mx-auto">
-                      <Users size={24} className="text-primary/60" />
-                    </div>
-                    <p className="text-muted-foreground text-body">Create your first split to start sharing expenses.</p>
-                    <button
-                      onClick={() => setLocation("/get-started")}
-                      className="px-6 py-3 bg-primary text-white rounded-2xl text-body font-bold shadow-fab"
-                    >
-                      Create a split
-                    </button>
-                  </div>
+                {activeGroups.length === 0 ? (
+                  <EmptyState
+                    icon={Users}
+                    title="No splits yet"
+                    description="Create a split to start tracking expenses with friends."
+                    actionLabel="Create my first split"
+                    onAction={() => setLocation("/get-started")}
+                  />
                 ) : (
-                  <div className="space-y-3.5">
-                    {groups.map((group, i) => {
-                      const groupExpenses = getGroupExpenses(group.id);
-                      const lastExpense   = groupExpenses
-                        .slice()
-                        .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate))[0];
-                      const lastDate = lastExpense
-                        ? format(parseISO(lastExpense.expenseDate), "MMM d")
-                        : null;
-                      const total    = getGroupTotal(group.id);
-                      const groupSym = getCurrencySymbol(group.defaultCurrency || settings.currency || "USD");
-                      return (
-                        <motion.div
-                          key={group.id}
-                          initial={{ opacity: 0, y: 14 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.14 + i * 0.06, duration: 0.28, ease: "easeOut" }}
-                        >
-                          <SplitCard
-                            group={group}
-                            members={members}
-                            balance={getUserBalance(group.id)}
-                            totalSpend={total}
-                            lastDate={lastDate}
-                            expenseCount={groupExpenses.length}
-                            onClick={() => setLocation(`/group/${group.id}`)}
-                            sym={groupSym}
-                          />
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                )}
-                {/* Archived section */}
-                {archivedGroups.length > 0 && (
-                  <div className="mt-4">
-                    <button
-                      onClick={() => setShowArchived((v) => !v)}
-                      className="flex items-center gap-2 w-full px-1 py-2 text-left"
-                    >
-                      <Archive size={13} className="text-muted-foreground/50" />
-                      <span className="text-xs font-bold text-muted-foreground/50 tracking-wide uppercase flex-1">
-                        Archived · {archivedGroups.length}
-                      </span>
-                      <motion.div
-                        animate={{ rotate: showArchived ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronDown size={14} className="text-muted-foreground/40" />
+                  <div className="grid gap-4">
+                    {activeGroups.map((g, i) => (
+                      <motion.div key={g.id} {...stagger(i)}>
+                        <SplitCard
+                          group={g}
+                          members={members}
+                          balance={getUserBalance(g.id)}
+                          totalSpend={getGroupTotal(g.id)}
+                          lastDate={getGroupExpenses(g.id)[0] ? format(parseISO(getGroupExpenses(g.id)[0].expenseDate), "MMM d") : null}
+                          expenseCount={getGroupExpenses(g.id).length}
+                          onClick={() => setLocation(`/group/${g.id}`)}
+                          sym={sym}
+                        />
                       </motion.div>
-                    </button>
-
-                    <AnimatePresence>
-                      {showArchived && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.22, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="space-y-2.5 pt-1">
-                            {archivedGroups.map((group) => {
-                              const meta = GROUP_TYPE_META[group.type] ?? GROUP_TYPE_META.friends;
-                              return (
-                                <div
-                                  key={group.id}
-                                  className="bg-card/60 rounded-[20px] border border-border/30 px-4 py-3.5 flex items-center gap-3 opacity-60"
-                                >
-                                  <div className={cn("w-2 h-2 rounded-full flex-shrink-0", meta.dot)} />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-[14px] font-semibold text-foreground truncate">{group.name}</p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      {group.memberIds.length} member{group.memberIds.length !== 1 ? "s" : ""} · {meta.label}
-                                    </p>
-                                  </div>
-                                  <button
-                                    onClick={() => {
-                                      updateGroup(group.id, { isArchived: false });
-                                      const { triggerFeedback } = useBlopStore.getState();
-                                      triggerFeedback("unarchive", "Split is back on track!");
-                                    }}
-                                    className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/8 hover:bg-primary/15 px-3 py-1.5 rounded-full transition-colors flex-shrink-0"
-                                  >
-                                    <RotateCcw size={11} /> Restore
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    ))}
                   </div>
                 )}
-              </motion.div>
+
+                {archivedGroups.length > 0 && (
+                  <div className="pt-4 flex justify-center">
+                    <button
+                      onClick={() => setShowArchived(!showArchived)}
+                      className="text-[12px] font-bold text-muted-foreground/60 flex items-center gap-1.5 px-4 py-2 hover:bg-muted/40 rounded-full transition-colors"
+                    >
+                      {showArchived ? "Hide" : "Show"} {archivedGroups.length} archived split{archivedGroups.length !== 1 ? "s" : ""}
+                      <ChevronDown size={14} className={cn("transition-transform duration-300", showArchived && "rotate-180")} />
+                    </button>
+                  </div>
+                )}
+
+                <AnimatePresence>
+                  {showArchived && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="grid gap-4 overflow-hidden"
+                    >
+                      {archivedGroups.map((g, i) => (
+                        <SplitCard
+                          key={g.id}
+                          group={g}
+                          members={members}
+                          balance={getUserBalance(g.id)}
+                          totalSpend={getGroupTotal(g.id)}
+                          lastDate={getGroupExpenses(g.id)[0] ? format(parseISO(getGroupExpenses(g.id)[0].expenseDate), "MMM d") : null}
+                          expenseCount={getGroupExpenses(g.id).length}
+                          onClick={() => setLocation(`/group/${g.id}`)}
+                          sym={sym}
+                        />
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )}
 
-          {/* ── SETTLE TAB ── */}
           {activeTab === "settle" && (
             <motion.div
-              key="tab-settle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="px-5 pt-2 space-y-4"
+              key="settle"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="px-5 pt-5 pb-10 space-y-8"
             >
-              <SectionLabel className="mb-4">Pending settlements</SectionLabel>
-              {allMinimized.length === 0 ? (
+              <SectionLabel>Quick Settle</SectionLabel>
+              {groupsWithPending.size === 0 ? (
                 <EmptyState
-                  icon={TrendingUp}
-                  title="All settled up!"
-                  subtitle="No pending payments across any split."
+                  icon={ArrowLeftRight}
+                  title="All caught up!"
+                  description="No pending settlements in any of your splits."
                 />
               ) : (
-                groups.map((group) => {
-                  const minimized  = getMinimizedSettlements(group.id);
-                  const groupSym   = getCurrencySymbol(group.defaultCurrency || settings.currency || "USD");
-                  if (!minimized.length) return null;
-                  return (
-                    <div
-                      key={group.id}
-                      className="bg-card rounded-[28px] shadow-card border border-border/40 overflow-hidden"
-                    >
-                      <div className="px-5 py-3.5 bg-muted/20 border-b border-border/40 flex items-center justify-between">
-                        <SectionLabel>{group.name}</SectionLabel>
-                        <AvatarStack ids={group.memberIds} members={members} max={3} size="xs" />
-                      </div>
-                      <div className="divide-y divide-border/30">
-                        {minimized.map((s, i) => {
-                          const from = members[s.fromMemberId];
-                          const to   = members[s.toMemberId];
-                          if (!from || !to) return null;
-                          const fromIsMe = s.fromMemberId === currentUserId;
-                          const toIsMe   = s.toMemberId   === currentUserId;
-                          return (
-                            <div key={i} className="px-5 py-3.5 flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <Avatar member={from} size="sm" />
-                                <span className="text-muted-foreground text-caption">→</span>
-                                <Avatar member={to} size="sm" />
-                                <span className="text-body text-foreground font-medium ml-1">
-                                  {fromIsMe ? (settings.userName || "You").split(" ")[0] : from.name.split(" ")[0]} → {toIsMe ? (settings.userName || "You").split(" ")[0] : to.name.split(" ")[0]}
-                                </span>
-                              </div>
-                              <span className="text-body font-bold text-primary tabular-nums">
-                                <span className="text-xs font-bold">{groupSym}</span>{s.amount.toFixed(2)}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div className="px-5 py-3.5 border-t border-border/40">
-                        <button
-                          onClick={() => setLocation(`/group/${group.id}/settle`)}
-                          className="text-caption text-primary font-bold"
-                        >
-                          Record payment →
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
+                <div className="grid gap-4">
+                  {groups.filter(g => groupsWithPending.has(g.id)).map((g, i) => (
+                    <motion.div key={g.id} {...stagger(i)}>
+                      <button
+                        onClick={() => setLocation(`/group/${g.id}/settle`)}
+                        className="w-full bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex items-center justify-between hover:shadow-card-hover transition-all"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-[16px] bg-primary/10 flex items-center justify-center">
+                            <ArrowLeftRight size={20} className="text-primary" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-[16px] font-bold text-foreground leading-tight">{g.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">Pending settlements</p>
+                          </div>
+                        </div>
+                        <div className="w-9 h-9 rounded-full bg-muted/40 flex items-center justify-center">
+                          <Plus size={16} className="text-muted-foreground/60" />
+                        </div>
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
               )}
             </motion.div>
           )}
 
-          {/* ── INSIGHTS TAB ── */}
           {activeTab === "insights" && (
             <motion.div
-              key="tab-insights"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="px-5 pt-2 pb-6 space-y-4"
+              key="insights"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="px-5 pt-5 pb-10 space-y-8"
             >
-              <SectionLabel className="mb-4">Overall dashboard</SectionLabel>
-
+              <SectionLabel>Insights</SectionLabel>
               {allExpenses.length === 0 ? (
-                <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-8 text-center mt-4">
-                  <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <PieChart size={24} className="text-muted-foreground/60" />
-                  </div>
-                  <p className="text-[18px] font-bold text-foreground">No insights yet</p>
-                  <p className="text-[14px] text-muted-foreground mt-2">Create a group and add expenses to see your spending overview.</p>
-                </div>
+                <EmptyState
+                  icon={PieChart}
+                  title="No data yet"
+                  description="Add some expenses to see your spending insights."
+                />
               ) : (
                 <>
-                  {/* Top hero */}
-                  <div className="bg-primary rounded-[28px] shadow-hero p-6 relative overflow-hidden">
-                    <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full bg-white/[0.07] pointer-events-none" />
+                  {/* Hero spend */}
+                  <InsightChartCard>
                     <p className="text-label text-white/60 mb-2">Total spend</p>
                     <p className="text-[40px] font-bold text-white tabular-nums leading-none">
-                      <span className="text-[22px] font-bold align-top mt-[0.12em] inline-block leading-none">{sym}</span>{totalSpend.toFixed(2).split(".")[0]}<span className="text-[0.65em]">.{totalSpend.toFixed(2).split(".")[1]}</span>
+                      {formatAmount(totalSpend, sym)}
                     </p>
                     <p className="text-caption text-white/50 mt-2">
                       {allExpenses.length} expense{allExpenses.length !== 1 ? "s" : ""} · {groups.length} split{groups.length !== 1 ? "s" : ""}
                     </p>
-                  </div>
+                  </InsightChartCard>
 
-                  {/* Compact KPI grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{activeGroups.length}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Active groups</p>
+                  {/* Summary row */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5">
+                      <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-3 leading-none">Net Status</p>
+                      <div className="flex items-center gap-2">
+                        {Math.abs(netBalance) < 0.01 ? (
+                          <p className="text-[18px] font-bold text-emerald-500">All settled</p>
+                        ) : netBalance > 0 ? (
+                          <p className="text-[18px] font-bold text-emerald-500 tabular-nums">Owed {formatAmount(netBalance, sym)}</p>
+                        ) : (
+                          <p className="text-[18px] font-bold text-destructive tabular-nums">You owe {formatAmount(Math.abs(netBalance), sym)}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[12px] text-muted-foreground font-medium">Owe: <span className="font-bold">{formatAmount(totalOwed, sym)}</span></p>
+                        <p className="text-[12px] text-muted-foreground font-medium mt-0.5">Owed: <span className="font-bold">{formatAmount(totalOwedToMe, sym)}</span></p>
+                      </div>
                     </div>
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{allExpenses.length}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Total expenses</p>
-                    </div>
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-amber-500 tabular-nums leading-none mb-1">{groupsWithPending.size}</p>
-                      <p className="text-[12px] text-amber-500/80 font-semibold">Pending groups</p>
-                    </div>
-                    <div className="bg-card rounded-[20px] shadow-card border border-border/40 p-4">
-                      <p className="text-[20px] font-bold text-foreground tabular-nums leading-none mb-1">{receiptsCount}</p>
-                      <p className="text-[12px] text-muted-foreground font-semibold">Receipts attached</p>
-                    </div>
-                  </div>
 
-                  {/* Net position */}
-                  <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex items-center justify-between">
-                    <div>
-                      <p className="text-[12px] text-muted-foreground font-semibold mb-1">Net position</p>
-                      {Math.abs(netBalance) < 0.01 ? (
-                        <p className="text-[18px] font-bold text-emerald-500">All settled</p>
-                      ) : netBalance > 0 ? (
-                        <p className="text-[18px] font-bold text-emerald-500 tabular-nums">Owed {sym}{netBalance.toFixed(2)}</p>
-                      ) : (
-                        <p className="text-[18px] font-bold text-destructive tabular-nums">You owe {sym}{Math.abs(netBalance).toFixed(2)}</p>
+                    <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex flex-col justify-between">
+                      <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-2 leading-none">Top split</p>
+                      {highestSpendingGroup && (
+                        <div className="flex items-center gap-2 mt-auto">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[16px] font-bold text-foreground truncate">{highestSpendingGroup.group?.name}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-[16px] font-bold text-foreground tabular-nums">{formatAmount(highestSpendingGroup.spend, sym)}</p>
+                          </div>
+                        </div>
                       )}
                     </div>
-                    <div className="text-right">
-                      <p className="text-[12px] text-muted-foreground font-medium">Owe: <span className="font-bold">{sym}{totalOwed.toFixed(2)}</span></p>
-                      <p className="text-[12px] text-muted-foreground font-medium mt-0.5">Owed: <span className="font-bold">{sym}{totalOwedToMe.toFixed(2)}</span></p>
+                  </div>
+
+                  {/* Category breakdown */}
+                  <div className="bg-card rounded-[28px] shadow-card border border-border/40 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-border/30 bg-muted/20">
+                      <p className="text-xs font-bold text-foreground uppercase tracking-widest">Categories</p>
                     </div>
-                  </div>
-
-                  {/* Highlights */}
-                  <div className="space-y-3">
-                    {highestSpendingGroup && highestSpendingGroup.spend > 0 && (
-                      <div className="bg-card rounded-[24px] shadow-card border border-border/40 p-5 flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Crown size={20} className="text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] font-bold text-primary uppercase tracking-wide mb-0.5">Highest Spending</p>
-                          <p className="text-[16px] font-bold text-foreground truncate">{highestSpendingGroup.group?.name}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="text-[16px] font-bold text-foreground tabular-nums">{sym}{highestSpendingGroup.spend.toFixed(2)}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <InsightChartCard title="By category" icon={PieChart}>
-                    <div className="space-y-3">
-                      {Object.entries(categoryTotals)
-                        .sort(([, a], [, b]) => b - a)
-                        .map(([catId, amount]) => {
-                          const cat      = categories[catId];
-                          const IconComp = CATEGORY_ICONS[catId] || Tag;
-                          const pct      = totalSpend > 0 ? (amount / totalSpend) * 100 : 0;
-                          return (
-                            <div key={catId}>
-                              <div className="flex items-center justify-between mb-1.5">
-                                <div className="flex items-center gap-2.5">
-                                  <div className={cn("w-7 h-7 rounded-[10px] flex items-center justify-center", cat?.color ?? "bg-muted text-muted-foreground")}>
-                                    <IconComp size={13} />
-                                  </div>
-                                  <span className="text-body font-semibold text-foreground">{cat?.name ?? "Other"}</span>
-                                </div>
-                                <div className="text-right">
-                                  <span className="text-body font-bold text-foreground tabular-nums">
-                                    <span className="text-xs font-bold">{sym}</span>{amount.toFixed(2)}
-                                  </span>
-                                  <span className="text-caption text-muted-foreground ml-1.5">{pct.toFixed(0)}%</span>
-                                </div>
-                              </div>
-                              <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
-                                <motion.div
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${pct}%` }}
-                                  transition={{ duration: 0.6, type: "spring", damping: 18 }}
-                                  className="h-full rounded-full"
-                                  style={{ background: getCatColor(catId) }}
-                                />
+                    <div className="p-1">
+                      {sortedCategories.map(({ id, amount, pct, label, icon: Icon }, i) => (
+                        <div key={id} className={`flex items-center gap-4 px-4 py-3.5 ${i < sortedCategories.length - 1 ? "border-b border-border/20" : ""}`}>
+                          <div
+                            className="w-10 h-10 rounded-[14px] flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: getCatColor(id), opacity: 0.15 }}
+                          >
+                            <Icon size={18} style={{ color: getCatColor(id) }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-body font-bold text-foreground">{label}</span>
+                              <div className="text-right">
+                                <span className="text-body font-bold text-foreground tabular-nums">
+                                  {formatAmount(amount, sym)}
+                                </span>
+                                <span className="text-caption text-muted-foreground ml-1.5">{pct.toFixed(0)}%</span>
                               </div>
                             </div>
-                          );
-                        })}
+                            <div className="h-1.5 w-full bg-muted/40 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 1, delay: i * 0.1 }}
+                                className="h-full rounded-full"
+                                style={{ backgroundColor: getCatColor(id) }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </InsightChartCard>
+                  </div>
                 </>
               )}
             </motion.div>
@@ -550,9 +441,7 @@ function NetBalanceHeroCard({
   return (
     <div className="rounded-[28px] overflow-hidden shadow-hero">
       <div className="bg-primary p-6 relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-white/[0.06] pointer-events-none" />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/[0.04] pointer-events-none" />
+
 
         {/* Label */}
         <p className="text-xs font-bold text-white/55 tracking-widest uppercase mb-2">
@@ -573,20 +462,20 @@ function NetBalanceHeroCard({
 
         {/* Sub-cards row */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/[0.12] rounded-[20px] px-4 py-3.5 backdrop-blur-sm">
+          <div className="bg-white/[0.12] rounded-[20px] px-4 py-3.5">
             <p className="text-[10px] font-semibold text-white/55 tracking-wide uppercase mb-1.5">
               To pay
             </p>
-            <p className="text-[22px] font-bold text-white tabular-nums leading-none">
-              <span className="text-[13px] font-bold align-top mt-[0.15em] inline-block leading-none">{sym}</span>{totalOwed.toFixed(2).split(".")[0]}<span className="text-[0.65em]">.{totalOwed.toFixed(2).split(".")[1]}</span>
+            <p className="text-[22px] font-bold text-white tabular-nums leading-none truncate">
+              {formatAmount(totalOwed, sym)}
             </p>
           </div>
-          <div className="bg-white/[0.12] rounded-[20px] px-4 py-3.5 backdrop-blur-sm">
+          <div className="bg-white/[0.12] rounded-[20px] px-4 py-3.5">
             <p className="text-[10px] font-semibold text-white/55 tracking-wide uppercase mb-1.5">
               Incoming
             </p>
-            <p className="text-[22px] font-bold text-white tabular-nums leading-none">
-              <span className="text-[13px] font-bold align-top mt-[0.15em] inline-block leading-none">{sym}</span>{totalOwedToMe.toFixed(2).split(".")[0]}<span className="text-[0.65em]">.{totalOwedToMe.toFixed(2).split(".")[1]}</span>
+            <p className="text-[22px] font-bold text-white tabular-nums leading-none truncate">
+              {formatAmount(totalOwedToMe, sym)}
             </p>
           </div>
         </div>
@@ -615,15 +504,15 @@ function SplitCard({
   return (
     <button
       onClick={onClick}
-      className="w-full bg-card rounded-[28px] shadow-card border border-border/40 text-left hover:shadow-card-hover active:scale-[0.99] transition-all duration-200 overflow-hidden"
+      className="w-full bg-card rounded-[28px] shadow-card border border-border/40 flex flex-col text-left hover:shadow-card-hover transition-all duration-200 overflow-hidden"
       data-testid={`group-card-${group.id}`}
     >
-      <div className="px-5 pt-5 pb-4">
+      <div className="px-5 pt-5 pb-4 w-full">
         <div className="flex items-start gap-3 justify-between mb-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <div className={cn("w-2 h-2 rounded-full flex-shrink-0", meta.dot)} />
-              <span className="text-xs font-bold text-muted-foreground/60 tracking-wide">
+              <span className="text-xs font-bold text-muted-foreground/60 tracking-wide uppercase">
                 {meta.label}
               </span>
               {group.isArchived && (
@@ -652,10 +541,10 @@ function SplitCard({
                 : "bg-destructive/8 dark:bg-destructive/12 border-destructive/20 dark:border-destructive/30",
             )}>
               <p className={cn("text-[16px] font-bold tabular-nums leading-none", isPos ? "text-emerald-600" : "text-destructive")}>
-                <span className="text-xs font-bold">{sym}</span>{isPos ? "" : <>{" "}−</>}{Math.abs(balance).toFixed(2)}
+                {formatAmount(Math.abs(balance), sym)}
               </p>
               <p className={cn("text-[10px] font-semibold mt-0.5", isPos ? "text-emerald-500" : "text-destructive/70")}>
-                {isPos ? "incoming" : "to pay"}
+                {isPos ? "incoming" : "you owe"}
               </p>
             </div>
           )}
@@ -664,12 +553,14 @@ function SplitCard({
         <AvatarStack ids={group.memberIds} members={members} max={3} size="sm" />
       </div>
 
-      <div className="flex border-t border-border/30">
-        <div className="flex-1 px-4 py-3 text-center border-r border-border/30">
+      <div className="flex border-t border-border/10 bg-muted/5">
+        <div className="flex-1 px-4 py-3 text-center border-r border-border/10">
           <p className="text-[9px] font-bold text-muted-foreground/45 uppercase tracking-wide mb-0.5">Total spend</p>
-          <p className="text-[13px] font-bold text-foreground tabular-nums"><span className="text-[10px] font-bold">{sym}</span>{totalSpend.toFixed(2)}</p>
+          <p className="text-[13px] font-bold text-foreground tabular-nums truncate max-w-[80px] mx-auto">
+            {formatAmount(totalSpend, sym)}
+          </p>
         </div>
-        <div className="flex-1 px-4 py-3 text-center border-r border-border/30">
+        <div className="flex-1 px-4 py-3 text-center border-r border-border/10">
           <p className="text-[9px] font-bold text-muted-foreground/45 uppercase tracking-wide mb-0.5">Expenses</p>
           <p className="text-[13px] font-bold text-foreground tabular-nums">{expenseCount}</p>
         </div>
@@ -696,31 +587,28 @@ function PremiumNav({
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
     >
       <div 
-        className="pointer-events-auto flex items-center justify-between h-[72px] px-2 rounded-[32px] bg-white/85 dark:bg-[#161620]/80 border border-[#141428]/10 dark:border-white/10 shadow-[0_18px_45px_rgba(30,30,80,0.12)] dark:shadow-[0_18px_45px_rgba(0,0,0,0.32)]"
-        style={{ WebkitBackdropFilter: "blur(22px) saturate(180%)", backdropFilter: "blur(22px) saturate(180%)" }}
+        className="pointer-events-auto flex items-center justify-between h-[72px] px-2 rounded-[32px] bg-background border border-border shadow-lg"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = active === id;
           return (
-            <motion.button
+            <button
               key={id}
               onClick={() => onChange(id)}
-              whileTap={{ scale: 0.96 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
               className="flex-1 flex flex-col items-center justify-center h-full gap-1 relative"
               data-testid={`bottomtab-${id}`}
             >
               <div
                 className={cn(
                   "w-[52px] h-[32px] rounded-[16px] flex items-center justify-center transition-colors duration-300",
-                  isActive ? "bg-primary/15 dark:bg-primary/25" : "bg-transparent",
+                  isActive ? "bg-primary/10" : "bg-transparent",
                 )}
               >
                 <Icon
                   size={20}
                   className={cn(
                     "transition-colors duration-300",
-                    isActive ? "text-primary" : "text-foreground/60",
+                    isActive ? "text-primary" : "text-foreground/40",
                   )}
                   strokeWidth={isActive ? 2.5 : 2}
                 />
@@ -728,12 +616,12 @@ function PremiumNav({
               <span
                 className={cn(
                   "text-[10px] font-bold leading-none transition-colors duration-300",
-                  isActive ? "text-primary" : "text-foreground/60",
+                  isActive ? "text-primary" : "text-foreground/40",
                 )}
               >
                 {label}
               </span>
-            </motion.button>
+            </button>
           );
         })}
       </div>

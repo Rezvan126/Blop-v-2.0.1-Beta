@@ -149,7 +149,7 @@ export function AppHeader({
   large?: boolean;
 }) {
   return (
-    <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-3 sticky top-0 bg-background/95 backdrop-blur-2xl z-40 border-b border-border/40 shadow-sm">
+    <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-3 sticky top-0 bg-background/95 z-40 border-b border-border/40 shadow-sm">
       {onBack && (
         <Button
           variant="ghost"
