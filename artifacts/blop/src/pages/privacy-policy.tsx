@@ -6,38 +6,38 @@ import { Screen, ScrollArea } from "@/components/ds";
 const SECTIONS = [
   {
     icon: WifiOff,
-    title: "Offline-first by default",
-    body: "blop works entirely without an internet connection. All your data — groups, members, expenses, payments — is stored locally on your device. No account is required to use the app.",
+    title: "Offline-first by design",
+    body: "Blop works entirely on your device. All your data — groups, members, expenses, and payments — is stored locally. No account or email is required to use the app.",
   },
   {
     icon: Database,
-    title: "Local storage only (by default)",
-    body: "Your data is saved to your browser's local storage under the key blop-store-v3. By default it never leaves your device. Clearing your browser data will erase your blop data.",
+    title: "Local storage & Backups",
+    body: "Your data stays on your device by default. You can use the 'Export backup' feature to save a copy of your data or move it to another device. 'Restore backup' lets you import these saved files.",
   },
   {
     icon: Share2,
-    title: "Automatic cloud sync (Firebase)",
-    body: "blop automatically syncs your groups using Firebase Firestore when it is configured. You are signed in anonymously — no email or password required. No data is shared with or accessible by any third party.",
+    title: "Optional Cloud Sync",
+    body: "If you want to share groups with friends, Blop uses Firebase for real-time syncing. This is optional. When enabled, your group data is synced through Firebase infrastructure so everyone stays up to date.",
   },
   {
     icon: Eye,
-    title: "What synced data includes",
-    body: "When Cloud Sync is enabled, the data sent to Firebase may include: group name, member names, expenses, settlements, activity history, receipt references, and invite codes. This data is used solely to enable backup, restore, and real-time updates across your devices.",
+    title: "What data is synced",
+    body: "Only data necessary for group splitting is synced: group names, member names, expenses, and settlements. Anonymous authentication is used to identify your session safely without needing a password.",
   },
   {
     icon: Shield,
-    title: "No ads. No selling your data.",
-    body: "blop does not sell, share, or monetise your data in any way. We do not use your data for advertising. We have no analytics or tracking tools in the app.",
-  },
-  {
-    icon: Download,
-    title: "Export & delete your data",
-    body: "You can export all local data as a JSON file from Settings → Export backup, and permanently delete it from Settings → Reset all data. If you have used group sync, server-stored data may require separate deletion — contact privacy@blop.app to request removal.",
+    title: "No Ads. No selling data.",
+    body: "Blop does not sell your data or use it for advertising. We do not track you across other apps or websites. We prioritize your privacy above all else.",
   },
   {
     icon: Lock,
-    title: "You own your data",
-    body: "Your data belongs to you. blop has no hidden background syncs beyond the optional group sharing described above. We will always be transparent about what leaves your device and why.",
+    title: "Security & Encryption",
+    body: "Firebase protects your data in transit using HTTPS and encrypts stored data at rest. You have full control over your local data and can reset it anytime from Settings.",
+  },
+  {
+    icon: Download,
+    title: "Your data, your control",
+    body: "You own your data. You can export it, import it, or delete it whenever you choose. Blop is built to be a transparent tool for you and your friends.",
   },
 ];
 
@@ -67,10 +67,10 @@ export default function PrivacyPolicyScreen() {
             <div className="relative z-10">
               <p className="text-[10px] font-bold text-white/55 tracking-[0.14em] uppercase mb-3">blop · privacy</p>
               <p className="text-[26px] font-bold text-white leading-tight mb-2">
-                Offline-first.<br />Your data, your control.
+                Your data stays<br />with you.
               </p>
               <p className="text-[13px] text-white/60 leading-relaxed">
-                No account required. Data stays on your device by default. Group sync is optional and transparent.
+                Offline-first split tracking. Optional cloud sync for shared groups. No ads, no selling data.
               </p>
             </div>
           </div>
@@ -97,9 +97,17 @@ export default function PrivacyPolicyScreen() {
           ))}
 
           {/* Footer note */}
-          <p className="text-xs text-muted-foreground/50 text-center px-4 pt-2">
-            Last updated May 2026 · blop v2.0.0
-          </p>
+          <div className="space-y-4 pt-4">
+             <div className="bg-muted/30 rounded-[20px] p-5 border border-border/40">
+                <p className="text-[13px] text-muted-foreground leading-relaxed">
+                  Blop uses Firebase infrastructure for optional cloud sync. We do not sell your data or use it for advertising. 
+                  Firebase protects data in transit using HTTPS and encrypts supported stored data at rest.
+                </p>
+             </div>
+             <p className="text-xs text-muted-foreground/50 text-center px-4">
+               Last updated May 2026 · blop v2.0.1
+             </p>
+          </div>
         </div>
       </ScrollArea>
     </Screen>

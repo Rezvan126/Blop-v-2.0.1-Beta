@@ -103,15 +103,23 @@ export default function CreateSplitScreen() {
             {/* Step 1: Name */}
             {step === 1 && (
               <div className="space-y-3">
-                <Input
-                  placeholder="What are you splitting?"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && nextStep()}
-                  className="h-14 text-body-lg bg-card border-border/50 rounded-2xl shadow-card px-5"
-                  autoFocus
-                  data-testid="input-group-name"
-                />
+                <div className="space-y-1">
+                  <Input
+                    placeholder="What are you splitting?"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && nextStep()}
+                    className="h-14 text-body-lg bg-card border-border/50 rounded-2xl shadow-card px-5"
+                    autoFocus
+                    maxLength={50}
+                    data-testid="input-group-name"
+                  />
+                  <div className="flex justify-end pr-2">
+                    <p className={cn("text-[10px] font-bold", name.length >= 45 ? "text-primary" : "text-muted-foreground/30")}>
+                      {name.length}/50
+                    </p>
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2 pt-2">
                   {["Weekend trip", "Apartment", "Dinner", "Concert", "Vacation"].map((preset) => (
                     <button
@@ -163,18 +171,26 @@ export default function CreateSplitScreen() {
 
                 {/* Add input */}
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="Add a member's name…"
-                    value={newMemberName}
-                    onChange={(e) => setNewMemberName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && newMemberName.trim()) {
-                        addMember();
-                      }
-                    }}
-                    className="flex-1 bg-card border-border/50 rounded-2xl shadow-card"
-                    data-testid="input-member-name"
-                  />
+                  <div className="flex-1 space-y-1">
+                    <Input
+                      placeholder="Add a member's name…"
+                      value={newMemberName}
+                      onChange={(e) => setNewMemberName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newMemberName.trim()) {
+                          addMember();
+                        }
+                      }}
+                      maxLength={30}
+                      className="bg-card border-border/50 rounded-2xl shadow-card"
+                      data-testid="input-member-name"
+                    />
+                    <div className="flex justify-end pr-1">
+                      <p className={cn("text-[10px] font-bold", newMemberName.length >= 25 ? "text-primary" : "text-muted-foreground/30")}>
+                        {newMemberName.length}/30
+                      </p>
+                    </div>
+                  </div>
                   <Button
                     onClick={addMember}
                     disabled={!newMemberName.trim()}

@@ -198,6 +198,7 @@ export default function AddExpenseScreen({ params }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="What was it for?"
+            maxLength={70}
             className="bg-muted/30 border-border/50 rounded-2xl text-body h-12"
             data-testid="input-description"
           />

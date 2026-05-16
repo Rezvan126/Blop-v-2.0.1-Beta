@@ -220,7 +220,10 @@ export default function SettingsScreen() {
           url: writeResult.uri,
           dialogTitle: "Save Backup",
         });
-        toast({ title: "Backup exported", duration: 3000 });
+        
+        // On Android, Share.share resolves even if the user cancels or if it completes.
+        // We trigger success here as the file was successfully prepared and the share dialog shown.
+        triggerSuccess();
       } else {
         const blob = new Blob([json], { type: "application/json" });
         const url  = URL.createObjectURL(blob);
@@ -294,7 +297,7 @@ export default function SettingsScreen() {
               <img src="/icons/blop-logo-transparent.png" alt="Blop" className="w-16 h-16 object-contain" />
             </div>
             <p className="text-[22px] font-black text-foreground tracking-tight">blop</p>
-            <p className="text-[12px] text-muted-foreground mt-1 font-medium">Version 2.0.0 · Offline-first</p>
+            <p className="text-[12px] text-muted-foreground mt-1 font-medium">Version 2.0.1 · Offline-first</p>
           </div>
 
           {/* ── Account ── */}
@@ -477,7 +480,7 @@ export default function SettingsScreen() {
                 icon={<ShieldCheck size={16} className="text-primary" />}
                 iconBg="bg-primary/10"
                 label="Privacy policy"
-                sublabel="Offline-first · optional sync"
+                sublabel="Offline-first behavior"
                 right={<ChevronRight size={15} className="text-muted-foreground/35" />}
                 onClick={() => setLocation("/privacy-policy")}
                 last
@@ -501,7 +504,7 @@ export default function SettingsScreen() {
                   <div>
                     <p className="text-[14px] font-semibold text-foreground">Cloud sync not configured</p>
                     <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      Firebase API key not found. Set <code className="font-mono bg-muted/60 px-1 rounded">VITE_FIREBASE_API_KEY</code> to enable cloud backup.
+                      Your data stays on this device. Add Firebase settings to enable cloud sync.
                     </p>
                   </div>
                 </div>
@@ -521,7 +524,7 @@ export default function SettingsScreen() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      Real-time group updates are enabled.
+                      Group updates sync through Firebase when cloud sync is enabled.
                     </p>
                   </div>
                 </div>
@@ -535,7 +538,7 @@ export default function SettingsScreen() {
             )}
             <p className="text-xs text-muted-foreground/60 px-1 mt-2.5">
               {syncEnabled
-                ? "Data is encrypted in transit. Your sync key is the only way to access your backup."
+                ? "You can also export a backup from Data & Backup."
                 : "Your data stays private on this device. Cloud backup is optional."}
             </p>
           </section>

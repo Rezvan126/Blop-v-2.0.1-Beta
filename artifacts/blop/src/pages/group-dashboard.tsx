@@ -29,6 +29,7 @@ import {
   Avatar, AvatarStack, BottomSheet,
 } from "@/components/ds";
 import { cn, getCurrencySymbol } from "@/lib/utils";
+import { InviteSheet } from "@/components/ui/invite-sheet";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
   c1: Utensils, c2: Car, c3: BedDouble, c4: Music, c5: ShoppingBag, c6: Zap, c7: Heart, c8: Tag,
@@ -147,6 +148,8 @@ export default function GroupDashboardScreen({ params }: Props) {
 
   const [activeTab,       setActiveTab]       = useState("expenses");
   const [searchQuery,     setSearchQuery]     = useState("");
+  const [showInviteSheet, setShowInviteSheet] = useState(false);
+  const [showArchived,    setShowArchived]    = useState(false);
   const [showSearch,      setShowSearch]      = useState(false);
   const [sortKey,         setSortKey]         = useState<SortKey>("expenseDate_desc");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
@@ -421,8 +424,8 @@ export default function GroupDashboardScreen({ params }: Props) {
           </button>
 
           {/* Centered title */}
-          <div className="flex-1 text-center">
-            <h1 className="text-[17px] font-bold text-foreground leading-tight truncate px-1">{group.name}</h1>
+          <div className="flex-1 text-center min-w-0">
+            <h1 className="text-[17px] font-bold text-foreground leading-tight truncate px-1" title={group.name}>{group.name}</h1>
             {/* Sync badge */}
             {!isOnline && (
               <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 px-2 py-0.5 rounded-full mt-0.5">
@@ -451,13 +454,8 @@ export default function GroupDashboardScreen({ params }: Props) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {
-                const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-                const fullUrl = `${window.location.origin}${base}/join/${group.inviteCode}`;
-                navigator.clipboard.writeText(fullUrl).catch(() => {});
-                toast({ title: "Invite link copied!", description: `Code: ${group.inviteCode}`, duration: 3000 });
-              }}>
-                <Link2 size={14} className="mr-2" /> Copy invite link
+              <DropdownMenuItem onClick={() => setShowInviteSheet(true)}>
+                <Link2 size={14} className="mr-2" /> Share group
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleExportCSV}><FileDown size={14} className="mr-2" /> Export report (CSV)</DropdownMenuItem>
@@ -1014,6 +1012,12 @@ export default function GroupDashboardScreen({ params }: Props) {
           )}
         </div>
       </BottomSheet>
+      <InviteSheet 
+        open={showInviteSheet} 
+        onClose={() => setShowInviteSheet(false)} 
+        inviteCode={group.inviteCode}
+        groupName={group.name}
+      />
     </Screen>
   );
 }
