@@ -39,7 +39,7 @@ export default function GetStartedScreen() {
 
             <button
               onClick={() => setLocation("/join")}
-              className="w-full bg-card rounded-[28px] shadow-card border border-border/40 text-left hover:shadow-card-hover active:scale-[0.99] transition-all duration-200 overflow-hidden flex items-center p-5"
+              className="w-full bg-card rounded-[28px] shadow-card border border-border/40 text-left hover:shadow-card-hover transition-all duration-200 overflow-hidden flex items-center p-5"
             >
               <div className="w-12 h-12 rounded-[16px] bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mr-4">
                 <Users size={24} className="text-emerald-500" />
@@ -49,6 +49,13 @@ export default function GetStartedScreen() {
                 <p className="text-xs text-muted-foreground mt-0.5 pr-2">Use an invite key from someone else.</p>
               </div>
               <ArrowRight size={20} className="text-muted-foreground/40 flex-shrink-0" />
+            </button>
+
+            <button
+              onClick={() => setLocation("/home")}
+              className="w-full py-4 text-sm font-bold text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+            >
+              Cancel
             </button>
           </div>
       </motion.div>

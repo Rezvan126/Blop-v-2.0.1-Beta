@@ -11,13 +11,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { categories } from "@/lib/mockData";
 import { format, parseISO } from "date-fns";
-import { parseTimestamp } from "@/lib/utils";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useBlopStore } from "@/lib/store";
+import { cn, formatAmount, triggerHaptic, parseTimestamp, getCurrencySymbol } from "@/lib/utils";
 import { subscribeToGroup, unsubscribeFromGroup } from "@/lib/cloudSync";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { generateCSV, downloadCSV, openPrintWindow } from "@/lib/export";
@@ -28,7 +29,6 @@ import {
   Screen, ScrollArea, SectionLabel, EmptyState,
   Avatar, AvatarStack, BottomSheet,
 } from "@/components/ds";
-import { cn, getCurrencySymbol } from "@/lib/utils";
 import { InviteSheet } from "@/components/ui/invite-sheet";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -382,11 +382,9 @@ export default function GroupDashboardScreen({ params }: Props) {
     return (
       <button
         onClick={() => setLocation(`/group/${params.id}/expense/${expense.id}`)}
-        className="w-full bg-card rounded-[22px] shadow-card border border-border/40 px-4 py-3.5 flex items-center gap-3.5 hover:shadow-card-hover transition-all duration-300 text-left active:scale-[0.98] relative overflow-hidden group"
+        className="w-full bg-card rounded-[22px] shadow-card border border-border/40 px-4 py-3.5 flex items-center gap-3.5 hover:shadow-card-hover transition-all duration-200 text-left"
         data-testid={`expense-row-${expense.id}`}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="relative z-10 flex items-center gap-3.5 w-full">
         <div className={cn("w-10 h-10 rounded-[14px] flex items-center justify-center flex-shrink-0", cat?.color ?? "bg-muted text-muted-foreground")}>
           <IconComp size={17} />
         </div>
@@ -399,13 +397,14 @@ export default function GroupDashboardScreen({ params }: Props) {
           </p>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-[14px] font-bold text-foreground tabular-nums"><span className="text-[10px] font-bold">{sym}</span>{expense.amount.toFixed(2)}</p>
+          <p className="text-[14px] font-bold text-foreground tabular-nums truncate">
+            {formatAmount(expense.amount, sym)}
+          </p>
           {myShare > 0 && (
-            <p className={cn("text-xs font-semibold mt-0.5 tabular-nums", iAmPayer ? "text-emerald-600" : "text-muted-foreground")}>
-              {iAmPayer ? `${sym}${(expense.amount - myShare).toFixed(2)}` : `your ${sym}${myShare.toFixed(2)}`}
+            <p className={cn("text-xs font-semibold mt-0.5 tabular-nums truncate", iAmPayer ? "text-emerald-600" : "text-muted-foreground")}>
+              {iAmPayer ? `+${formatAmount(expense.amount - myShare, sym)}` : `your ${formatAmount(myShare, sym)}`}
             </p>
           )}
-        </div>
         </div>
       </button>
     );
@@ -415,7 +414,7 @@ export default function GroupDashboardScreen({ params }: Props) {
     <Screen testId="page-group-dashboard">
 
       {/* ── Header ── */}
-      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/80 backdrop-blur-3xl z-40 border-b border-white/5 shadow-sm">
+      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/95 z-40 border-b border-border/40 shadow-sm">
         <div className="flex items-center gap-2 mb-1">
           {/* Back */}
           <button
@@ -493,10 +492,7 @@ export default function GroupDashboardScreen({ params }: Props) {
         {/* ── Balance hero card ── */}
         <div className="px-5 pt-5 pb-5">
           <div className="relative bg-primary rounded-[28px] overflow-hidden shadow-hero">
-            {/* Orbs */}
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/[0.07] pointer-events-none" />
-            <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/[0.05] pointer-events-none" />
-            <div className="absolute top-8 right-28 w-18 h-18 rounded-full bg-white/[0.04] pointer-events-none" />
+
 
             <div className="relative z-10 px-6 pt-5 pb-5">
               <p className="text-[10px] font-bold text-white/55 tracking-[0.14em] uppercase mb-2">
@@ -505,8 +501,8 @@ export default function GroupDashboardScreen({ params }: Props) {
               {isSettled ? (
                 <p className="text-[38px] font-bold text-white leading-none mb-1">Settled ✓</p>
               ) : (
-                <p className={cn("text-[42px] font-bold tabular-nums leading-none mb-1", balIsPos ? "text-white" : "text-orange-200")}>
-                  <span className="text-[24px] font-bold align-top mt-[0.12em] inline-block leading-none">{sym}</span>{balIsPos ? "" : <>{" "}−</>}{Math.abs(userBal).toFixed(2).split(".")[0]}<span className="text-[0.65em]">.{Math.abs(userBal).toFixed(2).split(".")[1]}</span>
+                <p className={cn("text-[38px] font-bold tabular-nums leading-none mb-1", balIsPos ? "text-white" : "text-orange-100")}>
+                  {balIsPos ? "" : "−"}{formatAmount(Math.abs(userBal), sym)}
                 </p>
               )}
               <p className="text-[12px] text-white/50 mb-5">
@@ -530,11 +526,11 @@ export default function GroupDashboardScreen({ params }: Props) {
               <div className="flex gap-5 mt-5 pt-4 border-t border-white/15">
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">You paid</p>
-                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5"><span className="text-xs font-bold">{sym}</span>{myTotalPaid.toFixed(2)}</p>
+                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5 truncate max-w-[80px]">{formatAmount(myTotalPaid, sym)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Your share</p>
-                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5"><span className="text-xs font-bold">{sym}</span>{myTotalShare.toFixed(2)}</p>
+                  <p className="text-[15px] font-bold text-white tabular-nums mt-0.5 truncate max-w-[80px]">{formatAmount(myTotalShare, sym)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-white/45 uppercase tracking-wide font-bold">Pending</p>

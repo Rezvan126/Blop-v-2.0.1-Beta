@@ -15,7 +15,7 @@ import { useTheme, THEME_DEFINITIONS, type ColorTheme, type AppMode } from "@/co
 import { useToast } from "@/hooks/use-toast";
 import { useBlopStore } from "@/lib/store";
 import { Screen, ScrollArea, BottomSheet } from "@/components/ds";
-import { cn } from "@/lib/utils";
+import { cn, triggerHaptic } from "@/lib/utils";
 import { CURRENCIES } from "@/lib/currencies";
 
 const MODE_OPTIONS: { id: AppMode; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
@@ -184,9 +184,6 @@ export default function SettingsScreen() {
       const isNative = (window as any).Capacitor?.isNativePlatform();
 
       if (isNative) {
-        const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
-        const { Share } = await import("@capacitor/share");
-
         const writeResult = await Filesystem.writeFile({
           path: filename,
           data: json,
@@ -202,6 +199,7 @@ export default function SettingsScreen() {
         
         triggerHaptic("success");
         triggerSuccess();
+        triggerHaptic();
       } else {
         const blob = new Blob([json], { type: "application/json" });
         const url  = URL.createObjectURL(blob);
@@ -279,7 +277,7 @@ export default function SettingsScreen() {
       </header>
 
       <ScrollArea className="scroll-pb-safe">
-        <div className="px-5 space-y-8 pt-2">
+        <div className="px-5 pt-5 pb-10 space-y-7">
 
           {/* ── App Identity ── */}
           <div className="flex flex-col items-center py-5">
@@ -441,8 +439,8 @@ export default function SettingsScreen() {
                     importStatus === "loading" ? "text-primary" :
                     importStatus === "success" ? "text-emerald-700 dark:text-emerald-400" : "text-destructive",
                   )}>
-                    {importStatus === "loading" ? "Restoring data…" :
-                     importStatus === "success" ? "Data restored!" : importError}
+                     {importStatus === "loading" ? "Restoring data…" :
+                      importStatus === "success" ? "Back on track!" : importError}
                   </p>
                 </motion.div>
               )}

@@ -171,7 +171,7 @@ export default function AddExpenseScreen({ params }: Props) {
 
       <AppHeader title="Add expense" onBack={() => setLocation(`/group/${params.id}`)} />
 
-      <ScrollArea className="px-6 py-6 pb-40 scroll-pb-safe space-y-5">
+      <ScrollArea className="px-6 pt-5 pb-40 scroll-pb-safe space-y-5">
         {/* Amount hero */}
         <div className="bg-primary rounded-[32px] px-7 py-8 relative overflow-hidden shadow-hero">
           <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/[0.07] pointer-events-none" />

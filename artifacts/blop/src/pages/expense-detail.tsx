@@ -132,7 +132,7 @@ export default function ExpenseDetailScreen({ params }: Props) {
         }
       />
 
-      <ScrollArea className="px-6 py-6 scroll-pb-safe space-y-4">
+      <ScrollArea className="px-6 pt-5 pb-10 scroll-pb-safe space-y-4">
         {/* Deleted banner */}
         {isDeleted && (
           <div className="bg-destructive/8 border border-destructive/20 rounded-2xl px-4 py-3.5 flex items-center gap-3">

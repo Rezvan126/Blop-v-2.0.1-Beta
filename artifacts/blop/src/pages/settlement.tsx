@@ -9,7 +9,7 @@ import { useBlopStore } from "@/lib/store";
 import { format, parseISO } from "date-fns";
 import type { MinimizedSettlement } from "@/lib/store";
 import { Screen, ScrollArea, Avatar, BottomSheet } from "@/components/ds";
-import { cn, getCurrencySymbol } from "@/lib/utils";
+import { cn, getCurrencySymbol, formatAmount, triggerHaptic } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
 interface Props { params: { id: string } }
@@ -151,7 +151,7 @@ export default function SettlementScreen({ params }: Props) {
     <Screen testId="page-settlement">
 
       {/* ── Header ── */}
-      <header className="px-5 pt-safe-header pb-3 sticky top-0 bg-background/92 backdrop-blur-2xl z-10">
+      <header className="px-6 pb-4 pt-safe-appheader flex items-center gap-3 sticky top-0 bg-background z-40 border-b border-border/40">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLocation(`/group/${params.id}`)}
@@ -324,8 +324,8 @@ export default function SettlementScreen({ params }: Props) {
                             {fromIsMe || toIsMe ? "To settle your balance · " : ""}Tap to record payment
                           </p>
                         </div>
-                        <p className={cn("text-[24px] font-bold tabular-nums", isMyPayment ? "text-destructive" : "text-primary")}>
-                          <span className="text-[14px] font-bold align-top mt-[0.15em] inline-block leading-none">{sym}</span>{s.amount.toFixed(2)}
+                         <p className={cn("text-[24px] font-bold tabular-nums truncate max-w-[120px]", isMyPayment ? "text-destructive" : "text-primary")}>
+                          {formatAmount(s.amount, sym)}
                         </p>
                       </div>
                     </motion.button>
@@ -368,8 +368,8 @@ export default function SettlementScreen({ params }: Props) {
                           <p className="text-[13px] font-bold text-foreground truncate leading-snug">
                             {isMe ? (settings.userName || "You").split(" ")[0] : m.name.split(" ")[0]}
                           </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            Paid <span className="text-[8px] font-semibold">{sym}</span>{paid.toFixed(2)}
+                          <p className="text-[10px] text-muted-foreground truncate">
+                            Paid {formatAmount(paid, sym)}
                           </p>
                         </div>
                       </div>
@@ -384,8 +384,8 @@ export default function SettlementScreen({ params }: Props) {
                         </div>
                       ) : gets ? (
                         <div>
-                          <p className="text-[20px] font-bold text-emerald-600 tabular-nums leading-none">
-                            <span className="text-[12px] font-bold align-top mt-[0.15em] inline-block leading-none">{sym}</span>{net.toFixed(2)}
+                          <p className="text-[20px] font-bold text-emerald-600 tabular-nums leading-none truncate">
+                            {formatAmount(net, sym)}
                           </p>
                           <p className="text-[10px] font-semibold text-emerald-500/80 mt-0.5">
                             {isMe ? "you get back" : "gets back"}
@@ -393,8 +393,8 @@ export default function SettlementScreen({ params }: Props) {
                         </div>
                       ) : (
                         <div>
-                          <p className="text-[20px] font-bold text-destructive tabular-nums leading-none">
-                            <span className="text-[12px] font-bold align-top mt-[0.15em] inline-block leading-none">{sym}</span>{" "}<span className="text-[15px]">−</span>{Math.abs(net).toFixed(2)}
+                          <p className="text-[20px] font-bold text-destructive tabular-nums leading-none truncate">
+                            {formatAmount(net, sym)}
                           </p>
                           <p className="text-[10px] font-semibold text-destructive/60 mt-0.5">
                             {isMe ? "you owe" : "owes"}

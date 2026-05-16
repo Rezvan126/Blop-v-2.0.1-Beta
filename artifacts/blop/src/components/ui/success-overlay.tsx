@@ -31,7 +31,7 @@ export function SuccessOverlay() {
           className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none z-[200]"
         >
           <div 
-            className={`w-20 h-20 rounded-full ${conf.color} flex items-center justify-center border-4 border-white/20 mb-4`}
+            className={`w-20 h-20 rounded-[28px] ${conf.color} flex items-center justify-center border-4 border-white/20 mb-4`}
             style={{ boxShadow: `0 0 50px ${conf.shadow}` }}
           >
             <Icon size={40} className="text-white" strokeWidth={3} />
